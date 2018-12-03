@@ -1,0 +1,5 @@
+
+type !match/!load/!mode to vote a new mode
+
+-command-
+"sm_match_player_limit", "1", "Minimum # of players in game to start the vote"
