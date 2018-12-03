@@ -14,7 +14,7 @@ public Plugin:myinfo =
 {
 	name = "Match Vote",
 	author = "vintik, epilimic",
-	description = "!match !rmatch, re-added legacy <!match configname> command",
+	description = "type !match/!load/!mode to vote a new mode",
 	version = "1.3",
 	url = "https://github.com/epilimic"
 }
@@ -32,6 +32,7 @@ public OnPluginStart()
 
 	RegConsoleCmd("sm_match", MatchRequest);
 	RegConsoleCmd("sm_load", MatchRequest);
+	RegConsoleCmd("sm_mode", MatchRequest);
 	g_hCvarPlayerLimit = CreateConVar("sm_match_player_limit", "1", "Minimum # of players in game to start the vote", FCVAR_PLUGIN);
 }
 
