@@ -1,5 +1,6 @@
 1.Stop tank props from fading whilst the tank is alive
 2.Show Hittable Glow for inf team whilst the tank is alive
+this video shows how it works: https://www.youtube.com/watch?v=UZDF6dbagxU&feature=youtu.be
 
 -command-
 "l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive"
