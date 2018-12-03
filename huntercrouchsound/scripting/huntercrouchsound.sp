@@ -139,6 +139,10 @@ public Action:HunterCrouchTracking(Handle:timer, any:client)
 
 public Action:HunterCrouchReallyCheck(Handle:timer, any:client) 
 {
+	if ( !IsClientAndInGame(client) || GetClientTeam(client) != 3 || GetEntProp(client, Prop_Send, "m_zombieClass") != HUNTER || !IsPlayerAlive(client))
+	{
+		return Plugin_Continue;
+	}
 	if (GetClientButtons(client) & IN_DUCK){ return Plugin_Continue; }
 	new ducked = GetEntProp(client, Prop_Send, "m_bDucked");
 	if (ducked && GetEntDataFloat(client, g_iOffsetFallVelocity) == 0.0)
