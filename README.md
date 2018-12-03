@@ -20,3 +20,4 @@ last edited:2018/12/4
 * l4d_storm: Control L4d1 skybox/sun color/snow/rain/wind/maplight...and etc
 * sm_l4d_mapchanger: When final stage round ends, auto change next Map based on date/...txt
 * l4dinfectedbots: control and spawn Infected bots, works in l4d1 versus
+* match_vote: type !match/!load/!mode to vote a new mode
