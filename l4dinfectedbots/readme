@@ -1,0 +1,150 @@
+control and spawn Infected bots, works in l4d1 versus
+
+-command-
+// If 1, The plugin will adjust spawn timers depending on the gamemode, adjusts spawn timers based on number of survivor players in coop and based on amount of infected players in versus/scavenge
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_adjust_spawn_times "0"
+
+// If 1, only admins can join the infected team in coop/survival
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_admin_coop_versus "0"
+
+// Sets the limit for boomers spawned by the plugin
+// -
+// Default: "1"
+l4d_infectedbots_boomer_limit "1"
+
+// If 1, players can join the infected team in coop/survival (!ji in chat to join infected, !js to join survivors)
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_coop_versus "0"
+
+// If 1, clients will be announced to on how to join the infected team
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_coop_versus_announce "0"
+
+// Sets the limit for the amount of humans that can join the infected team in coop/survival
+// -
+// Default: "0"
+l4d_infectedbots_coop_versus_human_limit "0"
+
+// If 1, tank will be playable in coop/survival
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_coop_versus_tank_playable "0"
+
+// If 1, bots will only spawn when all other bot spawn timers are at zero
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_coordination "0"
+
+// If 1, the plugin will use the director's timing of the spawns, if the game is L4D2 and versus, it will activate Valve's bots
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_director_spawn "0"
+
+// If 1, infected players in coop/survival will spawn as ghosts
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_free_spawn "0"
+
+// If higher than zero, the plugin will ghost bots before they fully spawn on versus/scavenge
+// -
+// Default: "0"
+l4d_infectedbots_ghost_time "0"
+
+// Sets the limit for hunters spawned by the plugin
+// -
+// Default: "2"
+l4d_infectedbots_hunter_limit "2"
+
+// Toggle whether Infected HUD announces itself to clients.
+// -
+// Default: "1"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_infhud_announce "1"
+
+// Toggle whether Infected HUD is active or not.
+// -
+// Default: "1"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_infhud_enable "1"
+
+// The spawn timer in seconds used when infected bots are spawned for the first time in a map
+// -
+// Default: "10"
+l4d_infectedbots_initial_spawn_timer "10"
+
+// Amount of seconds before a special infected bot is kicked
+// -
+// Default: "30"
+l4d_infectedbots_lifespan "30"
+
+// Defines how many special infected can be on the map on all gamemodes
+// -
+// Default: "4"
+l4d_infectedbots_max_specials "4"
+
+// Sets the limit for smokers spawned by the plugin
+// -
+// Default: "1"
+l4d_infectedbots_smoker_limit "1"
+
+// Sets the max spawn time for special infected spawned by the plugin in seconds
+// -
+// Default: "22"
+l4d_infectedbots_spawn_time_max "22"
+
+// Sets the minimum spawn time for special infected spawned by the plugin in seconds
+// -
+// Default: "22"
+l4d_infectedbots_spawn_time_min "22"
+
+// If 1, Plugin will disable spawning when a tank is on the field
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_spawns_disabled_tank "0"
+
+// If 1, the stats board will show up after an infected player dies (L4D1 ONLY)
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_stats_board "0"
+
+// Sets the limit for tanks spawned by the plugin (does not affect director tanks)
+// -
+// Default: "0"
+l4d_infectedbots_tank_limit "0"
+
+// If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge
+// -
+// Default: "0"
+// Minimum: "0.000000"
+// Maximum: "1.000000"
+l4d_infectedbots_versus_coop "0"
+
+
