@@ -6,7 +6,6 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 last edited:2018/12/4
 
 # Plugins
---------
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
 * <b>l4d2_blind_infected</b>: Hides all weapons and iteams from the infected team or dead survivor until they are (possibly) visible to one of the alive survivors to prevent SI scouting the map
 * <b>l4d2_si_ffblock</b>: Disables friendly fire between infected players.
