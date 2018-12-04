@@ -1,0 +1,6 @@
+Disables friendly fire between infected players.
+
+-command-
+"l4d2_block_infected_ff", "1", "Disable SI->SI friendly fire"
+"l4d2_infected_ff_allow_tank", "1", "Do not disable friendly fire for tanks on other SI"
+"l4d2_infected_ff_block_witch", "0", "Disable FF towards witches"
