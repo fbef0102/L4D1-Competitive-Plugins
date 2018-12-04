@@ -9,9 +9,11 @@ some plugins require extension or pluign doesn't work
 * <b>l4dt-0.4.7.5.zip</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
 
 some sourcemod code reuqires extra inc or you can not compile
-* <b>l4d_direct-portp</b>: https://github.com/raziEiL/l4d_direct-port
+* <b>l4d_direct.inc</b>: https://github.com/raziEiL/l4d_direct-port
 * <b>l4d_lib.inc</b>: https://github.com/maxizipitria/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc
 * <b>l4d_weapon_stocks.inc</b>: https://github.com/fbef0102/L4D1-Plugins/blob/master/l4d_weapon_stocks.inc
+* <b>left4downtown.inc</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
+* <b>colors.inc</b>: https://forums.alliedmods.net/showthread.php?t=96831
 # Plugins
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
 * <b>l4d2_blind_infected</b>: Hides all weapons and iteams from the infected team or dead survivor until they are (possibly) visible to one of the alive survivors to prevent SI scouting the map
@@ -41,3 +43,4 @@ some sourcemod code reuqires extra inc or you can not compile
 * <b>l4d_godframes_and_hittable_control</b>: Control survivors godframes + Allows for customisation of hittable damage values.
 * <b>l4d_tank_hittable_refill</b>: Refill Tank's frustration whenever a hittable hits a Survivor
 * <b>nodeathcamskip</b>: Blocks players skipping their death cam, l4d1 modify by Harry
+* <b>l4d_versus_despawn_health</b>: Gives Special Infected health back when they despawn.
