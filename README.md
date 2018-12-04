@@ -4,6 +4,13 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 (All plugins in here only apply to L4D1) 
 
 last edited:2018/12/4
+# Require
+some plugins require extension or pluign doesn't work
+* <b>l4dt-0.4.7.5.zip</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
+
+some sourcemod code reuqires extra inc or you can not compile
+* <b>l4d_direct-portp</b>: https://github.com/raziEiL/l4d_direct-port
+* <b>l4d_lib.incp</b>: https://github.com/maxizipitria/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc
 
 # Plugins
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
