@@ -44,7 +44,7 @@ Control survivors godframes + Allows for customisation of hittable damage values
 "hc_overhit_time",				"1.4",
 	"The amount of time to wait before allowing consecutive hits from the same hittable to register. Recommended values: 0.0-0.5: instant kill; 0.5-0.7: sizeable overhit; 0.7-1.0: standard overhit; 1.0-1.2: reduced overhit; 1.2+: no overhit unless the car rolls back on top. Set to tank's punch interval (default 1.5) to fully remove all possibility of overhit."
 
-	/********godframes_control*******/
+/********godframes_control*******/
 "gfc_godframe_glows", "1",
 	"Changes the rendering of survivors while godframed (red/transparent)."
                   
