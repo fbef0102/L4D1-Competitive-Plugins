@@ -1,0 +1,4 @@
+Refill Tank's frustration whenever a hittable hits a Survivor
+
+-comamnd-
+"l4d_tank_hittable_small", "0", "Do we allow Small hittables such as Garbage Bins and Tables to refill frustration?"
