@@ -16,7 +16,6 @@ last edited:2018/12/4
 * <b>l4d2_si_ffblock</b>: Disables friendly fire between infected players.
 * <b>l4d_panic_notify</b>: Show who triggers the panic horde
 * <b>l4d_tank_count</b>: Show how long is tank alive, and tank punch/rock/car statistics after tank dead
-* <b>l4d_tank_count</b>: Show how long is tank alive, and tank punch/rock/car statistics after tank dead
 * <b>l4d_vesus_nerf_huntingrifle</b>: Make a nerf huntingrifle
 * <b>l4d_tank_props</b></b>: Stop tank props from fading + Show Hittable Glow for inf team whilst the tank is alive
 * <b>l4d_tankpunchstuckfix</b>: Fixes the problem where tank-punches get a survivor stuck in the roof
