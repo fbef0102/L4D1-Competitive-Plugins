@@ -1,0 +1,5 @@
+Removes the slow down from special infected
+
+-command-
+"l4d_si_slowdown", "1", "Enable removal of slow down that weapons to do special infected"
+"l4d_si_slowdown_tank", "1", "Enable removal of slow down that weapons do to tanks"
