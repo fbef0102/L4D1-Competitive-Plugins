@@ -40,3 +40,4 @@ last edited:2018/12/4
 * <b>nodeathcamskip</b>: Blocks players skipping their death cam, l4d1 modify by Harry
 * <b>l4d_versus_despawn_health</b>: Gives Special Infected health back when they despawn.
 * <b>l4d_smg_pumpshotgun_ammo_set</b>: custom SMG/PUMPSHOTGUN ammo capacity.
+* <b>l4d_tank_control</b>: Forces each player to play the tank at least once before Map change.
