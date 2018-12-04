@@ -1,0 +1,5 @@
+custom SMG/PUMPSHOTGUN ammo capacity
+
+-command-
+"l4d2_guncontrol_shotgunammo", "100", " How much Ammo for Shotgun and Chrome Shotgun "
+"l4d_guncontrol_smgammo", "800", " How much Ammo for SMG gun"
