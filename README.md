@@ -11,7 +11,7 @@ some plugins require extension or pluign doesn't work
 some sourcemod code reuqires extra inc or you can not compile
 * <b>l4d_direct-portp</b>: https://github.com/raziEiL/l4d_direct-port
 * <b>l4d_lib.inc</b>: https://github.com/maxizipitria/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc
-
+* <b>l4d_weapon_stocks.inc</b>: https://github.com/fbef0102/L4D1-Plugins/blob/master/l4d_weapon_stocks.inc
 # Plugins
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
 * <b>l4d2_blind_infected</b>: Hides all weapons and iteams from the infected team or dead survivor until they are (possibly) visible to one of the alive survivors to prevent SI scouting the map
