@@ -11,7 +11,7 @@
 
 public Plugin:myinfo =
 {
-	name = "[L4D & L4D2] Blind Infected",
+	name = "[L4D] Blind Infected",
 	author = "CanadaRox, ProdigySim, raziEiL [disawar1],L4D1 port by Harry",
 	description = "Hides all weapons and iteams from the infected team or dead survivor until they are (possibly) visible to one of the alive survivors to prevent SI scouting the map",
 	version = "1.0",
