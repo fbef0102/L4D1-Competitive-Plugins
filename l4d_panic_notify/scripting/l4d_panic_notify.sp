@@ -4,7 +4,7 @@
 #include <l4d_direct>
 #include <l4d_lib>
 
-//Left4Dead Version: v1036
+//Left4Dead Version: v1037
 #pragma semicolon 1
 #define PLUGIN_VERSION "1.5"
 #define DEBUG 0
