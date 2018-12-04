@@ -11,7 +11,7 @@ static bool:allow_gain_health[MAXPLAYERS + 1];
 public Plugin:myinfo = 
 {
     name = "Despawn Health",
-    author = "Jacob",
+    author = "Jacob,l4d1 port by Harry Potter",
     description = "Gives Special Infected health back when they despawn.",
     version = "1.3",
     url = "github.com/jacob404/myplugins"
