@@ -1,4 +1,4 @@
-Stop special infected getting bashed to death,L4D1 port by Harry
+Stop special infected getting bashed to death except boomer, L4D1 port by Harry
 
 -command-
 "l4d_no_bash_kills", "1", "Prevent special infected from getting bashed to death"
