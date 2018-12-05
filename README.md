@@ -1,14 +1,17 @@
 # L4D1-Plugins by Harry Potter
 L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
+* <b>l4d1 competitive framework</b>: following L4D2-Competitive-Framework(https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
+* <b>modify</b>: following raziEiL with his amazing l4d competitive plugins(https://bitbucket.org/disawar1/l4d-competitive-plugins/src) I modfiy better version.
+* <b>fun</b>: some plugins are just for fun I made by myself
 
 (All plugins in here only apply to L4D1) 
 
-last edited:2018/12/4
+last edited:2018/12/5
 # Require
 * <b>l4dt-0.4.7.5.zip</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
 * <b>l4d_direct.inc</b>: https://github.com/raziEiL/l4d_direct-port
 * <b>l4d_lib.inc</b>: https://github.com/maxizipitria/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc
-* <b>l4d_weapon_stocks.inc</b>: https://github.com/fbef0102/L4D1-Plugins/blob/master/l4d_weapon_stocks.inc
+* <b>l4d_weapon_stocks.inc</b>: https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc
 * <b>colors.inc</b>: https://forums.alliedmods.net/showthread.php?t=96831
 # Plugins
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
@@ -41,3 +44,6 @@ last edited:2018/12/4
 * <b>l4d_versus_despawn_health</b>: Gives Special Infected health back when they despawn.
 * <b>l4d_smg_pumpshotgun_ammo_set</b>: custom SMG/PUMPSHOTGUN ammo capacity.
 * <b>l4d_tank_control</b>: Forces each player to play the tank at least once before Map change.
+* <b>fix_ghostsound</b>: Mute some SI sounds for Survivors.
+* <b>l4d2_witch_restore</b>: Witch is restored at the same spot if she gets killed by a Tank
+* <b>kills</b>: Statistics of infected kills/common kills/ff/capped for survivors
