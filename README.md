@@ -9,7 +9,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 last edited:2018/12/5
 # Require
 * <b>l4dt-0.4.7.5.zip</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
-* <b>l4d_direct.inc</b>: https://github.com/raziEiL/l4d_direct-port
+* <b>l4d_direct</b>: https://github.com/raziEiL/l4d_direct-port
 * <b>l4d_lib.inc</b>: https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc
 * <b>l4d_weapon_stocks.inc</b>: https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc
 * <b>colors.inc</b>: https://forums.alliedmods.net/showthread.php?t=96831
