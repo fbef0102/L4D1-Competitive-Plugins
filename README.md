@@ -48,3 +48,4 @@ last edited:2018/12/5
 * <b>l4d2_witch_restore</b>: Witch is restored at the same spot if she gets killed by a Tank
 * <b>kills</b>: Statistics of infected kills/common kills/ff/capped for survivors
 * <b>l4d_tankhud</b>: Show tank hud for spectators and show tank frustration for inf team
+* <b>l4dcompstats</b>: Basic competitive stat tracking on a per map basis + MVP
