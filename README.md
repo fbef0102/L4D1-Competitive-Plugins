@@ -47,3 +47,4 @@ last edited:2018/12/5
 * <b>fix_ghostsound</b>: Mute some SI sounds for Survivors.
 * <b>l4d2_witch_restore</b>: Witch is restored at the same spot if she gets killed by a Tank
 * <b>kills</b>: Statistics of infected kills/common kills/ff/capped for survivors
+* <b>l4d_tankhud</b>: Show tank hud for spectators and show tank frustration for inf team
