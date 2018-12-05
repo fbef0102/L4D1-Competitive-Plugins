@@ -40,7 +40,7 @@ last edited:2018/12/5
 * <b>l4d_si_slowdown</b>: Removes the slow down from special infected
 * <b>l4d_godframes_and_hittable_control</b>: Control survivors godframes + Allows for customisation of hittable damage values.
 * <b>l4d_tank_hittable_refill</b>: Refill Tank's frustration whenever a hittable hits a Survivor
-* <b>nodeathcamskip</b>: Blocks players skipping their death cam, l4d1 modify by Harry
+* <b>nodeathcamskip</b>: Blocks players skipping their death cam
 * <b>l4d_versus_despawn_health</b>: Gives Special Infected health back when they despawn.
 * <b>l4d_smg_pumpshotgun_ammo_set</b>: custom SMG/PUMPSHOTGUN ammo capacity.
 * <b>l4d_tank_control</b>: Forces each player to play the tank at least once before Map change.
@@ -49,3 +49,6 @@ last edited:2018/12/5
 * <b>kills</b>: Statistics of infected kills/common kills/ff/capped for survivors
 * <b>l4d_tankhud</b>: Show tank hud for spectators and show tank frustration for inf team
 * <b>l4dcompstats</b>: Basic competitive stat tracking on a per map basis + MVP
+* <b>l4d_passing_Tank_no_instant_respawn</b>: Passing control to AI tank will no longer be rewarded with an instant respawn
+* <b>l4d_no_hunter_deadstops</b>: support L4D1 command "versus_shove_hunter_fov_pouncing" to get no deadstops work
+* <b>1v1</b>: A plugin designed to support 1v1.
