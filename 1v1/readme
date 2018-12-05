@@ -1,0 +1,4 @@
+A plugin designed to support 1v1.
+
+-command-
+"sm_1v1_dmgthreshold", "24", "Amount of damage done (at once) before SI suicides."
