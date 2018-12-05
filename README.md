@@ -52,3 +52,4 @@ last edited:2018/12/5
 * <b>l4d_passing_Tank_no_instant_respawn</b>: Passing control to AI tank will no longer be rewarded with an instant respawn
 * <b>l4d_no_hunter_deadstops</b>: support L4D1 command "versus_shove_hunter_fov_pouncing" to get no deadstops work
 * <b>1v1</b>: A plugin designed to support 1v1.
+* <b>l4d2_nobackjumps</b>: Prevents players from using the wallkicking trick
