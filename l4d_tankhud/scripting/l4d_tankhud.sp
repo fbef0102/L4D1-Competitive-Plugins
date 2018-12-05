@@ -153,7 +153,7 @@ bool:FillTankInfo(Handle:TankHud)
 	decl String:info[512];
 	decl String:name[MAX_NAME_LENGTH];
 
-	Format(info, sizeof(info), "Harry-Rotoblin-AZ Mod:: Tank HUD");
+	Format(info, sizeof(info), "L4D1 Versus Mod:: Tank HUD");
 	DrawPanelText(TankHud, info);
 	DrawPanelText(TankHud, "___________________");
 
