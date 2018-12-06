@@ -1,17 +1,14 @@
 # L4D1-Plugins by Harry Potter
 L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
-* <b>l4d1 competitive framework</b>: following L4D2-Competitive-Framework(https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
+* <b>l4d1 competitive framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify and fun</b>: some plugins are just for fun I made by myself
 
 (All plugins in here only apply to L4D1) 
 
 last edited:2018/12/6
 # Require
-* <b>l4dt-0.4.7.5.zip</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
-* <b>l4d_direct</b>: https://github.com/fbef0102/l4d_direct-port
-* <b>l4d_lib.inc</b>: https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc
-* <b>l4d_weapon_stocks.inc</b>: https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc
-* <b>colors.inc</b>: https://forums.alliedmods.net/showthread.php?t=96831
+* <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
+* <b>[l4d_direct](https://github.com/fbef0102/l4d_direct-port)</b>
 # Plugins
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
 * <b>l4d2_blind_infected</b>: Hides all weapons and iteams from the infected team or dead survivor until they are (possibly) visible to one of the alive survivors to prevent SI scouting the map
@@ -52,3 +49,8 @@ last edited:2018/12/6
 * <b>l4d_no_hunter_deadstops</b>: support L4D1 command "versus_shove_hunter_fov_pouncing" to get no deadstops work
 * <b>1v1</b>: A plugin designed to support 1v1.
 * <b>l4d2_nobackjumps</b>: Prevents players from using the wallkicking trick
+# Scripting Compiler
+using sourcemod 1.8 Compiler
+* <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
+* <b>[l4d_weapon_stocks.inc](https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc)</b>
+* <b>[colors.inc](https://forums.alliedmods.net/showthread.php?t=96831)</b>
