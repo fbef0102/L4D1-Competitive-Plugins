@@ -117,24 +117,6 @@ bool:IsSurvivor(client)
 	return (IsClientIndex(client) && IsClientInGame(client) && GetClientTeam(client) == 2);
 }
 
-stock bool:SafelyRemoveEdict(entity)
-{
-	if (entity == INVALID_ENT_REFERENCE || entity < 0 || entity > MAXENTITIES || !IsValidEntity(entity))
-	{
-		return false;
-	}
-
-	// Try and use the entity's kill input first.  If that doesn't work, fall back on SafelyRemoveEdict.
-	// AFAIK, we should always try to use Kill, as I've noticed problems when calling SafelyRemoveEdict (ents sticking around after deletion).
-	// This could be down to my own idiocy, but ... still.
-	if(!AcceptEntityInput(entity, "Kill"))
-	{
-		SafelyRemoveEdict(entity);
-	}
-
-	return true;
-}
-
 public OnClientPutInServer(client)
 {
 	g_PlayerSecondaryWeapons[client] = -1;
