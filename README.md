@@ -1,11 +1,10 @@
 # L4D1-Plugins by Harry Potter
 L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
-* <b>l4d1 competitive framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
+* <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify and fun</b>: some plugins are just for fun I made by myself
 
-(All plugins in here only apply to L4D1) 
-
-last edited:2018/12/6
+last edited:2018/12/7
+> All plugins in here only apply to L4D1
 # Require
 * <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
 * <b>[l4d_direct](https://github.com/fbef0102/l4d_direct-port)</b>
