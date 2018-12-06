@@ -46,6 +46,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_no_hunter_deadstops</b>: support L4D1 command "versus_shove_hunter_fov_pouncing" to get no deadstops work
 * <b>1v1</b>: A plugin designed to support 1v1.
 * <b>l4d2_nobackjumps</b>: Prevents players from using the wallkicking trick
+* <b>l4d_versus_GhostWarp</b>: Allows infected to warp to survivors based on their flow (MOUSE2 or use command)
 # Scripting Compiler
 using sourcemod 1.8 Compiler
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
