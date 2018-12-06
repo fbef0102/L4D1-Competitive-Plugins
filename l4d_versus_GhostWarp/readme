@@ -1,1 +1,4 @@
 Allows infected to warp to survivors based on their flow (MOUSE2 or use command)
+
+-command-
+sm_warpto <#|name> (1|Francis, 2|Bill, 3|Zoey, 4|Louis)
