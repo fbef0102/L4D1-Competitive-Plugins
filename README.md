@@ -6,7 +6,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 
 (All plugins in here only apply to L4D1) 
 
-last edited:2018/12/5
+last edited:2018/12/6
 # Require
 * <b>l4dt-0.4.7.5.zip</b>: https://bitbucket.org/disawar1/left4downtown/downloads/
 * <b>l4d_direct</b>: https://github.com/fbef0102/l4d_direct-port
