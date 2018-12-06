@@ -13,28 +13,28 @@
 //	}
 	"4v4"
 	{
-		"rotoblin_hardcore_4v4" //執行的cfg檔案名子
+		"rotoblin_hardcore_4v4" //left4dead/cfg/rotoblin_hardcore_4v4.cfg
 		{
-			"name" "4v4 " //大家投票看到的字樣
+			"name" "4v4 " //appears in the menu
 		}
-		"rotoblin_hunters_4v4"
+		"rotoblin_hunters_4v4"//left4dead/cfg/rotoblin_hunters_4v4.cfg
 		{
 			"name" "4v4 Hunters Only"
 		}
-		"rotoblin_nob_4v4"
+		"rotoblin_nob_4v4"//left4dead/cfg/rotoblin_nob_4v4.cfg
 		{
 			"name" "4v4 No Boomer"
 		}
-		"rotoblin_hardcore_4v4_classic"
+		"rotoblin_hardcore_4v4_classic" //left4dead/cfg/rotoblin_hardcore_4v4_classic.cfg
 		{
 			"name" "4v4 Classic"
 		}
 	}
 	"1v1"
 	{
-		"rotoblin_hunters_1v1" //執行的cfg檔案名子
+		"rotoblin_hunters_1v1" //left4dead/cfg/rotoblin_hunters_1v1.cfg
 		{
-			"name" "1v1 " //大家投票看到的字樣
+			"name" "1v1 "
 		}
 	}
 }
