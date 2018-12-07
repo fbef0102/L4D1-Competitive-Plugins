@@ -1,11 +1,12 @@
-# L4D1-Plugins by Harry Potter
+# L4D1-Competitive-Plugins by Harry Potter
 L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
-* <b>modify and fun</b>: some plugins are just for fun I made by myself
+* <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
+* <b>fun</b>: I write some new some plugins which are just for fun
 > All plugins in here only apply to L4D1 (last edited:2018/12/7)
 # Require
 * <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
-* <b>[l4d_direct](https://github.com/fbef0102/l4d_direct-port)</b>
+* <b>[l4d_direct](https://github.com/raziEiL/l4d_direct-port)</b>
 # Plugins
 * <b>l4d2_ai_damagefix</b>: Makes AI SI take (and do) damage like human SI.
 * <b>l4d2_blind_infected</b>: Hides all weapons and iteams from the infected team or dead survivor until they are (possibly) visible to one of the alive survivors to prevent SI scouting the map
@@ -47,6 +48,11 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>1v1</b>: A plugin designed to support 1v1.
 * <b>l4d2_nobackjumps</b>: Prevents players from using the wallkicking trick
 * <b>l4d_versus_GhostWarp</b>: Allows infected to warp to survivors based on their flow (MOUSE2 or use command)
+* <b>lerptracker</b>: Keep track of players' lerp settings
+* <b>ratemonitor</b>: Keep track of players' netsettings
+* <b>temphealthfix</b>: Ensures that survivors that have been incapacitated with a hittable object get their temp health set correctly
+* <b>fix_specbotkick</b>: Fixed no Survivor bots issue. Fix more Survivor bots issue.
+* <b>l4d_DynamicHostname</b>: Show what mode is it now on server name(support any Language) with txt file
 # Scripting Compiler
 using sourcemod 1.8 Compiler
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
