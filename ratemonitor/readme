@@ -1,0 +1,8 @@
+Keep track of players' netsettings
+
+-command-
+"rm_allowed_rate_changes", "-1", "Allowed number of rate changes during a live round(-1: no limit)"
+"rm_min_rate", "-1", "Minimum allowed value of rate(-1: none)"
+"rm_min_cmd", "-1", "Minimum allowed value of cl_cmdrate(-1: none)"
+"rm_no_fake_ping", "0", "Allow or disallow the use of + - . in netsettings, which is commonly used to hide true ping in the scoreboard."
+"rm_countermeasure", "2", "Countermeasure against illegal actions - change overlimit/forbidden netsettings(1:chat notify,2:move to spec,3:kick)"
