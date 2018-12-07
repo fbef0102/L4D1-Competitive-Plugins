@@ -1,0 +1,6 @@
+forces all players on the right team after map/campaign/match change
+
+-command-
+"allow_unscramble", "1", "Enables unscramble feature (Puts all players on the right team after map/campaign/match change)"
+"unscramble_novotes", "1", "Prevents calling votes until unscramble completes"
+"sm_keepteams", Command_KeepTeams, ADMFLAG_ROOT, "Force teams to be the same each round."
