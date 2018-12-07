@@ -1,0 +1,5 @@
+Tank pounch and rock control variation
+
+-command-
+//0: valve pounchanimation, 1: remove random MOUSE1 punches and bind them to MOUSE1+E/R buttons, 2: remove but dont bind
+tank_attack_punch_control "0"
