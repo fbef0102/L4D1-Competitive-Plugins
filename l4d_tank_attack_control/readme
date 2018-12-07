@@ -1,5 +1,16 @@
 Tank pounch and rock control variation
 
+-example-
+[Pounch]
+(MOUSE1) right hook
+(E+MOUSE1) left hook
+(R+MOUSE1) uppercut
+
+[Rock] 
+(MOUSE2) 1handed overhand
+(E) underhand
+(R) 2handed overhand
+    
 -command-
 //0: valve pounchanimation, 1: remove random MOUSE1 punches and bind them to MOUSE1+E/R buttons, 2: remove but dont bind
 tank_attack_punch_control "0"
