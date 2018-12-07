@@ -54,6 +54,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>fix_specbotkick</b>: Fixed no Survivor bots issue. Fix more Survivor bots issue.
 * <b>l4d_tank_witch_damage_announce_spawnAnnouncer</b>: Bosses dealt damage announcer + Announce in chat and via a sound when a Tank/Witch has spawned
 * <b>l4d_tank_attack_control</b>: Tank pounch and rock control variation
+* <b>l4d_team_unscramble</b>: forces all players on the right team after map/campaign/match change
 # Scripting Compiler
 using sourcemod 1.8 Compiler
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
