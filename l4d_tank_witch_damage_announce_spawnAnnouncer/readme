@@ -1,0 +1,8 @@
+1.Bosses dealt damage announcer
+2.Announce in chat and via a sound when a Tank/Witch has spawned
+
+-command-
+"prodmg_announce_flags",		"3", "What stats get printed to chat. Flags: 0=disabled, 1=witch, 2=tank, 3=all"
+"prodmg_ignore_bots",			"0", "If set, bots stats won't get printed to chat"
+"prodmg_announce_private",	"0", "If set, stats wont print to public chat. Flags (add together): 0=disabled, 1=witch, 2=tank, 3=all"
+"prodmg_failed_crown",		"1", "If set, witch stats at round end won't print if she isn't killed"
