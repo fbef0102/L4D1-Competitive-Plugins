@@ -55,6 +55,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_tank_witch_damage_announce_spawnAnnouncer</b>: Bosses dealt damage announcer + Announce in chat and via a sound when a Tank/Witch has spawned
 * <b>l4d_tank_attack_control</b>: Tank pounch and rock control variation
 * <b>l4d_team_unscramble</b>: forces all players on the right team after map/campaign/match change
+* <b>l4d_versus_same_UnprohibitBosses</b>: Force Enable bosses spawning on all maps, and same spawn positions for both team
 # Scripting Compiler
 using sourcemod 1.8 Compiler
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
