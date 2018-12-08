@@ -196,7 +196,6 @@ CreateTankPropGlow(entity)
 	SetEntityRenderFx(i_Ent[entity], RENDERFX_FADE_FAST);
 	
 	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlow, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	SetEntPropFloat(i_Ent[entity], Prop_Send, "m_flPlaybackRate", 1.0);
 }
 
 public Action:KeepTankPropsGlow(Handle:timer, any:entity)
