@@ -1,0 +1,15 @@
+Force Enable bosses spawning on all maps, and same spawn positions for both team
+
+surpport value command
+"versus_tank_chance_intro")
+"versus_tank_chance")
+"versus_tank_chance_finale")
+"versus_witch_chance_intro")
+"versus_witch_chance")
+"versus_witch_chance_finale")
+"versus_boss_flow_min_intro")
+"versus_boss_flow_max_intro")
+"versus_boss_flow_min")
+"versus_boss_flow_max")
+"versus_boss_flow_min_finale")
+"versus_boss_flow_max_finale")
