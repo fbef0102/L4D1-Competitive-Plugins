@@ -1,1 +1,5 @@
 Blocking ladder speed glitch, no fall damage bug, health boost glitch.
+
+-command-
+"engine_warning", "0", "Display a warning message saying that player using expolit: 1=enable, 0=disable."
+"engine_fix_flags", "12", "Enables what kind of exploit should be fixed/blocked. Flags (add together): 0=disable, 2=ladder speed glitch, 4=no fall damage bug, 8=health boost glitch."
