@@ -5,6 +5,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>fun</b>: I write some new plugins which are just for fun
 > All plugins in here only apply to L4D1 (last edited:2018/12/7)
 # Require
+* <b>[sourcemod 1.8 or newer](https://www.sourcemod.net/downloads.php?branch=stable)</b>
 * <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
 * <b>[l4d_direct](https://github.com/raziEiL/l4d_direct-port)</b>
 # Plugins
