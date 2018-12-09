@@ -1,1 +1,8 @@
 Allows spectators to control their own specspeed and move vertically
+
+-command-
+"sm_set_specspeed_multi" // SetSpecspeed_Cmd
+"sm_set_specspeed_increment" //SetSpecspeedIncrement_Cmd
+"sm_increase_specspeed" //IncreaseSpecspeed_Cmd
+"sm_decrease_specspeed" //DecreaseSpecspeed_Cmd
+"sm_set_vertical_increment" //SetVerticalIncrement_Cmd
