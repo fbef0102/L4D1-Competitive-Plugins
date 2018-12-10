@@ -52,6 +52,7 @@ static Handle:cVarMaxLerp;
 
 #define GetCurrentLerp(%0) (g_fCurrentLerps[(%0)])
 #define SetCurrentLerp(%0,%1) (g_fCurrentLerps[(%0)] = (%1))
+native Is_Ready_Plugin_On();
 static bool:blerpdetect[MAXPLAYERS + 1];
 static ClientTeam[MAXPLAYERS + 1];
 static bool:roundstart;
@@ -71,7 +72,8 @@ public OnPluginStart()
 	cVarMinLerp = CreateConVar("sm_min_lerp", "0.000", "Minimum allowed lerp value", FCVAR_PLUGIN);
 	cVarMaxLerp = CreateConVar("sm_max_lerp", "0.067", "Maximum allowed lerp value, 超過踢到旁觀", FCVAR_PLUGIN);
 	
-	RegConsoleCmd("sm_lerps", Lerps_Cmd, "List the Lerps of all players in game", FCVAR_PLUGIN);
+	RegConsoleCmd("sm_lerps", Lerps_Cmd, "List the Lerps of inf/sur players in game", FCVAR_PLUGIN);
+	RegConsoleCmd("sm_lerpss", Lerpss_Cmd, "List the Lerps of spec players in game", FCVAR_PLUGIN);
 	
 	HookEvent("player_team", OnTeamChange);
 	HookEvent("round_start", Event_RoundStart);
@@ -219,6 +221,50 @@ public Action:Lerps_Cmd(client, args)
 	return Plugin_Handled;
 }
 
+public Action:Lerpss_Cmd(client, args)
+{
+	new rclient;
+	if(!DefaultLerpStyle())
+	{
+		new lerpcnt;
+		for(rclient=1; rclient <= MaxClients; rclient++)
+		{
+			if(IsClientInGame(rclient) && !IsFakeClient(rclient) && GetClientTeam(rclient) == 1)
+			{
+				ReplyToCommand(client, "%02d. %N Lerp: %.01f", ++lerpcnt, rclient, (GetCurrentLerp(rclient)*1000));
+			}
+		}
+	}
+	else
+	{
+		new bool:specPrinted = false;
+		//new bool:survivorPrinted = false;
+		//new bool:infectedPrinted
+		
+		
+		for(rclient=1; rclient <= MaxClients; rclient++)
+		{
+			if(IsClientInGame(rclient) && !IsFakeClient(rclient) && GetClientTeam(rclient) == 1)
+			{
+				specPrinted = true;
+				break;
+			}
+		}
+		
+		if (specPrinted) CPrintToChat(client, "{blue}{green}______________________________");
+		
+		for(rclient=1; rclient <= MaxClients; rclient++)
+		{
+			if(IsClientInGame(rclient) && !IsFakeClient(rclient) && GetClientTeam(rclient) == 1)
+			{
+				CPrintToChat(client, "{lightgreen}%N {default}@ {green}%.01f", rclient, (GetCurrentLerp(rclient)*1000));				
+			}			
+		}
+		if (specPrinted) CPrintToChat(client, "{blue}{green}______________________________");
+	}
+	return Plugin_Handled;
+}
+
 ScanAllPlayersLerp()
 {
 	for(new client=1; client <= MaxClients; client++)
@@ -273,7 +319,7 @@ ProcessPlayerLerp(client,bool:teamchange = false)
 		SetCurrentLerp(client, m_fLerpTime);
 	}
 	
-	if ( ((FloatCompare(m_fLerpTime, GetConVarFloat(cVarMinLerp)) == -1) || (FloatCompare(m_fLerpTime, GetConVarFloat(cVarMaxLerp)) == 1)) && GetClientTeam(client) != 1) {
+	if ( ((FloatCompare(m_fLerpTime, GetConVarFloat(cVarMinLerp)) == -1) || (FloatCompare(m_fLerpTime, GetConVarFloat(cVarMaxLerp)) == 1)) && Is_Ready_Plugin_On() && GetClientTeam(client) != 1) {
 		
 		//PrintToChatAll("<{olive}Lerp{default}> %N's lerp changed to %.01f", client, m_fLerpTime*1000);
 		CPrintToChatAll("<{olive}Lerp{default}> {lightgreen}%N{default}'s Lerp {olive}%.01f{default} 被移至旁觀!", client, m_fLerpTime*1000);
