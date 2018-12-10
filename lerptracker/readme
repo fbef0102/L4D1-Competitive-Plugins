@@ -8,3 +8,9 @@ Keep track of players' lerp settings
 "sm_lerpstyle", "1", "Display Style, 0 = default, 1 = team based"
 "sm_min_lerp", "0.000", "Minimum allowed lerp value"
 "sm_max_lerp", "0.067", "Maximum allowed lerp value, 超過踢到旁觀"
+
+//List the Lerps of inf/sur players in game
+!lerps 
+
+//List the Lerps of spec players in game
+!lerpss 
