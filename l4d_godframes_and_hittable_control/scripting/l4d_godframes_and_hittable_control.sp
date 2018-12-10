@@ -63,7 +63,6 @@ new Handle: hBaggageStandingDamage		= INVALID_HANDLE;
 new Handle: hStandardIncapDamage		= INVALID_HANDLE;
 new Handle: hTankSelfDamage				= INVALID_HANDLE;
 new Handle: hOverHitInterval			= INVALID_HANDLE;
-native IsInReady();
 
 public Plugin:myinfo =
 {
@@ -217,7 +216,6 @@ public event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if(IsInReady()) return;
 	
 	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被治療的那位
 	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
@@ -227,7 +225,6 @@ public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Event_revive_success(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if(IsInReady()) return;
 	
 	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被救的那位
 	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
