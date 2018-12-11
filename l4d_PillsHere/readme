@@ -1,0 +1,5 @@
+Gives pills to survivors who doesn't have pill
+
+-command
+!give(!geiyao) "Give the whole survivor team pills"
+!sm_geiyaoto <name> (!sm_giveto <name>) "give specific survivor player who doesn't have pill"
