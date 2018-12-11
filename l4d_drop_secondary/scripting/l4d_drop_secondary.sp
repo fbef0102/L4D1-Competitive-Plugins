@@ -89,7 +89,8 @@ public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcas
 	{
 		new weapon = g_PlayerSecondaryWeapons[client];
 		
-		SetEntPropEnt(weapon, Prop_Data, "m_hOwner",client);
+		if(weapon!=-1)
+			SetEntPropEnt(weapon, Prop_Data, "m_hOwner",client);
 		if(IdentifyWeapon(weapon) != WEPID_NONE && client == GetWeaponOwner(weapon) )
 		{
 			SDKHooks_DropWeapon(client, weapon);
