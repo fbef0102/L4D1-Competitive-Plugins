@@ -3,7 +3,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
 * <b>fun</b>: I write some new plugins which are just for fun
-> last edited:2018/12/10
+> last edited:2018/12/11
 # Require
 * <b>[sourcemod 1.8 or newer](https://www.sourcemod.net/downloads.php?branch=stable)</b>
 * <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
@@ -71,6 +71,8 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_NoEscapeTank</b>: No Tank Spawn as the rescue vehicle is coming
 * <b>TickrateFixes</b>: Fixes a handful of silly Tickrate bugs
 * <b>fix_engine</b>: Blocking ladder speed glitch, no fall damage bug, health boost glitch.
+* <b>botpopstop</b>: Removes pills from bots if they try to use them and restores them when a human takes over.
+* <b>l4d_PillsHere</b>: Gives pills to survivors who doesn't have pill
 # Scripting Compiler
 using sourcemod 1.8 Compiler
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
