@@ -9,31 +9,43 @@ static const deadstopSequences[] = {60, 64, 67};
 //站著:12
 //跳著:51
 static Handle:hCvarFlags;
+static Handle:hCvarFlags2;
 static g_bCvarcontrolvalue;
+static g_bCvarcontrolvalue2;
 #define DEBUG 0
 #define POUNCE_TIMER            0.1
 
+#if DEBUG
 static					g_iOffsetFallVelocity					= -1;
 static	const	String:	CLASSNAME_TERRORPLAYER[] 				= "CTerrorPlayer";
 static	const	String:	NETPROP_FALLVELOCITY[]					= "m_flFallVelocity";
+#endif
+
 new     bool:           bIsPouncing[MAXPLAYERS+1]; 
+static bool:PluginDisable = false;
 
 public Plugin:myinfo = 
 {
 	name = "L4D No Hunter Deadstops",
-	author = "Visor, l4d1 modify by Harry",
+	author = "Visor, l4d1 port by Harry",
 	description = "Self-descriptive",
-	version = "3.7",
+	version = "3.8",
 	url = "https://github.com/Attano/Equilibrium"
 };
 
 public OnPluginStart()
 {
 	hCvarFlags = FindConVar("versus_shove_hunter_fov_pouncing");
+	hCvarFlags2 = FindConVar("versus_shove_hunter_fov");
 	HookConVarChange(hCvarFlags, OnCvarChange_control);
+	HookConVarChange(hCvarFlags2, OnCvarChange_control);
 	g_bCvarcontrolvalue = GetConVarInt(hCvarFlags);
-	g_iOffsetFallVelocity = FindSendPropInfo(CLASSNAME_TERRORPLAYER, NETPROP_FALLVELOCITY);
-	if (g_iOffsetFallVelocity <= 0) ThrowError("Unable to find fall velocity offset!");
+	g_bCvarcontrolvalue2 = GetConVarInt(hCvarFlags2);
+	
+	#if DEBUG
+		g_iOffsetFallVelocity = FindSendPropInfo(CLASSNAME_TERRORPLAYER, NETPROP_FALLVELOCITY);
+		if (g_iOffsetFallVelocity <= 0) ThrowError("Unable to find fall velocity offset!");
+	#endif
 	
 	HookEvent("round_start", Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("player_death", Event_PlayerDeath, EventHookMode_Post);
@@ -47,14 +59,7 @@ public Action:L4D_OnShovedBySurvivor(shover, shovee, const Float:vector[3])
 		return Plugin_Continue;
 		
 	if(g_bCvarcontrolvalue != 0) return Plugin_Continue;
-	
-	if (HasTarget(shovee))
-	{
-		#if DEBUG 
-			PrintToChatAll("HasPounce");
-		#endif
-		return Plugin_Continue;
-	}
+
 		
 	#if DEBUG 
 		PrintToChatAll("\x01Invoked \x04L4D_OnShovedBySurvivor\x01 on \x03%N\x01", shovee);
@@ -71,7 +76,9 @@ public Action:L4D_OnShovedBySurvivor(shover, shovee, const Float:vector[3])
 	}
 	if(bIsPouncing[shovee])
 	{
-		//PrintToChatAll("here");
+	#if DEBUG 
+		PrintToChatAll("Hunter:%N is still pouncing!",shovee);
+	#endif
 		return Plugin_Handled;
 	}
 	
@@ -83,15 +90,7 @@ public Action:L4D_OnEntityShoved(client, entity, weapon, const Float:vector[3])
 	if (!IsSurvivor(client) || !IsHunter(entity))
 		return Plugin_Continue;
 	
-	if(g_bCvarcontrolvalue != 0) return Plugin_Continue;
-	
-	if (HasTarget(entity))
-	{
-		#if DEBUG 
-			PrintToChatAll("HasPounce");
-		#endif
-		return Plugin_Continue;
-	}
+	if(IsPluginDisable()) return Plugin_Continue;
 		
 	#if DEBUG
 		PrintToChatAll("\x01Invoked \x04L4D_OnEntityShoved\x01 on \x03%N\x01", entity);
@@ -107,7 +106,9 @@ public Action:L4D_OnEntityShoved(client, entity, weapon, const Float:vector[3])
 	}
 	if(bIsPouncing[entity])
 	{
-		//PrintToChatAll("here");
+	#if DEBUG 
+		PrintToChatAll("Hunter:%N is still pouncing!",entity);
+	#endif
 		return Plugin_Handled;
 	}
 	return Plugin_Continue;
@@ -152,12 +153,6 @@ bool:IsPlayingDeadstopAnimation(hunter)
 	return false;
 }
 
-bool:HasTarget(hunter)
-{
-	new target = GetEntDataEnt2(hunter, 16004);
-	return (IsSurvivor(target) && IsPlayerAlive(target));
-}
-
 bool:IsPlayerOnPlayer(client)
 {
 	new entity = GetEntPropEnt(client, Prop_Send, "m_hGroundEntity");
@@ -168,7 +163,17 @@ bool:IsPlayerOnPlayer(client)
 public OnCvarChange_control(Handle:convar, const String:oldValue[], const String:newValue[])
 {
 	if (!StrEqual(oldValue, newValue))
-		g_bCvarcontrolvalue = StringToInt(newValue);	
+	{
+		g_bCvarcontrolvalue = GetConVarInt(hCvarFlags);
+		g_bCvarcontrolvalue2 = GetConVarInt(hCvarFlags2);
+		
+		if( (g_bCvarcontrolvalue == 0 &&g_bCvarcontrolvalue2 ==0) || g_bCvarcontrolvalue!=0 )
+		{
+			PluginDisable = true;
+		}
+		else
+			PluginDisable = false;
+	}
 }
 
 public Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
@@ -249,4 +254,9 @@ bool:IsClientAndInGame(index)
         return IsClientInGame(index);
     }
     return false;
+}
+
+bool:IsPluginDisable()
+{
+	return PluginDisable;
 }
