@@ -58,7 +58,7 @@ public Action:L4D_OnShovedBySurvivor(shover, shovee, const Float:vector[3])
 	if (!IsSurvivor(shover) || !IsHunter(shovee))
 		return Plugin_Continue;
 		
-	if(g_bCvarcontrolvalue != 0) return Plugin_Continue;
+	if(IsPluginDisable()) return Plugin_Continue;
 
 		
 	#if DEBUG 
