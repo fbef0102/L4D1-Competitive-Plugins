@@ -1,0 +1,5 @@
+Removes pills from bots if they try to use them and restores them when a human takes over.
+
+-command-
+//enable this plugin
+no_bot_use_pills "1"
