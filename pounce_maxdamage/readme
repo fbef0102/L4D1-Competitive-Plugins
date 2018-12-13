@@ -1,1 +1,4 @@
 Makes it easy to properly uncap hunter pounces
+
+-command-
+pounceuncap_maxdamage "25"
