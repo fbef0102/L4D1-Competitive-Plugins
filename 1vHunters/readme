@@ -1,9 +1,5 @@
-Hunter pounce survivors and die ,set hunter scratch damage, no getup animation
-此插件只會讓Hunter 玩家撲到人類造成固定傷害後立即死亡
-並不會自動幫你增加很多Hunter
-
--command-
+//you must set sm_cvar z_pounce_damage XX and this value XX >= sm_1v1_dmgthreshold
 "sm_1v1_dmgthreshold", "24", "Amount of damage done (at once) before SI suicides. -1:Disable"
 "sm_1v1_dmgannounce", "1", "Announce SI Health Left before SI suicides."
-"sm_hunter_claw_dmg", "-1", "Hunter M2 claw Dmg(No matter what difficulty). -1:Default value dmg"
+"sm_hunter_claw_dmg", "-1", "Hunter M2 claw Dmg(No matter what difficulty or versus/coop/survival). -1:Default value dmg"
 "sm_hunter_skip_getup", "1", "Skip Survivor Get Up Animation 0:Disable"
