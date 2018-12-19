@@ -41,7 +41,7 @@ public OnPluginStart()
     HookEvent("player_jump", OnPlayerJump);
 	
 	hCvarPluginState = CreateConVar("stop_wallkicking_enable", "1", "If set, stops hunters from wallkicking", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	
+	CvarPluginState = GetConVarBool(hCvarPluginState);
 	HookConVarChange(hCvarPluginState, OnConvarChange_PluginState);
 }
 
