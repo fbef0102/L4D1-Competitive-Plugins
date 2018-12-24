@@ -3,7 +3,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
 * <b>fun</b>: I write some new plugins which are just for fun
-> last edited:2018/12/11
+> last edited:2018/12/24
 # Require
 * <b>[sourcemod 1.8 or newer](https://www.sourcemod.net/downloads.php?branch=stable)</b>
 * <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
