@@ -73,8 +73,9 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>fix_engine</b>: Blocking ladder speed glitch, no fall damage bug, health boost glitch.
 * <b>botpopstop</b>: Removes pills from bots if they try to use them and restores them when a human takes over.
 * <b>l4d_PillsHere</b>: Gives pills to survivors who doesn't have pill
+* <b>l4d_multiwitch</b>: A plugin that spawns unlimited witches off of a timer. Sets glows on witches when survivors are far away
 # Scripting Compiler
-using sourcemod 1.8 Compiler
+using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
 * <b>[l4d_weapon_stocks.inc](https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc)</b>
 * <b>[colors.inc](https://forums.alliedmods.net/showthread.php?t=96831)</b>
