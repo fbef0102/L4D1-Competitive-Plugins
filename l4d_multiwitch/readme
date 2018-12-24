@@ -1,0 +1,8 @@
+A plugin that spawns unlimited witches off of a timer. Sets glows on witches when survivors are far away
+(For Witch Party)
+
+-command-
+"l4d_multiwitch_enabled", "1", "Enable multiple witch spawning"
+"l4d_multiwitch_spawnfreq", "30", "How many seconds before the next witch spawns"
+"l4d_multiwitch_maxspawn_limit", "30", "Max Witch Spawn limit, prevent server from too many entity crash"
+"wg_min_range", "500", "Glows will not show if a survivor is this close to the witch"
