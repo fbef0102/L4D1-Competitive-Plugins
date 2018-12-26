@@ -21,9 +21,9 @@ new i_EntSpec[5000]= -1;
 new bool:g_EndMap;
 
 public Plugin:myinfo = {
-    name        = "L4D2 Tank Props,l4d1 port by Harry",
+    name        = "L4D2 Tank Props,l4d1 modify by Harry",
     author      = "Jahze",
-    version     = "1.2",
+    version     = "1.3",
     description = "Stop tank props from fading whilst the tank is alive"
 };
 
@@ -50,7 +50,7 @@ PluginEnable() {
     HookEvent("round_start", TankPropRoundReset);
     HookEvent("round_end", TankPropRoundReset);
     HookEvent("tank_spawn", TankPropTankSpawn);
-    HookEvent("player_death", TankPropTankKilled);
+	HookEvent("entity_killed",		PD_ev_EntityKilled);
 }
 
 PluginDisable() {
@@ -63,7 +63,7 @@ PluginDisable() {
     UnhookEvent("round_start", TankPropRoundReset);
     UnhookEvent("round_end", TankPropRoundReset);
     UnhookEvent("tank_spawn", TankPropTankSpawn);
-    UnhookEvent("player_death", TankPropTankKilled);
+	UnhookEvent("entity_killed",		PD_ev_EntityKilled);
 }
 
 public TankPropsChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
@@ -112,23 +112,18 @@ public Action:TankPropTankSpawn( Handle:event, const String:name[], bool:dontBro
     }    
 }
 
-public Action:TankPropTankKilled( Handle:event, const String:name[], bool:dontBroadcast ) {
-    if ( !tankSpawned ) {
-        return;
-    }
-    
-    new client = GetClientOfUserId(GetEventInt(event, "userid"));
-    if ( client != iTankClient ) {
-        return;
-    }
-    
-    CreateTimer(0.5, TankDeadCheck);
+public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	if (tankSpawned && GetEntProp((GetEventInt(event, "entindex_killed")), Prop_Send, "m_zombieClass") == 5)
+	{
+		CreateTimer(1.5, TankDeadCheck,_,TIMER_FLAG_NO_MAPCHANGE);
+	}
 }
-
 public Action:TankDeadCheck( Handle:timer ) {
+
     if ( GetTankClient() == -1 ) {
         UnhookTankProps();
-        CreateTimer(5.0, FadeTankProps);
+        CreateTimer(1.0, FadeTankProps);
         tankSpawned = false;
     }
 }
@@ -196,6 +191,7 @@ CreateTankPropGlow(entity)
 	SetEntityRenderFx(i_Ent[entity], RENDERFX_FADE_FAST);
 	
 	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlow, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	SetEntPropFloat(i_Ent[entity], Prop_Send, "m_flPlaybackRate", 1.0);
 }
 
 public Action:KeepTankPropsGlow(Handle:timer, any:entity)
@@ -215,7 +211,6 @@ public Action:KeepTankPropsGlow(Handle:timer, any:entity)
 		{
 			decl String:targetname[128];
 			GetEntPropString(i_Ent[entity], Prop_Data, "m_iName", targetname, sizeof(targetname));
-			//PrintToChatAll("targetname :%s",targetname);
 			if(!StrEqual(targetname, "propglow"))
 			{
 				RemoveEdict(i_Ent[entity]);
