@@ -25,7 +25,6 @@ new bool:isHunter[MAXPLAYERS+1];
 static					g_iOffsetFallVelocity					= -1;
 static	const	String:	CLASSNAME_TERRORPLAYER[] 				= "CTerrorPlayer";
 static	const	String:	NETPROP_FALLVELOCITY[]					= "m_flFallVelocity";
-new pouncedvictim[MAXPLAYERS + 1] = {0};
 
 public Plugin:myinfo = 
 {
@@ -60,7 +59,6 @@ public Action:event_RoundStart(Handle:event, const String:name[], bool:dontBroad
 	for(i=0;i<=MAXPLAYERS;++i)
 	{
 		isHunter[i] = false;
-		pouncedvictim[i] = 0;
 	}
 }
 
