@@ -32,8 +32,6 @@ new CvarAnnounce;
 new CvarHunterClawDamage;
 new CvarSkipGetUpAnimation;
 new String:CvarGameMode[20];
-new bool:haspounced[MAXPLAYERS + 1] = {false};
-new pouncedvictim[MAXPLAYERS + 1] = {0};
 new     bool:           bLateLoad                                               = false;
 
 public APLRes:AskPluginLoad2( Handle:plugin, bool:late, String:error[], errMax)
@@ -47,7 +45,7 @@ public Plugin:myinfo =
 	name = "1vHunters",
 	author = "Harry Potter",
 	description = "Hunter pounce survivors and die ,set hunter scratch damage, no getup animation",
-	version = "1.5",
+	version = "1.6",
 	url = "https://github.com/Attano/Equilibrium"
 };
 
@@ -61,12 +59,7 @@ public OnPluginStart()
 	hCvarHunterClawDamage = CreateConVar("sm_hunter_claw_dmg", "-1", "Hunter claw Dmg. -1:Default value dmg", FCVAR_PLUGIN, true, -1.0);
 	hCvarSkipGetUpAnimation = CreateConVar("sm_hunter_skip_getup", "1", "Skip Survivor Get Up Animation", FCVAR_PLUGIN, true, 0.0);
 	
-	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Post);
-	HookEvent("lunge_pounce", PlayerLunge_Pounce_Event);
-	HookEvent("round_start", event_RoundStart, EventHookMode_PostNoCopy);//每回合開始就發生的event
-	HookEvent("player_spawn",		Event_PlayerSpawn,	EventHookMode_PostNoCopy);
 	HookEvent("player_death",		Event_PlayerDeath,	EventHookMode_PostNoCopy);
-	HookEvent("pounce_stopped", PlayerLunge_Pounce_Stop_Event);
 	
 	CvarDmgThreshold = GetConVarInt(hCvarDmgThreshold);
 	CvarAnnounce = GetConVarInt(hCvarAnnounce);
@@ -105,82 +98,6 @@ public Action:Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroa
 		if (remaining_health == 1 && CvarAnnounce == 1)
 		{
 			CPrintToChat(client, "[{olive}TS 1vHunter{default}] You don't have to be mad...");
-		}
-	}
-}
-public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(IsClientAndInGame(client)&&GetClientTeam(client) == 3 && GetZombieClass(client) == 3)
-		haspounced[client] = false;
-}
-
-public Action:PlayerLunge_Pounce_Event(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
-	new victim = GetClientOfUserId(GetEventInt(event, "victim"));
-	if(IsClientAndInGame(client)&&GetClientTeam(client) == 3 && GetZombieClass(client) == 3)
-	{
-		haspounced[client] = true;
-		pouncedvictim[client] = victim;
-	}
-}
-
-public Action:PlayerLunge_Pounce_Stop_Event(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	new victim = GetClientOfUserId(GetEventInt(event, "victim"));
-	if(IsClientAndInGame(victim)&&GetClientTeam(victim) == 2)
-	{
-		for (new i = 1; i <= MaxClients; i++) //clear 
-		{
-			if(pouncedvictim[i] == victim)
-			{
-				haspounced[i] = false;
-				pouncedvictim[i] = 0;
-				break;
-			}
-		}
-	}
-}
-
-
-public Action:event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	for (new i = 1; i <= MaxClients; i++) //clear 
-	{
-		haspounced[i] = false;
-		pouncedvictim[i] = 0;
-	}
-}
-public Action:Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
-
-	if (!IsClientAndInGame(attacker)||!haspounced[attacker] || !IsClientAndInGame(victim) || CvarDmgThreshold < 0)
-		return;
-
-	new damage = GetEventInt(event, "dmg_health");
-	new zombie_class = GetZombieClass(attacker);
-
-	if (GetClientTeam(victim) == 2 && GetClientTeam(attacker) == 3 && zombie_class == 3 && damage >= CvarDmgThreshold)
-	{
-		new remaining_health = GetClientHealth(attacker);
-		if(CvarAnnounce == 1)
-		{
-			CPrintToChat(victim,"[{olive}TS 1vHunter{default}] {red}%N{default} had {green}%d{default} health remaining!", attacker, remaining_health);
-			if(!IsFakeClient(attacker))
-				CPrintToChat(attacker,"[{olive}TS 1vHunter{default}] You have {green}%d{default} health remaining!", remaining_health);
-		}
-
-		ForcePlayerSuicide(attacker);    
-		haspounced[attacker] = false;
-		if(CvarSkipGetUpAnimation == 1)
-			CreateTimer(0.04, CancelGetup, victim,_);
-		
-		if (remaining_health == 1&&CvarAnnounce == 1)
-		{
-			CPrintToChat(victim, "[{olive}TS 1vHunter{default}] You don't have to be mad...");
 		}
 	}
 }
@@ -223,26 +140,41 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 {
 	if(!IsValidEdict(victim) || !IsValidEdict(attacker) || !IsValidEdict(inflictor) || !IsValidEdict(damagetype)) { return Plugin_Continue; }
 	
-	if(!IsClientAndInGame(victim) || !IsClientAndInGame(attacker) || damage == 0.0 || CvarHunterClawDamage < 0) { return Plugin_Continue; }
+	if(!IsClientAndInGame(victim) || !IsClientAndInGame(attacker) || damage == 0.0) { return Plugin_Continue; }
 	
 	//decl String:sClassname[64];
 	//GetEntityClassname(inflictor, sClassname, 64);
 	decl String:sdamagetype[64];
 	GetEdictClassname( damagetype, sdamagetype, sizeof( sdamagetype ) ) ;
 	//PrintToChatAll("victim: %d,attacker:%d ,sClassname is %s, damage is %f, sdamagetype is %s",victim,attacker,sClassname,damage,sdamagetype);
-	if (GetClientTeam(attacker) == 3 && GetClientTeam(victim) == 2)
+	if (GetClientTeam(attacker) == 3 && GetClientTeam(victim) == 2 && GetZombieClass(attacker) == 3)
 	{
-		if(StrEqual(CvarGameMode,"coop")||StrEqual(CvarGameMode,"survival"))
+		if(!StrEqual(sdamagetype, "player"))//高鋪傷害sdamagetype is player
 		{
-			if(GetZombieClass(attacker) == 3 && !haspounced[attacker])
+			new hasvictim = GetEntPropEnt(attacker, Prop_Send, "m_pounceVictim");
+			if(hasvictim>0 && hasvictim == victim) //已經撲人
 			{
-				damage = float(CvarHunterClawDamage);
-				return Plugin_Changed;
+				if(damage >= CvarDmgThreshold)
+				{
+					new remaining_health = GetClientHealth(attacker);
+					if(CvarAnnounce == 1)
+					{
+						CPrintToChat(victim,"[{olive}TS 1vHunter{default}] {red}%N{default} had {green}%d{default} health remaining!", attacker, remaining_health);
+						if(!IsFakeClient(attacker))
+							CPrintToChat(attacker,"[{olive}TS 1vHunter{default}] You have {green}%d{default} health remaining!", remaining_health);
+					}
+				
+					CreateTimer(0.01, ColdDown, attacker,_);
+					if(CvarSkipGetUpAnimation == 1)
+						CreateTimer(0.1, CancelGetup, victim,_);
+
+					if (remaining_health == 1&&CvarAnnounce == 1)
+					{
+						CPrintToChat(victim, "[{olive}TS 1vHunter{default}] You don't have to be mad...");
+					}	
+				}
 			}
-		}
-		else if(StrEqual(CvarGameMode,"versus"))
-		{
-			if(GetZombieClass(attacker) == 3 && !haspounced[attacker] && StrEqual(sdamagetype, "trigger_once"))
+			else if(CvarHunterClawDamage >= 0)
 			{
 				damage = float(CvarHunterClawDamage);
 				return Plugin_Changed;
@@ -250,6 +182,11 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 		}
 	}
 	return Plugin_Continue;
+}
+
+public Action:ColdDown(Handle:timer, any:attacker) {
+
+	ForcePlayerSuicide(attacker);  
 }
 
 public OnClientPostAdminCheck(client)
