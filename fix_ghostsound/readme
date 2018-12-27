@@ -1,3 +1,10 @@
 Mute some SI sounds for Survivors.
-1.靈魂復活聲 UI/Pickup_GuitarRiff10.wav
-2.靈魂特感落地聲 player/jumplanding_zombie.wav
+
+1.fix jumplanding_zombie ghost sound
+靈魂復活聲 UI/Pickup_GuitarRiff10.wav
+
+2.fix spawn sound from ghost to living 
+靈魂特感落地聲 player/jumplanding_zombie.wav
+
+3.fix survivors can hear some infected sounds when an "alive" infected player "respawns" ghost far away from survivors
+修正當活著的特感玩家從遠處回魂之時 人類會聽到許些特感聲音
