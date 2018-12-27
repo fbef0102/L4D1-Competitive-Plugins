@@ -1,4 +1,8 @@
-#define PLUGIN_VERSION "1.4"
+//1.fix jumplanding_zombie ghost sound
+//2.fix spawn sound from ghost to living 
+//3.fix survivors can hear some infected sounds when an "alive" infected player "respawns" ghost far away from survivors
+
+#define PLUGIN_VERSION "1.5"
 
 #include <sourcemod>
 #include <sdktools>
@@ -6,10 +10,9 @@
 #undef REQUIRE_PLUGIN
 #include <l4d_lib>
 
-//人類不會聽到特感靈魂的跳躍聲
-//靈魂復活聲
+
 #define RESPAWN_SOUND2	"UI/Pickup_GuitarRiff10.wav"
-//靈魂特感落地聲
+
 #define RESPAWN_SOUND "player/jumplanding_zombie.wav"
 
 #define POUNCE_TIMER            0.1
@@ -36,7 +39,6 @@ public Action:SI_sh_OnSoundEmitted(clients[64], &numClients, String:sample[PLATF
 		
 	if (numClients > 1 && IsClient(entity) ){
 		//PrintToChatAll("Sound:%s, 1. numClients %d, entity %d",sample, numClients, entity);
-		//特感靈魂跳躍聲與復活聲修正
 		if( (StrEqual(sample, RESPAWN_SOUND) && IsPlayerGhost(entity)) || (StrEqual(sample, RESPAWN_SOUND2) && IsPlayerAlive(entity)) )
 		{
 			numClients = 0;
@@ -45,6 +47,12 @@ public Action:SI_sh_OnSoundEmitted(clients[64], &numClients, String:sample[PLATF
 					clients[numClients++] = i;
 
 			return Plugin_Changed;
+		}
+		
+		//fix survivors can hear some infected sounds when an "alive" infected player "respawn" ghost far away from survivors
+		if(GetClientTeam(entity) == 3 && IsPlayerGhost(entity))
+		{
+			return Plugin_Handled;
 		}
 	}
 	return Plugin_Continue;
