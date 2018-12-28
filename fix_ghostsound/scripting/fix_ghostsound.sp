@@ -1,6 +1,6 @@
 //1.fix jumplanding_zombie ghost sound
 //2.fix spawn sound from ghost to living 
-//3.fix survivors can hear some infected sounds when an "alive" infected player "respawns" ghost far away from survivors
+//3.when an "alive" infected player "respawns" ghost far away from survivors, survivors could hear some infected sounds from "ghost" infected player 
 
 #define PLUGIN_VERSION "1.5"
 
