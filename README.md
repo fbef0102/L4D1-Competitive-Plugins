@@ -3,7 +3,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
 * <b>fun</b>: I write some new plugins which are just for fun
-> last edited:2018/12/27
+> last edited:2019/1/1
 # Require
 * Clean Servers:
   * [Sourcemod 1.8](https://www.sourcemod.net/downloads.php?branch=1.8-dev) (or newer), [Metamod](https://www.metamodsource.net/)
@@ -75,6 +75,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>botpopstop</b>: Removes pills from bots if they try to use them and restores them when a human takes over.
 * <b>l4d_PillsHere</b>: Gives pills to survivors who doesn't have pill
 * <b>l4d_multiwitch</b>: A plugin that spawns unlimited witches off of a timer. Sets glows on witches when survivors are far away
+* <b>l4d_NoRescueFirstTank</b>: Final Stage except for 'The Sacrifice', No First Tank Spawn as the final rescue start and second tank spawn same position for both team
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
