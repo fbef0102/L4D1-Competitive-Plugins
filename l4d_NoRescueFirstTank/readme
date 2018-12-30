@@ -1,0 +1,4 @@
+Final Stage except for 'The Sacrifice', No First Tank Spawn as the final rescue start and second tank spawn same position for both team
+
+-command-
+"no_final_first_tank", "1", "Removes tanks which spawn as the rescue vehicle arrives on finales."
