@@ -19,7 +19,7 @@ public Plugin:myinfo =
 
 public OnPluginStart()
 {
-	g_hEnableNoFinalFirstTank	= CreateConVar("no_final_first_tank", "1", "Removes tanks which spawn as the rescue vehicle arrives on finales.", _, true, 0.0, true, 1.0);
+	g_hEnableNoFinalFirstTank	= CreateConVar("no_final_first_tank", "1", "Removes tanks which spawn as the rescue starts on finales.", _, true, 0.0, true, 1.0);
 	HookEvent("finale_start", Event_Finale_Start);
 	HookEvent("round_start", 	Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("tank_spawn", PD_ev_TankSpawn, EventHookMode_PostNoCopy);
