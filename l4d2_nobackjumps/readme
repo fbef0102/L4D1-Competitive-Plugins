@@ -3,3 +3,6 @@ Prevents players from using the wallkicking trick
 
 -require-
 [Dhooks 2.2](http://users.alliedmods.net/~drifter/builds/dhooks/2.2/)
+
+-command-
+"stop_wallkicking_enable", "1", "If set, stops hunters from wallkicking"
