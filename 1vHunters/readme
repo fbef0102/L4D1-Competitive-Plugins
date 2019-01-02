@@ -1,3 +1,6 @@
+this plugin won't help you make many hunters
+
+-command-
 //you must set sm_cvar z_pounce_damage XX and this value XX >= sm_1v1_dmgthreshold
 "sm_1v1_dmgthreshold", "24", "Amount of damage done (at once) before SI suicides. -1:Disable"
 "sm_1v1_dmgannounce", "1", "Announce SI Health Left before SI suicides."
