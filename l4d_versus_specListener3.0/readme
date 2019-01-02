@@ -1,0 +1,11 @@
+Allows spectator listen others team voice for l4d
+
+-Note-
+  1.Spectators can hear what infected players say via mic
+  2.Spectators can see what infected players type via chat box
+  3.Spectators can hear what survivor players say via mic
+  4.Spectators can see what survivor players type via chat box
+  
+-command-
+  *for spectator
+  !hear
