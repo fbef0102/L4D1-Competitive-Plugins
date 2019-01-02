@@ -3,7 +3,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
 * <b>fun</b>: I write some new plugins which are just for fun
-> last edited:2019/1/1
+> last edited:2019/1/3
 # Require
 * Clean Servers:
   * [Sourcemod 1.8](https://www.sourcemod.net/downloads.php?branch=1.8-dev) (or newer), [Metamod](https://www.metamodsource.net/)
@@ -76,6 +76,12 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_PillsHere</b>: Gives pills to survivors who doesn't have pill
 * <b>l4d_multiwitch</b>: A plugin that spawns unlimited witches off of a timer. Sets glows on witches when survivors are far away
 * <b>l4d_NoRescueFirstTank</b>: Final Stage except for 'The Sacrifice', No First Tank Spawn as the final rescue start and second tank spawn same position for both team
+* <b>si_class_announce</b>: Report what SI classes are up when the round starts.
+* <b>l4d_boss_percent</b>: Announce boss flow percents!
+* <b>l4d_current_survivor_progress</b>: Print survivor progress in flow percents
+* <b>l4d_thirdpersonshoulderblock</b>: Spectates clients who enable the thirdpersonshoulder mode on L4D1/2 to prevent them from looking around corners, through walls etc.
+* <b>l4d_versus_specListener3.0</b>: Allows spectator listen others team voice for l4d
+* <b>l4d_texture_manager_block</b>: Kicks out clients who are potentially attempting to enable mathack
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
