@@ -2,6 +2,6 @@ support L4D1 command "versus_shove_hunter_fov_pouncing" to get no deadstops work
 
 Note:
 -this plugins only works when "versus_shove_hunter_fov_pouncing" set 0
--if you want don't want human to shove Hunters, just set 
+-if you don't want human to shove Hunters, just set 
 versus_shove_hunter_fov_pouncing 0
 versus_shove_hunter_fov 0
