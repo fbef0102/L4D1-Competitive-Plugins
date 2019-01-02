@@ -1,1 +1,7 @@
 Announces hunter pounces to the entire server
+
+-command-
+"pounceannounce_minimum","0","The minimum amount of damage required to announce the pounce"
+"pounceannounce_centerchat","1","Announces the pounce to center chat. Use 0 for regular player chat."
+"pounceannounce_showdistance","0","Show the distance the hunter traveled for the pounce."
+"pounceannounce_capdamage","0","Caps the displayed pounce damage to the maximum able to be dealt."
