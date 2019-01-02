@@ -1,0 +1,5 @@
+Print survivor progress in flow percents 
+
+-command-
+!cur
+!current
