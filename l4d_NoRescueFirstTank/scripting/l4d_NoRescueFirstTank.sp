@@ -7,19 +7,21 @@ static 		Handle:g_hEnableNoFinalFirstTank, bool:g_bEnableNoFinalFirstTank;
 
 static bool:resuce_start,bool:HasBlockFirstTank,bool:timercheck;
 static bool:g_bFixed,bool:Tank_firstround_spawn,Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
+#define TANKSPAWN_SOUND "music/tank/taank.wav"
+#define TANKSPAWN_SOUND2 "music/tank/tank.wav"
 
 public Plugin:myinfo = 
 {
 	name = "L4D Final No First Tank",
 	author = "Harry Potter",
 	description = "Final Stage except for 'The Sacrifice', No First Tank Spawn as the final rescue start and second tank spawn same position for both team",
-	version = "1.2",
+	version = "1.3",
 	url = "https://steamcommunity.com/id/fbef0102/"
 }
 
 public OnPluginStart()
 {
-	g_hEnableNoFinalFirstTank	= CreateConVar("no_final_first_tank", "1", "Removes tanks which spawn as the rescue starts on finales.", _, true, 0.0, true, 1.0);
+	g_hEnableNoFinalFirstTank	= CreateConVar("no_final_first_tank", "1", "Removes tanks which spawn as the rescue vehicle arrives on finales.", _, true, 0.0, true, 1.0);
 	HookEvent("finale_start", Event_Finale_Start);
 	HookEvent("round_start", 	Event_RoundStart, EventHookMode_PostNoCopy);
 	HookEvent("tank_spawn", PD_ev_TankSpawn, EventHookMode_PostNoCopy);
@@ -34,6 +36,9 @@ public OnMapStart()
 	g_bFixed = false;
 	Tank_firstround_spawn = false;
 	ClearVec();
+	
+	PrecacheSound(TANKSPAWN_SOUND, true);
+	PrecacheSound(TANKSPAWN_SOUND2, true);
 }
 
 public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBroadcast)
@@ -41,10 +46,8 @@ public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBro
 	if(IsTankProhibit()) return;
 	if(!g_bEnableNoFinalFirstTank)  return;
 	
-	if(IsFinalMap()||Is_Final_Stage()){
-		resuce_start = true;
-		CreateTimer(0.1, On_t_Instruction);
-	}
+	resuce_start = true;
+	CreateTimer(0.1, On_t_Instruction);
 }
 
 public Action:On_t_Instruction(Handle:timer)
@@ -112,6 +115,8 @@ public Action:KillFirstTank(Handle:timer)
 	{
 		//PrintToChatAll("kill First Tank");
 		ForcePlayerSuicide(iTank);
+		StopSoundPerm(TANKSPAWN_SOUND);
+		StopSoundPerm(TANKSPAWN_SOUND2);
 		HasBlockFirstTank = true;
 	}
 }
@@ -129,8 +134,8 @@ static bool:IsTankProhibit()//犧牲最後一關
 	GetCurrentMap(sMap, 64);
 	return StrEqual(sMap, "l4d_river03_port");
 }
-
-static bool:Is_Final_Stage()//非官方圖最後一關
+/*
+static bool:Is_Final_Stage()
 {
 	decl String:mapbuf[32];
 	GetCurrentMap(mapbuf, sizeof(mapbuf));
@@ -144,6 +149,7 @@ static bool:Is_Final_Stage()//非官方圖最後一關
 		return true;
 	return false;
 }
+*/
 
 IsTankInGame(exclude = 0)
 {
@@ -166,3 +172,22 @@ static ClearVec()
 		g_fTankData_angel[index] = 0.0;
 	}
 }
+
+stock StopSoundPerm(String:sound[])
+{
+	for( new i = 1; i <= MaxClients; i++ )
+	{
+		if( IsClientInGame(i) )
+		{
+			//PrintToChatAll("Block Tank Music");
+			StopSound(i, SNDCHAN_AUTO, sound);
+			StopSound(i, SNDCHAN_WEAPON, sound);
+			StopSound(i, SNDCHAN_VOICE, sound);
+			StopSound(i, SNDCHAN_ITEM, sound);
+			StopSound(i, SNDCHAN_BODY, sound);
+			StopSound(i, SNDCHAN_STREAM, sound);
+			StopSound(i, SNDCHAN_VOICE_BASE, sound);
+			StopSound(i, SNDCHAN_USER_BASE, sound);
+		}
+	}
+}  
