@@ -28,8 +28,8 @@ public OnPluginStart()
 	
 	g_bEnableNoFinalFirstTank = GetConVarBool(g_hEnableNoFinalFirstTank);
 	HookConVarChange(g_hEnableNoFinalFirstTank, Enable_CvarChange);
+	
 }
-
 public OnMapStart()
 {
 	//強制rescue Second tank出生在一樣的位置
@@ -80,10 +80,12 @@ public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 	{
 		if(!HasBlockFirstTank)
 		{
-			CreateTimer(0.1, KillFirstTank);
-			
-			//PrintToChatAll("block First Tank");
-			PrintToChatAll("\x01Block \x04Tank \x01spawn, \x05continue final rescue progress\x01!");
+			new client = GetClientOfUserId(GetEventInt(event, "userid"));
+			TeleportEntity(client,
+			Float:{0.0, 0.0, 0.0}, // Teleport to map center
+			NULL_VECTOR, 
+			NULL_VECTOR);
+			CreateTimer(1.5, KillFirstTank);
 			return;
 		}
 		else
@@ -125,14 +127,8 @@ public Action:KillFirstTank(Handle:timer)
 	new iTank = IsTankInGame();
 	if(iTank && IsClientConnected(iTank) && IsClientInGame(iTank))
 	{
-		//PrintToChatAll("kill First Tank");
-		TeleportEntity(iTank,
-		Float:{0.0, 0.0, 0.0}, // Teleport to map center
-		NULL_VECTOR, 
-		NULL_VECTOR);
 		ForcePlayerSuicide(iTank);
-		StopSoundPerm(TANKSPAWN_SOUND);
-		StopSoundPerm(TANKSPAWN_SOUND2);
+		PrintToChatAll("\x01Block \x04Tank \x01spawn, \x05continue final rescue progress\x01!");
 		HasBlockFirstTank = true;
 	}
 }
@@ -172,22 +168,3 @@ static ClearVec()
 		g_fTankData_angel[index] = 0.0;
 	}
 }
-
-stock StopSoundPerm(String:sound[])
-{
-	for( new i = 1; i <= MaxClients; i++ )
-	{
-		if( IsClientInGame(i) )
-		{
-			//PrintToChatAll("Block Tank Music");
-			StopSound(i, SNDCHAN_AUTO, sound);
-			StopSound(i, SNDCHAN_WEAPON, sound);
-			StopSound(i, SNDCHAN_VOICE, sound);
-			StopSound(i, SNDCHAN_ITEM, sound);
-			StopSound(i, SNDCHAN_BODY, sound);
-			StopSound(i, SNDCHAN_STREAM, sound);
-			StopSound(i, SNDCHAN_VOICE_BASE, sound);
-			StopSound(i, SNDCHAN_USER_BASE, sound);
-		}
-	}
-}  
