@@ -15,7 +15,7 @@ public Plugin:myinfo =
 	name = "L4D Final No First Tank",
 	author = "Harry Potter",
 	description = "Final Stage except for 'The Sacrifice', No First Tank Spawn as the final rescue start and second tank spawn same position for both team",
-	version = "1.3",
+	version = "1.4",
 	url = "https://steamcommunity.com/id/fbef0102/"
 }
 
@@ -60,6 +60,18 @@ public Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 	resuce_start = false;
 	HasBlockFirstTank = false;
 	timercheck = false;
+}
+
+public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
+{
+	if(g_bEnableNoFinalFirstTank && resuce_start)
+	{
+		if(!HasBlockFirstTank)
+		{
+			return Plugin_Handled;
+		}
+	}
+	return Plugin_Continue;
 }
 
 public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
@@ -114,6 +126,10 @@ public Action:KillFirstTank(Handle:timer)
 	if(iTank && IsClientConnected(iTank) && IsClientInGame(iTank))
 	{
 		//PrintToChatAll("kill First Tank");
+		TeleportEntity(iTank,
+		Float:{0.0, 0.0, 0.0}, // Teleport to map center
+		NULL_VECTOR, 
+		NULL_VECTOR);
 		ForcePlayerSuicide(iTank);
 		StopSoundPerm(TANKSPAWN_SOUND);
 		StopSoundPerm(TANKSPAWN_SOUND2);
@@ -134,22 +150,6 @@ static bool:IsTankProhibit()//犧牲最後一關
 	GetCurrentMap(sMap, 64);
 	return StrEqual(sMap, "l4d_river03_port");
 }
-/*
-static bool:Is_Final_Stage()
-{
-	decl String:mapbuf[32];
-	GetCurrentMap(mapbuf, sizeof(mapbuf));
-	if(StrEqual(mapbuf, "l4d_vs_city17_05")||
-	StrEqual(mapbuf, "l4d_vs_deadflagblues05_station")||
-	StrEqual(mapbuf, "l4d_ihm05_lakeside")||
-	StrEqual(mapbuf, "l4d_vs_stadium5_stadium")||
-	StrEqual(mapbuf, "l4d_dbd_new_dawn")||
-	StrEqual(mapbuf, "l4d_jsarena04_arena")
-	)
-		return true;
-	return false;
-}
-*/
 
 IsTankInGame(exclude = 0)
 {
