@@ -63,6 +63,7 @@ new Handle: hBaggageStandingDamage		= INVALID_HANDLE;
 new Handle: hStandardIncapDamage		= INVALID_HANDLE;
 new Handle: hTankSelfDamage				= INVALID_HANDLE;
 new Handle: hOverHitInterval			= INVALID_HANDLE;
+native IsInReady();
 
 public Plugin:myinfo =
 {
@@ -180,6 +181,8 @@ public OnPluginStart()
 	HookEvent("round_start", event_RoundStart, EventHookMode_PostNoCopy);//每回合開始就發生的event
 	HookEvent("player_incapacitated", 	_GF_IncapEvent); // being incapped 'heals' you from 1 to 300 hard health
 	HookEvent("player_spawn",		Event_PlayerSpawn,	EventHookMode_PostNoCopy);
+	HookEvent("player_bot_replace", OnBotSwap);
+	HookEvent("bot_player_replace", OnBotSwap);
 	cvarTempHealthDecay =	FindConVar(CVAR_TEMP_HEALTH_DECAY);
 }
 public Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
@@ -214,8 +217,36 @@ public event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 	}
 }
 
+public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast) 
+{
+	if(IsInReady()) return Plugin_Continue;
+	
+	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
+	new player = GetClientOfUserId(GetEventInt(event, "player"));
+	if (IsClientIndex(bot) && IsClientIndex(player)) 
+	{
+		if (StrEqual(name, "player_bot_replace")) 
+		{
+			client_lastlife[bot] = client_lastlife[player];
+			client_lastlife[player] = false;
+			justHealed[bot] = justHealed[player];
+			justHealed[player] = false;
+			
+		}
+		else 
+		{
+			client_lastlife[player] = client_lastlife[bot];
+			client_lastlife[bot] = false;
+			justHealed[player] = justHealed[bot];
+			justHealed[bot] = false;
+		}
+	}
+	return Plugin_Continue;
+}
+
 public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	if(IsInReady()) return;
 	
 	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被治療的那位
 	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
@@ -225,6 +256,7 @@ public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Event_revive_success(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	if(IsInReady()) return;
 	
 	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被救的那位
 	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
@@ -235,6 +267,10 @@ public Event_revive_success(Handle:event, const String:name[], bool:dontBroadcas
 	if(GetEventBool(event, "lastlife"))
 	{
 		client_lastlife[subject] = true;
+	}
+	else
+	{
+		client_lastlife[subject] = false;
 	}
 	lastSavedGodFrameBegin[subject] = GetEngineTime();
 	fFakeGodframeEnd[subject] = GetGameTime() + GetConVarFloat(hrevive);
@@ -388,6 +424,8 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 			CreateTimer(interval, Timed_ClearInvulnerability, victim);
 		}
 	}
+	new hardhealth = GetHardHealth(victim);
+	if(hardhealth>1) client_lastlife[victim] = false;
 	/********godframes_control*******/
 	if (fTimeLeft<=0)//自己設置的無敵時間已過 1. Smoker拉的 2. 剛倒地起來的 3. Hunter解脫
 	{	
@@ -455,7 +493,7 @@ public Action:_GF_timer_CheckForGodMode(Handle:timer, Handle:data)
 		if(targethardhealth==0&&targettemphealth==0.0)
 		{
 			//PrintToChatAll("incap or die");
-			if(client_lastlife[victim] == true || IsIncapacitated(victim))//dead
+			if( client_lastlife[victim] == true || IsIncapacitated(victim))//dead
 				ForcePlayerSuicide(victim);
 			else//incap
 			{
@@ -575,4 +613,9 @@ CheckForGodMode(victim,Float:damage)
 	WritePackFloat(data, resulttemphealth);
 
 	CreateTimer(DAMAGE_CHECK_DELAY, _GF_timer_CheckForGodMode, data);
+}
+
+bool:IsClientIndex(client)
+{
+	return (client > 0 && client <= MaxClients);
 }
