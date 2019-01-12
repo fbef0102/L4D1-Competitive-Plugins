@@ -2,6 +2,7 @@
 
 #include <sourcemod>
 #include <l4d_direct>
+#include <l4d_lib>
 
 #define MAX(%0,%1) (((%0) > (%1)) ? (%0) : (%1))
 #define MIN(%0,%1) (((%0) < (%1)) ? (%0) : (%1))
@@ -12,10 +13,6 @@ new bool:	bEnabled;
 
 new Handle:	hSpawnFreq;
 new Float:	fSpawnFreq;
-
-native IsInReady();
-native IsInPause();
-native Is_Ready_Plugin_On();
 
 new Handle:	hMaxWitchAllowed;
 new MaxWitchAllowed;
@@ -35,13 +32,14 @@ new Handle:hw_cap_health;
 new Handle:hw_perm_gain;
 new Handle:hw_temp_gain;
 new Handle:pain_pills_decay_rate;
+static bool:ClientHasDown[MAXPLAYERS + 1];
 
 public Plugin:myinfo =
 {
 	name = "L4D1 Multiwitch",
 	author = "CanadaRox , l4d1 modify by Harry",
 	description = "A plugin designed to support witch party",
-	version = "2.3",
+	version = "2.4",
 	url = "https://steamcommunity.com/id/fbef0102/"
 };
 
@@ -64,6 +62,10 @@ public OnPluginStart()
 	HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
 	HookEvent("round_end", RoundEnd_Event, EventHookMode_PostNoCopy);
 	HookEvent("player_left_start_area", LeftStartAreaEvent, EventHookMode_PostNoCopy);
+	HookEvent("revive_success", Event_revive_success);//救起倒地的or 懸掛的
+	HookEvent("player_bot_replace", OnBotSwap);
+	HookEvent("bot_player_replace", OnBotSwap);
+	HookEvent("player_spawn", OnPlayerSpawn);
 	
 	RoundEnd = false;
 	hasleftstartarea = false;
@@ -72,6 +74,7 @@ public OnPluginStart()
 	HookEvent("witch_spawn", WitchSpawn_Event);
 	HookEvent("witch_harasser_set", OnWitchWokeup);
 	HookEvent("witch_killed", Event_WitchKilled);
+	HookEvent("heal_success", Event_heal_success);
 	
 	wg_min_range = CreateConVar("wg_min_range", "500", "Glows will not show if a survivor is this close to the witch", FCVAR_NONE, true, 0.0);
 	HookConVarChange(wg_min_range, MinRangeChange);
@@ -81,7 +84,7 @@ public OnPluginStart()
 	
 	pain_pills_decay_rate = FindConVar("pain_pills_decay_rate");
 
-	hw_max_health = CreateConVar("hw_max_health", "100", "Max health that a survivor can have after gaining health", FCVAR_PLUGIN, true, 100.0);
+	hw_max_health = CreateConVar("hw_max_health", "150", "Max health that a survivor can have after gaining health", FCVAR_PLUGIN, true, 100.0);
 	hw_cap_health = CreateConVar("hw_cap_health", "1", "Whether to cap the health survivors can gain from this plugin", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	hw_perm_gain = CreateConVar("hw_perm_gain", "5", "Amount of perm health to gain for killing a witch", FCVAR_PLUGIN, true, 0.0);
 	hw_temp_gain = CreateConVar("hw_temp_gain", "10", "Amount of temp health to gain for killing a witch", FCVAR_PLUGIN, true, 0.0);
@@ -95,10 +98,7 @@ public OnPluginEnd()//Called when the plugin is about to be unloaded.
 
 public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	if(!Is_Ready_Plugin_On())
-	{
-		hasleftstartarea = true;
-	}
+	hasleftstartarea = true;
 }
 
 public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
@@ -106,6 +106,7 @@ public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
 	hasleftstartarea = false;
 	RoundEnd = false;
 	g_EndMap = false;
+	for(new i = 1; i <= MaxClients; i++) ClientHasDown[i] = false;	
 	
 }
 
@@ -113,6 +114,27 @@ public RoundEnd_Event(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	RoundEnd = true;
 	g_EndMap = true;
+}
+
+public Event_revive_success(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	
+	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被救的那位
+	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
+	if (GetEventBool(event,"ledge_hang"))
+	{
+		return;
+	}
+	ClientHasDown[subject] = true;
+}
+
+public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	
+	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被治療的那位
+	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
+	
+	ClientHasDown[subject] = false;
 }
 
 public Enabled_Changed(Handle:convar, const String:oldValue[], const String:newValue[])
@@ -141,11 +163,11 @@ public hMaxWitchAllowed_Changed(Handle:convar, const String:oldValue[], const St
 
 public Action:WitchSpawn_Timer(Handle:timer)
 {
-	if(!Is_Ready_Plugin_On()&&!hasleftstartarea)
+	if(!hasleftstartarea)
 	{
 		return Plugin_Handled;
 	}
-	if(RoundEnd || IsInPause() || IsInReady())
+	if(RoundEnd)
 	{
 		return Plugin_Handled;
 	}
@@ -372,7 +394,7 @@ public OnMapStart()
 IncreaseHealth(client)
 {
 	new bool:capped = GetConVarBool(hw_cap_health);
-	new targetHealth = GetSurvivorPermHealth(client) + GetConVarInt(hw_perm_gain);
+	new targetHealth = GetSurvivorPermHealth(client) + GetConVarInt(hw_perm_gain);	
 	new Float:targetTemp = GetSurvivorTempHealth(client) + GetConVarInt(hw_temp_gain);
 
 	if (capped)
@@ -385,6 +407,20 @@ IncreaseHealth(client)
 		targetTemp = totalHealth - targetHealth;
 	}
 
+	if(GetSurvivorPermHealth(client) == 1)
+	{
+		if(ClientHasDown[client])
+		{
+			new give_flags = GetCommandFlags("give");
+			SetCommandFlags("give", give_flags & ~FCVAR_CHEAT);
+			FakeClientCommand(client, "give health");
+			SetCommandFlags("give", give_flags);
+			
+			ClientHasDown[client] = false;
+		}
+	}
+	else
+		ClientHasDown[client] = false;
 	SetSurvivorPermHealth(client, targetHealth);
 	SetSurvivorTempHealth(client, targetTemp);
 }
@@ -414,4 +450,41 @@ stock SetSurvivorTempHealth(client, Float:newOverheal)
 stock bool:IsPlayerIncap(client)
 {
 	return bool:GetEntProp(client, Prop_Send, "m_isIncapacitated");
+}
+
+public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast) 
+{
+	
+	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
+	new player = GetClientOfUserId(GetEventInt(event, "player"));
+	if (IsClientIndex(bot) && IsClientIndex(player)) 
+	{
+		if (StrEqual(name, "player_bot_replace")) 
+		{
+			ClientHasDown[bot] = ClientHasDown[player];
+			ClientHasDown[player] = false;
+			
+		}
+		else 
+		{
+			ClientHasDown[player] = ClientHasDown[bot];
+			ClientHasDown[bot] = false;
+		}
+	}
+	return Plugin_Continue;
+}
+
+public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	
+	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if(IsClientIndex(client)&&IsClientConnected(client)&&IsClientInGame(client)&&GetClientTeam(client)==2)
+	{
+		ClientHasDown[client] = false;
+	}
+}
+
+bool:IsClientIndex(client)
+{
+	return (client > 0 && client <= MaxClients);
 }
