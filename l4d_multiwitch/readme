@@ -1,8 +1,16 @@
-A plugin that spawns unlimited witches off of a timer. Sets glows on witches when survivors are far away
-(For Witch Party)
+A plugin designed to support witch party
+1.spawns unlimited witches off of a timer
+2.Sets glows on witches when survivors are far away
+3.Heals the survivor when they kill a witch
 
 -command-
 "l4d_multiwitch_enabled", "1", "Enable multiple witch spawning"
 "l4d_multiwitch_spawnfreq", "30", "How many seconds before the next witch spawns"
 "l4d_multiwitch_maxspawn_limit", "30", "Max Witch Spawn limit, prevent server from too many entity crash"
+
 "wg_min_range", "500", "Glows will not show if a survivor is this close to the witch"
+
+"hw_max_health", "100", "Max health that a survivor can have after gaining health"
+"hw_cap_health", "1", "Whether to cap the health survivors can gain from this plugin"
+"hw_perm_gain", "5", "Amount of perm health to gain for killing a witch"
+"hw_temp_gain", "10", "Amount of temp health to gain for killing a witch"
