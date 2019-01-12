@@ -12,58 +12,86 @@ new iTankClient = -1;
 new Handle:cvar_tankProps;
 new Handle:cvar_tankPropsGlow;
 new Handle:cvar_tankPropsGlowSpec;
-new Handle:cvar_tankPropsGlowinterval;
 
 new Handle:hTankProps       = INVALID_HANDLE;
 new Handle:hTankPropsHit    = INVALID_HANDLE;
 new i_Ent[5000] = -1;
 new i_EntSpec[5000]= -1;
-new bool:g_EndMap;
 
 public Plugin:myinfo = {
     name        = "L4D2 Tank Props,l4d1 modify by Harry",
-    author      = "Jahze",
-    version     = "1.3",
-    description = "Stop tank props from fading whilst the tank is alive"
+    author      = "Jahze & Harry Potter",
+    version     = "1.4",
+    description = "Stop tank props from fading whilst the tank is alive + add Hittable Glow",
+	url = "https://steamcommunity.com/id/fbef0102/"
 };
 
 public OnPluginStart() {
     cvar_tankProps = CreateConVar("l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive", FCVAR_PLUGIN);
     cvar_tankPropsGlow = CreateConVar("l4d_tank_props_glow", "1", "Show Hittable Glow for inf team whilst the tank is alive", FCVAR_PLUGIN);
-	cvar_tankPropsGlowinterval = CreateConVar( "l4d_tank_props_glow_Refresh_interval", "0.5", "Props Glow Refresh time interval",FCVAR_PLUGIN);
-	cvar_tankPropsGlowSpec = CreateConVar(	"l4d2_tank_prop_glow_spectators",	"1",	"Spectators can see the glow too", FCVAR_PLUGIN);
+	cvar_tankPropsGlowSpec = CreateConVar( "l4d2_tank_prop_glow_spectators", "1", "Spectators can see the glow too", FCVAR_PLUGIN);
 	
 	HookConVarChange(cvar_tankProps, TankPropsChange);
 	HookConVarChange(cvar_tankPropsGlow, TankPropsGlowChange);
+	HookConVarChange(cvar_tankPropsGlowSpec, TankPropsGlowSpecChange);
 	
-	
-    PluginEnable();
+	PluginEnable();
+}
+
+public OnPluginEnd()//Called when the plugin is about to be unloaded.
+{
+    PluginDisable();
 }
 
 PluginEnable() {
-	g_EndMap = false;
 	SetConVarBool(FindConVar("sv_tankpropfade"), false);
-    
-    hTankProps = CreateArray();
-    hTankPropsHit = CreateArray();
+	
+	hTankProps = CreateArray();
+	hTankPropsHit = CreateArray();
     
     HookEvent("round_start", TankPropRoundReset);
     HookEvent("round_end", TankPropRoundReset);
     HookEvent("tank_spawn", TankPropTankSpawn);
-	HookEvent("entity_killed",		PD_ev_EntityKilled);
+	HookEvent("entity_killed", PD_ev_EntityKilled);
+	
+	if ( GetTankClient()) {
+        UnhookTankProps();
+        ClearArray(hTankPropsHit);
+		
+        HookTankProps();
+		
+		tankSpawned = true;
+	}
 }
 
 PluginDisable() {
-	g_EndMap = true;
     SetConVarBool(FindConVar("sv_tankpropfade"), true);
-    
-    CloseHandle(hTankProps);
-    CloseHandle(hTankPropsHit);
     
     UnhookEvent("round_start", TankPropRoundReset);
     UnhookEvent("round_end", TankPropRoundReset);
     UnhookEvent("tank_spawn", TankPropTankSpawn);
 	UnhookEvent("entity_killed",		PD_ev_EntityKilled);
+	
+	
+	new entity;
+	
+	for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
+		if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
+			entity = i_Ent[GetArrayCell(hTankPropsHit, i)];
+			if(IsValidEntRef(entity))
+				RemoveEdict(entity);
+			entity = i_EntSpec[GetArrayCell(hTankPropsHit, i)];
+			if(IsValidEntRef(entity))
+				RemoveEdict(entity);
+		}
+	}
+	
+    UnhookTankProps();
+    ClearArray(hTankPropsHit);
+	
+    CloseHandle(hTankProps);
+    CloseHandle(hTankPropsHit);
+	tankSpawned = false;
 }
 
 public TankPropsChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
@@ -76,21 +104,48 @@ public TankPropsChange( Handle:cvar, const String:oldValue[], const String:newVa
 }
 
 public TankPropsGlowChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
-    if ( StringToInt(newValue) == 0 ) {
-        if(tankSpawned)
-			g_EndMap = true;
+    if(StrEqual(newValue,oldValue)) return;
+	
+	if ( StringToInt(newValue) == 0 ) {
+		new entity;
+		for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
+			if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
+				entity = i_Ent[GetArrayCell(hTankPropsHit, i)];
+				if(IsValidEntRef(entity))
+					RemoveEdict(entity);
+			}
+		}
     }
-	else{
-		g_EndMap = false;
+	else
+	{
+		for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
+			if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
+				CreateTankPropGlow(GetArrayCell(hTankPropsHit, i));
+			}
+		}
 	}
 }
-public TankPropsInterval( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
-    if ( StringToInt(newValue) == 0 ) {
-        if(tankSpawned)
-			g_EndMap = true;
+
+public TankPropsGlowSpecChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
+    if(StrEqual(newValue,oldValue)) return;
+	
+	if ( StringToInt(newValue) == 0) {
+		new entity;
+		for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
+			if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
+				entity = i_EntSpec[GetArrayCell(hTankPropsHit, i)];
+				if(IsValidEntRef(entity))
+					RemoveEdict(entity);
+			}
+		}
     }
-	else{
-		g_EndMap = false;
+	else
+	{
+		for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
+			if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
+				CreateTankPropGlowSpectator(GetArrayCell(hTankPropsHit, i));
+			}
+		}
 	}
 }
 
@@ -133,27 +188,11 @@ public PropDamaged(victim, attacker, inflictor, Float:damage, damageType) {
         if ( FindValueInArray(hTankPropsHit, victim) == -1 ) {
             PushArrayCell(hTankPropsHit, victim);
 			
-			//prop glow for inf team
-			new g_infs = 0,g_specs=0;
-			
-			for( new j = 1; j <= MaxClients; j++ )
-			{
-				if (IsClientConnected(j) && IsClientInGame(j) && !IsFakeClient(j))
-				{
-					if(GetClientTeam(j)==3)
-						g_infs++;
-					else if (GetClientTeam(j)==1)
-						g_specs++;
-				}
-			}
 			
 			if(GetConVarInt(cvar_tankPropsGlow) == 1)
-			{
-				if(g_infs>0)
-					CreateTankPropGlow(victim);
-				if(g_specs>0 && GetConVarInt(cvar_tankPropsGlowSpec) == 1)
-					CreateTankPropGlowSpectator(victim);
-			}
+				CreateTankPropGlow(victim);
+			if(GetConVarInt(cvar_tankPropsGlowSpec) == 1)
+				CreateTankPropGlowSpectator(victim);
         }
     }
 }
@@ -173,7 +212,7 @@ CreateTankPropGlow(entity)
 	
 	DispatchKeyValue(i_Ent[entity], "model", sModelName);
 	DispatchKeyValue(i_Ent[entity], "StartGlowing", "1");
-	DispatchKeyValue(i_Ent[entity], "StartDisabled", "1");
+	//DispatchKeyValue(i_Ent[entity], "StartDisabled", "1");
 	DispatchKeyValue(i_Ent[entity], "targetname", "propglow");
 	
 	DispatchKeyValue(i_Ent[entity], "GlowForTeam", "3");
@@ -184,58 +223,17 @@ CreateTankPropGlow(entity)
 	DispatchKeyValue(i_Ent[entity], "fademindist", "3000");
 	DispatchKeyValue(i_Ent[entity], "fademaxdist", "3200");
 	
-	vPos[2] = vPos[2] - 5.0; // Fix position
-	
 	TeleportEntity(i_Ent[entity], vPos, vAng, NULL_VECTOR);
 	DispatchSpawn(i_Ent[entity]);
 	SetEntityRenderFx(i_Ent[entity], RENDERFX_FADE_FAST);
 	
-	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlow, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	SetEntPropFloat(i_Ent[entity], Prop_Send, "m_flPlaybackRate", 1.0);
-}
+	DispatchKeyValueVector(i_Ent[entity], "origin", vPos);
+	DispatchKeyValueVector(i_Ent[entity], "angles", vAng);
+	
+	SetVariantString("!activator");
+	AcceptEntityInput(i_Ent[entity], "SetParent", entity);
 
-public Action:KeepTankPropsGlow(Handle:timer, any:entity)
-{
-	if (!IsValidEntity(entity) || !tankSpawned || g_EndMap == true)
-	{
-		if (IsValidEdict(i_Ent[entity]))
-		{
-			RemoveEdict(i_Ent[entity]);
-		}
-		return Plugin_Stop;
-	}
 	
-	if (IsValidEntity(entity))
-	{
-		if (IsValidEdict(i_Ent[entity]))
-		{
-			decl String:targetname[128];
-			GetEntPropString(i_Ent[entity], Prop_Data, "m_iName", targetname, sizeof(targetname));
-			if(!StrEqual(targetname, "propglow"))
-			{
-				RemoveEdict(i_Ent[entity]);
-				return Plugin_Stop;
-			}
-			new Float:vPos[3];
-			new Float:vAng[3];
-			GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vPos);
-			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
-			TeleportEntity(i_Ent[entity], vPos, vAng, NULL_VECTOR);
-		} else
-		{
-			return Plugin_Stop;
-		}
-		
-	}else
-	{
-		if (IsValidEdict(i_Ent[entity]))
-		{
-			RemoveEdict(i_Ent[entity]);
-		}
-		return Plugin_Stop;
-	}
-	
-	return Plugin_Continue;
 }
 
 CreateTankPropGlowSpectator(entity)
@@ -262,60 +260,17 @@ CreateTankPropGlowSpectator(entity)
 	DispatchKeyValue(i_EntSpec[entity], "fademindist", "3000");
 	DispatchKeyValue(i_EntSpec[entity], "fademaxdist", "3200");
 	
-	vPos[2] = vPos[2] - 5.0; // Fix position
-	
 	TeleportEntity(i_EntSpec[entity], vPos, vAng, NULL_VECTOR);
 	DispatchSpawn(i_EntSpec[entity]);
 	SetEntityRenderFx(i_EntSpec[entity], RENDERFX_FADE_FAST);
-	
-	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlowSpectator, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
-	SetEntPropFloat(i_EntSpec[entity], Prop_Send, "m_flPlaybackRate", 1.0); 
-}
 
-public Action:KeepTankPropsGlowSpectator(Handle:timer, any:entity)
-{
-	if (!IsValidEntity(entity) || !tankSpawned || g_EndMap == true)
-	{
-		if (IsValidEdict(i_EntSpec[entity]))
-		{
-			RemoveEdict(i_EntSpec[entity]);
-		}
-		return Plugin_Stop;
-	}
 	
-	if (IsValidEntity(entity))
-	{
-		if (IsValidEdict(i_EntSpec[entity]))
-		{
-			decl String:targetname[128];
-			GetEntPropString(i_EntSpec[entity], Prop_Data, "m_iName", targetname, sizeof(targetname));
-			if(!StrEqual(targetname, "propglow"))
-			{
-				RemoveEdict(i_EntSpec[entity]);
-				return Plugin_Stop;
-			}
-			new Float:vPos[3];
-			new Float:vAng[3];
-			GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vPos);
-			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
-			TeleportEntity(i_EntSpec[entity], vPos, vAng, NULL_VECTOR);
-		} else
-		{
-			return Plugin_Stop;
-		}
-		
-	}else
-	{
-		if (IsValidEdict(i_EntSpec[entity]))
-		{
-			RemoveEdict(i_EntSpec[entity]);
-		}
-		return Plugin_Stop;
-	}
+	DispatchKeyValueVector(i_EntSpec[entity], "origin", vPos);
+	DispatchKeyValueVector(i_EntSpec[entity], "angles", vAng);
 	
-	return Plugin_Continue;
+	SetVariantString("!activator");
+	AcceptEntityInput(i_EntSpec[entity], "SetParent", entity);
 }
-
 
 public Action:FadeTankProps( Handle:timer ) {
     for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
@@ -331,9 +286,8 @@ bool:IsTankProp( iEntity ) {
     if ( !IsValidEdict(iEntity) ) {
         return false;
     }
-    
+	
     decl String:className[64];
-    
     GetEdictClassname(iEntity, className, sizeof(className));
     if ( StrEqual(className, "prop_physics") ) {
         if ( GetEntProp(iEntity, Prop_Send, "m_hasTankGlow", 1) ) {
@@ -343,8 +297,9 @@ bool:IsTankProp( iEntity ) {
     else if ( StrEqual(className, "prop_car_alarm") ) {
         return true;
     }
-    
-    return false;
+	
+	
+	return false;
 }
 
 HookTankProps() {
@@ -408,12 +363,9 @@ bool:IsTank( client ) {
     return false;
 }
 
-public OnMapEnd()
+bool:IsValidEntRef(entity)
 {
-	g_EndMap = true;
-}
-
-public OnMapStart()
-{
-	g_EndMap = false;
+	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE && entity!= -1 && IsValidEntity(entity) && IsValidEdict(entity))
+		return true;
+	return false;
 }
