@@ -82,9 +82,9 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_thirdpersonshoulderblock</b>: Spectates clients who enable the thirdpersonshoulder mode on L4D1/2 to prevent them from looking around corners, through walls etc.
 * <b>l4d_versus_specListener3.0</b>: Allows spectator listen others team voice for l4d
 * <b>l4d_texture_manager_block</b>: Kicks out clients who are potentially attempting to enable mathack
+* <b>AI_HardSI</b>: Improves the AI behaviour of special infected
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
-* <b>[l4d_weapon_stocks.inc](https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc)</b>
 * <b>[colors.inc](https://forums.alliedmods.net/showthread.php?t=96831)</b>
 * <b>[l4d2util.inc](https://github.com/ConfoglTeam/l4d2util/tree/master/scripting/include)</b>
