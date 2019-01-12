@@ -1,0 +1,5 @@
+Improves the AI behaviour of special infected
+
+-command-
+"ai_assault_reminder_interval", "2", "Frequency(sec) at which the 'nb_assault' command is fired to make SI attack"
+"ai_tank_bhop", "1", "Flag to enable bhop facsimile on AI tanks"
