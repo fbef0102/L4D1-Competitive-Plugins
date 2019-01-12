@@ -1,6 +1,6 @@
 /*this plugin fix two issues*/
 //1.Fix each round tank/Witch spawn different positions for both team
-//2.Fix C17 map1 two witches
+//2.Fix City17 map1 two witches
 //The Author: Harry Potter
 //Only for L4D1
 
@@ -23,11 +23,10 @@
 #define MAX		1
 
 static Handle:g_hCvarVsBossChance[3][2], Handle:g_hCvarVsBossFlow[3][2], Float:g_fCvarVsBossChance[3][2], Float:g_fCvarVsBossFlow[3][2];
-static	bool:g_bFixed,bool:g_bTankFix,Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
+static	bool:g_bFixed,Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
 static 	Float:fWitchData_agnel[3],Float:fWitchData_origin[3];
 static	bool:Tank_firstround_spawn,bool:Witch_firstround_spawn;
 static bool:b_IsSecondWitch;
-new bool:InSecondHalfOfRound;
 
 public Plugin:myinfo = 
 {
@@ -64,7 +63,6 @@ public OnPluginStart()
 		}
 	}
 
-	HookEvent("round_end", TS_ev_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("tank_spawn",			TS_ev_TankSpawn,		EventHookMode_PostNoCopy);
 	HookEvent("witch_spawn", TS_ev_WitchSpawn);
 	HookEvent("round_start", TS_ev_RoundStart, EventHookMode_PostNoCopy);
@@ -89,19 +87,25 @@ public OnMapStart()
 		L4DDirect_SetVSTankFlowPercent(1, fTankFlow);
 	}
 	
-	new Float:fWitchFlow = GetRandomBossFlow(iCampaign);
-	if(IsDeadAirFinal())
+	new Handle:WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
+	if(WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1)
 	{
-		fWitchFlow =  GetRandomFloat(0.50,0.65);
+		LogMessage("WITCH PARTY Enable, l4d_versus_same_UnprohibitBosses.smx doesn't spawn Witch");
 	}
-	L4DDirect_SetVSWitchToSpawnThisRound(0, true);
-	L4DDirect_SetVSWitchToSpawnThisRound(1, true);
-	L4DDirect_SetVWitchFlowPercent(0, fWitchFlow);
-	L4DDirect_SetVWitchFlowPercent(1, fWitchFlow);
+	else
+	{
+		new Float:fWitchFlow = GetRandomBossFlow(iCampaign);
+		if(IsDeadAirFinal())
+		{
+			fWitchFlow =  GetRandomFloat(0.50,0.65);
+		}
+		L4DDirect_SetVSWitchToSpawnThisRound(0, true);
+		L4DDirect_SetVSWitchToSpawnThisRound(1, true);
+		L4DDirect_SetVWitchFlowPercent(0, fWitchFlow);
+		L4DDirect_SetVWitchFlowPercent(1, fWitchFlow);
+	}
 	
 	//強制tank出生在一樣的位置
-	InSecondHalfOfRound = false;
-	g_bTankFix = false;
 	g_bFixed = false;
 	Tank_firstround_spawn = false;
 	ClearVec();
@@ -144,27 +148,12 @@ public _UB_Common_CvarChange(Handle:convar, const String:oldValue[], const Strin
 		}
 	}
 }
-public Action:L4D_OnSpawnTank(const Float:vector[3], const Float:qangle[3])
-{
-	if(!g_bTankFix){
-		if (FirstRound())
-		{
-			if(!Tank_firstround_spawn){
-				CopyVec(vector, qangle);	
-				//PrintToChatAll("round1 tank pos: %.1f %.1f %.1f", vector[0], vector[1], vector[2]);
-				Tank_firstround_spawn = true;
-			}
-		}
-		else
-		{
-			//PrintToChatAll("round2 tank pos: %.1f %.1f %.1f", vector[0], vector[1], vector[2]);
-			g_bTankFix = true;
-		}
-	}
-}
 
 public Action:L4D_OnSpawnWitch(const Float:vector[3], const Float:qangle[3])
 {
+	new Handle:WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
+	if(WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1) return Plugin_Continue;	
+	
 	decl String:sMap[64];
 	GetCurrentMap(sMap, 64);
 	if(StrEqual(sMap, "l4d_vs_city17_01")){//issue with city17 map1, two witches spawn in this stage, block second witch spawn
@@ -180,14 +169,29 @@ public Action:L4D_OnSpawnWitch(const Float:vector[3], const Float:qangle[3])
 
 public Action:TS_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if(g_bFixed || FirstRound() || !Tank_firstround_spawn) return;
-	
-	new iTank = IsTankInGame();
-	if (iTank){
+	if (!InSecondHalfOfRound())
+	{
+		if(!Tank_firstround_spawn){
+			new iTank = IsTankInGame();
+			if (iTank){
+				GetEntPropVector(iTank, Prop_Send, "m_angRotation", g_fTankData_angel);
+				GetEntPropVector(iTank, Prop_Send, "m_vecOrigin", g_fTankData_origin);
+				//PrintToChatAll("round1 tank pos: %.1f %.1f %.1f", vector[0], vector[1], vector[2]);
+				Tank_firstround_spawn = true;
+			}
+		}
+	}
+	else
+	{
+		if(g_bFixed || !Tank_firstround_spawn) return;
+		
+		new iTank = IsTankInGame();
+		if (iTank){
 
-		TeleportEntity(iTank, g_fTankData_origin, g_fTankData_angel, NULL_VECTOR);
-		//PrintToChatAll("teleport '%N' to round1 pos.", iTank);
-		g_bFixed = true;
+			TeleportEntity(iTank, g_fTankData_origin, g_fTankData_angel, NULL_VECTOR);
+			//PrintToChatAll("teleport '%N' to round1 pos.", iTank);
+			g_bFixed = true;
+		}
 	}
 }
 
@@ -198,30 +202,6 @@ IsTankInGame(exclude = 0)
 			return i;
 
 	return 0;
-}
-
-bool:FirstRound()
-{
-	if(!InSecondHalfOfRound)
-		return true;
-	else
-		return false;
-}
-public Action:TS_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	if(!InSecondHalfOfRound)//第一回合結束
-		InSecondHalfOfRound = true;
-}
-
-static CopyVec(const Float:vector[3], const Float:qangle[3])
-{
-	for (new index; index < 3; index++){
-
-		g_fTankData_origin[index] = vector[index];
-		g_fTankData_angel[index] = qangle[index];
-	}
-	//PrintToChatAll("%.1f ,%.1f ,%.1f",g_fTankData_origin[0],g_fTankData_origin[1],g_fTankData_origin[2]);
-	//PrintToChatAll("%.1f ,%.1f ,%.1f",g_fTankData_angel[0],g_fTankData_angel[1],g_fTankData_angel[2]);
 }
 
 static ClearVec()
@@ -236,9 +216,12 @@ static ClearVec()
 
 public TS_ev_WitchSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	new Handle:WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
+	if(WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1) return;	
+	
 	if(GetConVarInt(FindConVar("sv_cheats")) == 1) return;
 	new iEnt = GetEventInt(event, "witchid");
-	if(FirstRound()&&!Witch_firstround_spawn)
+	if(!InSecondHalfOfRound()&&!Witch_firstround_spawn)
 	{
 		GetEntPropVector(iEnt, Prop_Send, "m_angRotation", fWitchData_agnel);
 		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", fWitchData_origin);
@@ -284,4 +267,9 @@ bool:Is_First_Stage()//非官方圖第一關
 	StrEqual(mapbuf, "l4d_jsarena01_town"))
 		return true;
 	return false;
+}
+
+bool:InSecondHalfOfRound()
+{
+	return GameRules_GetProp("m_bInSecondHalfOfRound");
 }
