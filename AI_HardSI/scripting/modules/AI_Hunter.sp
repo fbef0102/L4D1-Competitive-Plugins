@@ -126,7 +126,10 @@ public Action:Hunter_OnPlayerRunCmd(hunter, &buttons, &impulse, Float:vel[3], Fl
 
 ***********************************************************************************************************************************************************************************/
 
-public Action:Hunter_OnPounce(botHunter) {	
+public Action:Hunter_OnPounce(botHunter) {
+
+	if(GetRandomSurvivor() == -1) return Plugin_Continue;
+	
 	new entLunge = GetEntPropEnt(botHunter, Prop_Send, "m_customAbility"); // get the hunter's lunge entity				
 	new Float:lungeVector[3]; 
 	GetEntPropVector(entLunge, Prop_Send, "m_queuedLunge", lungeVector); // get the vector from the lunge entity
