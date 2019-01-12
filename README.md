@@ -87,3 +87,4 @@ using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
 * <b>[l4d_weapon_stocks.inc](https://github.com/fbef0102/L4D1-Plugins/blob/master/scripting/include/l4d_weapon_stocks.inc)</b>
 * <b>[colors.inc](https://forums.alliedmods.net/showthread.php?t=96831)</b>
+* <b>[l4d2util.inc](https://github.com/ConfoglTeam/l4d2util/tree/master/scripting/include)</b>
