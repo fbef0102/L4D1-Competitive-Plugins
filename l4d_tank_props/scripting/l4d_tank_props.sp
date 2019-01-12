@@ -19,16 +19,16 @@ new i_Ent[5000] = -1;
 new i_EntSpec[5000]= -1;
 
 public Plugin:myinfo = {
-    name        = "L4D2 Tank Props,l4d1 modify by Harry",
-    author      = "Jahze & Harry Potter",
-    version     = "1.4",
-    description = "Stop tank props from fading whilst the tank is alive + add Hittable Glow",
+name        = "L4D2 Tank Props,l4d1 modify by Harry",
+	author      = "Jahze & Harry Potter",
+	version     = "1.4",
+	description = "Stop tank props from fading whilst the tank is alive + add Hittable Glow",
 	url = "https://steamcommunity.com/id/fbef0102/"
 };
 
 public OnPluginStart() {
-    cvar_tankProps = CreateConVar("l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive", FCVAR_PLUGIN);
-    cvar_tankPropsGlow = CreateConVar("l4d_tank_props_glow", "1", "Show Hittable Glow for inf team whilst the tank is alive", FCVAR_PLUGIN);
+	cvar_tankProps = CreateConVar("l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive", FCVAR_PLUGIN);
+	cvar_tankPropsGlow = CreateConVar("l4d_tank_props_glow", "1", "Show Hittable Glow for inf team whilst the tank is alive", FCVAR_PLUGIN);
 	cvar_tankPropsGlowSpec = CreateConVar( "l4d2_tank_prop_glow_spectators", "1", "Spectators can see the glow too", FCVAR_PLUGIN);
 	
 	HookConVarChange(cvar_tankProps, TankPropsChange);
@@ -40,7 +40,7 @@ public OnPluginStart() {
 
 public OnPluginEnd()//Called when the plugin is about to be unloaded.
 {
-    PluginDisable();
+	PluginDisable();
 }
 
 PluginEnable() {
@@ -48,28 +48,28 @@ PluginEnable() {
 	
 	hTankProps = CreateArray();
 	hTankPropsHit = CreateArray();
-    
-    HookEvent("round_start", TankPropRoundReset);
-    HookEvent("round_end", TankPropRoundReset);
-    HookEvent("tank_spawn", TankPropTankSpawn);
+	
+	HookEvent("round_start", TankPropRoundReset);
+	HookEvent("round_end", TankPropRoundReset);
+	HookEvent("tank_spawn", TankPropTankSpawn);
 	HookEvent("entity_killed", PD_ev_EntityKilled);
 	
 	if ( GetTankClient()) {
-        UnhookTankProps();
-        ClearArray(hTankPropsHit);
+		UnhookTankProps();
+		ClearArray(hTankPropsHit);
 		
-        HookTankProps();
+		HookTankProps();
 		
 		tankSpawned = true;
 	}
 }
 
 PluginDisable() {
-    SetConVarBool(FindConVar("sv_tankpropfade"), true);
-    
-    UnhookEvent("round_start", TankPropRoundReset);
-    UnhookEvent("round_end", TankPropRoundReset);
-    UnhookEvent("tank_spawn", TankPropTankSpawn);
+	SetConVarBool(FindConVar("sv_tankpropfade"), true);
+	
+	UnhookEvent("round_start", TankPropRoundReset);
+	UnhookEvent("round_end", TankPropRoundReset);
+	UnhookEvent("tank_spawn", TankPropTankSpawn);
 	UnhookEvent("entity_killed",		PD_ev_EntityKilled);
 	
 	
@@ -85,12 +85,11 @@ PluginDisable() {
 				RemoveEdict(entity);
 		}
 	}
+	UnhookTankProps();
+	ClearArray(hTankPropsHit);
 	
-    UnhookTankProps();
-    ClearArray(hTankPropsHit);
-	
-    CloseHandle(hTankProps);
-    CloseHandle(hTankPropsHit);
+	CloseHandle(hTankProps);
+	CloseHandle(hTankPropsHit);
 	tankSpawned = false;
 }
 
@@ -104,7 +103,7 @@ public TankPropsChange( Handle:cvar, const String:oldValue[], const String:newVa
 }
 
 public TankPropsGlowChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
-    if(StrEqual(newValue,oldValue)) return;
+	if(StrEqual(newValue,oldValue)) return;
 	
 	if ( StringToInt(newValue) == 0 ) {
 		new entity;
@@ -127,7 +126,7 @@ public TankPropsGlowChange( Handle:cvar, const String:oldValue[], const String:n
 }
 
 public TankPropsGlowSpecChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
-    if(StrEqual(newValue,oldValue)) return;
+	if(StrEqual(newValue,oldValue)) return;
 	
 	if ( StringToInt(newValue) == 0) {
 		new entity;
@@ -186,8 +185,7 @@ public Action:TankDeadCheck( Handle:timer ) {
 public PropDamaged(victim, attacker, inflictor, Float:damage, damageType) {
     if ( attacker == GetTankClient() || FindValueInArray(hTankPropsHit, inflictor) != -1 ) {
         if ( FindValueInArray(hTankPropsHit, victim) == -1 ) {
-            PushArrayCell(hTankPropsHit, victim);
-			
+			PushArrayCell(hTankPropsHit, victim);
 			
 			if(GetConVarInt(cvar_tankPropsGlow) == 1)
 				CreateTankPropGlow(victim);
@@ -283,21 +281,20 @@ public Action:FadeTankProps( Handle:timer ) {
 }
 
 bool:IsTankProp( iEntity ) {
-    if ( !IsValidEdict(iEntity) ) {
-        return false;
-    }
+	if ( !IsValidEdict(iEntity) ) {
+		return false;
+	}
 	
-    decl String:className[64];
-    GetEdictClassname(iEntity, className, sizeof(className));
-    if ( StrEqual(className, "prop_physics") ) {
-        if ( GetEntProp(iEntity, Prop_Send, "m_hasTankGlow", 1) ) {
-            return true;
-        }
-    }
-    else if ( StrEqual(className, "prop_car_alarm") ) {
-        return true;
-    }
-	
+	decl String:className[64];
+	GetEdictClassname(iEntity, className, sizeof(className));
+	if ( StrEqual(className, "prop_physics") ) {
+		if ( GetEntProp(iEntity, Prop_Send, "m_hasTankGlow", 1) ) {
+			return true;
+		}
+	}
+	else if ( StrEqual(className, "prop_car_alarm") ) {
+		return true;
+	}
 	
 	return false;
 }
