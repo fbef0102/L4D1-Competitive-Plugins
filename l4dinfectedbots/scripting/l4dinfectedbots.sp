@@ -1,7 +1,7 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.0.0
-* Game		: Left 4 Dead 1 & 2
+* Version	: 2.0.3
+* Game		: Left 4 Dead 1
 * Author	: djromero (SkyDavid, David) and MI 5 & l4d1 port by Harry
 * Testers	: Myself, MI 5
 * Website	: www.sky.zebgames.com
@@ -10,6 +10,12 @@
 * 
 * WARNING	: Please use sourcemod's latest 1.3 branch snapshot.
 * 
+
+* Version 2.0.3
+* 	   - remove SI improvement cvars
+
+* Version 2.0.2
+* 	   - Add IsInReady() and remove AutoExecConfig
 
 * Version 2.0.1
 * 	   - Only For L4D1 by Harry
@@ -536,6 +542,9 @@ static Handle:usrHUDPref 		= INVALID_HANDLE;	// Stores the client HUD preference
 static Handle:h_InfHUD		= INVALID_HANDLE;
 static Handle:h_Announce 	= INVALID_HANDLE;
 
+//v2.0.2
+native IsInReady();
+
 public Plugin:myinfo = 
 {
 	name = "[L4D/L4D2] Infected Bots (Versus Coop/Coop Versus)",
@@ -733,7 +742,7 @@ public OnPluginStart()
 	b_HasRoundEnded = false;
 	
 	//Autoconfig for plugin
-	AutoExecConfig(true, "l4dinfectedbots");
+	//AutoExecConfig(true, "l4dinfectedbots");
 	
 	//----- Zombie HP hooks ---------------------	
 	//We store the special infected max HP values in an array and then hook the cvars used to modify them
@@ -977,14 +986,10 @@ TweakSettings()
 				SetConVarInt(FindConVar("z_hunter_limit"), 999);
 			}
 			// Enhance Special Infected AI
-			SetConVarFloat(FindConVar("smoker_tongue_delay"), 0.0);
-			SetConVarFloat(FindConVar("boomer_vomit_delay"), 0.0);
-			SetConVarFloat(FindConVar("boomer_exposed_time_tolerance"), 0.0);
 			SetConVarInt(FindConVar("hunter_leap_away_give_up_range"), 0);
 			SetConVarInt(FindConVar("z_hunter_lunge_distance"), 5000);
 			SetConVarInt(FindConVar("hunter_pounce_ready_range"), 1500);
 			SetConVarFloat(FindConVar("hunter_pounce_loft_rate"), 0.055);
-			SetConVarFloat(FindConVar("z_hunter_lunge_stagger_time"), 0.0);
 			if (GetConVarBool(h_VersusCoop))
 				SetConVarInt(FindConVar("vs_max_team_switches"), 0);
 		}
@@ -1049,14 +1054,10 @@ ResetCvars()
 	if (GameMode == 1)
 	{
 		ResetConVar(FindConVar("director_no_specials"), true, true);
-		ResetConVar(FindConVar("boomer_vomit_delay"), true, true);
-		ResetConVar(FindConVar("smoker_tongue_delay"), true, true);
 		ResetConVar(FindConVar("hunter_leap_away_give_up_range"), true, true);
-		ResetConVar(FindConVar("boomer_exposed_time_tolerance"), true, true);
 		ResetConVar(FindConVar("z_hunter_lunge_distance"), true, true);
 		ResetConVar(FindConVar("hunter_pounce_ready_range"), true, true);
 		ResetConVar(FindConVar("hunter_pounce_loft_rate"), true, true);
-		ResetConVar(FindConVar("z_hunter_lunge_stagger_time"), true, true);
 		if (L4DVersion)
 		{
 			ResetConVar(FindConVar("survival_max_smokers"), true, true);
@@ -1116,15 +1117,11 @@ ResetCvars()
 			ResetConVar(FindConVar("z_gas_limit"), true, true);
 			ResetConVar(FindConVar("z_exploding_limit"), true, true);
 		}
-		ResetConVar(FindConVar("boomer_vomit_delay"), true, true);
 		ResetConVar(FindConVar("director_no_specials"), true, true);
-		ResetConVar(FindConVar("smoker_tongue_delay"), true, true);
 		ResetConVar(FindConVar("hunter_leap_away_give_up_range"), true, true);
-		ResetConVar(FindConVar("boomer_exposed_time_tolerance"), true, true);
 		ResetConVar(FindConVar("z_hunter_lunge_distance"), true, true);
 		ResetConVar(FindConVar("hunter_pounce_ready_range"), true, true);
 		ResetConVar(FindConVar("hunter_pounce_loft_rate"), true, true);
-		ResetConVar(FindConVar("z_hunter_lunge_stagger_time"), true, true);
 	}
 }
 
@@ -4210,6 +4207,8 @@ FindBotToTakeOver()
 
 bool:LeftStartArea()
 {
+	if(IsInReady()) return false;
+	
 	new ent = -1, maxents = GetMaxEntities();
 	for (new i = MaxClients+1; i <= maxents; i++)
 	{
@@ -4267,14 +4266,10 @@ public OnPluginEnd()
 		ResetConVar(FindConVar("z_hunter_limit"), true, true);
 	}
 	ResetConVar(FindConVar("director_no_specials"), true, true);
-	ResetConVar(FindConVar("boomer_vomit_delay"), true, true);
-	ResetConVar(FindConVar("smoker_tongue_delay"), true, true);
 	ResetConVar(FindConVar("hunter_leap_away_give_up_range"), true, true);
-	ResetConVar(FindConVar("boomer_exposed_time_tolerance"), true, true);
 	ResetConVar(FindConVar("z_hunter_lunge_distance"), true, true);
 	ResetConVar(FindConVar("hunter_pounce_ready_range"), true, true);
 	ResetConVar(FindConVar("hunter_pounce_loft_rate"), true, true);
-	ResetConVar(FindConVar("z_hunter_lunge_stagger_time"), true, true);
 	ResetConVar(FindConVar("z_attack_flow_range"), true, true);
 	ResetConVar(FindConVar("director_spectate_specials"), true, true);
 	
