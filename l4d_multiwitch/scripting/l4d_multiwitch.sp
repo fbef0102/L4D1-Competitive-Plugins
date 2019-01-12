@@ -4,6 +4,7 @@
 #include <l4d_direct>
 
 #define MAX(%0,%1) (((%0) > (%1)) ? (%0) : (%1))
+#define MIN(%0,%1) (((%0) < (%1)) ? (%0) : (%1))
 #define EXTRA_FLOW 3000.0
 
 new Handle:	hEnabled;
@@ -29,12 +30,18 @@ new bool:i_Ent_killed[5000] = false;
 new bool:g_EndMap;
 #define NULL					-1
 
+new Handle:hw_max_health;
+new Handle:hw_cap_health;
+new Handle:hw_perm_gain;
+new Handle:hw_temp_gain;
+new Handle:pain_pills_decay_rate;
+
 public Plugin:myinfo =
 {
 	name = "L4D1 Multiwitch",
 	author = "CanadaRox , l4d1 modify by Harry",
-	description = "A plugin that spawns unlimited witches off of a timer. Sets glows on witches when survivors are far away",
-	version = "2.2",
+	description = "A plugin designed to support witch party",
+	version = "2.3",
 	url = "https://steamcommunity.com/id/fbef0102/"
 };
 
@@ -71,6 +78,13 @@ public OnPluginStart()
 	new Float:tmp = GetConVarFloat(wg_min_range);
 	minRangeSquared = tmp * tmp;
 	g_EndMap = false;
+	
+	pain_pills_decay_rate = FindConVar("pain_pills_decay_rate");
+
+	hw_max_health = CreateConVar("hw_max_health", "100", "Max health that a survivor can have after gaining health", FCVAR_PLUGIN, true, 100.0);
+	hw_cap_health = CreateConVar("hw_cap_health", "1", "Whether to cap the health survivors can gain from this plugin", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	hw_perm_gain = CreateConVar("hw_perm_gain", "5", "Amount of perm health to gain for killing a witch", FCVAR_PLUGIN, true, 0.0);
+	hw_temp_gain = CreateConVar("hw_temp_gain", "10", "Amount of temp health to gain for killing a witch", FCVAR_PLUGIN, true, 0.0);
 }
 
 public OnPluginEnd()//Called when the plugin is about to be unloaded.
@@ -257,7 +271,7 @@ CreateWitchPropSpawner(WitchID)
 	DispatchSpawn(i_Ent[WitchID]);
 	SetEntityRenderFx(i_Ent[WitchID], RENDERFX_FADE_FAST);
 	
-	CreateTimer(0.1, m_SequencePos, WitchID, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(0.5, m_SequencePos, WitchID, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 	SetEntPropFloat(i_Ent[WitchID], Prop_Send, "m_flPlaybackRate", 1.0); 
 }
 public Action:m_SequencePos(Handle:timer, any:entity)
@@ -338,6 +352,11 @@ public Event_WitchKilled(Handle:event, const String:name[], bool:dontBroadcast)
 		}	
 		i_Ent_killed[WitchID] = true;
 	}
+	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if (client > 0 && client <= MaxClients && IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client) && !IsPlayerIncap(client))
+	{
+		IncreaseHealth(client);
+	}
 }
 
 public OnMapEnd()
@@ -348,4 +367,51 @@ public OnMapEnd()
 public OnMapStart()
 {
 	g_EndMap = false;
+}
+
+IncreaseHealth(client)
+{
+	new bool:capped = GetConVarBool(hw_cap_health);
+	new targetHealth = GetSurvivorPermHealth(client) + GetConVarInt(hw_perm_gain);
+	new Float:targetTemp = GetSurvivorTempHealth(client) + GetConVarInt(hw_temp_gain);
+
+	if (capped)
+	{
+		new maxHealth = GetConVarInt(hw_max_health);
+		targetHealth = MIN(targetHealth, maxHealth);
+
+		new Float:totalHealth = targetHealth + targetTemp;
+		totalHealth = MIN(totalHealth, float(maxHealth));
+		targetTemp = totalHealth - targetHealth;
+	}
+
+	SetSurvivorPermHealth(client, targetHealth);
+	SetSurvivorTempHealth(client, targetTemp);
+}
+
+stock GetSurvivorPermHealth(client)
+{
+	return GetEntProp(client, Prop_Send, "m_iHealth");
+}
+
+stock SetSurvivorPermHealth(client, health)
+{
+	SetEntProp(client, Prop_Send, "m_iHealth", health);
+}
+
+stock Float:GetSurvivorTempHealth(client)
+{
+	new Float:tmp = GetEntPropFloat(client, Prop_Send, "m_healthBuffer") - ((GetGameTime() - GetEntPropFloat(client, Prop_Send, "m_healthBufferTime")) * GetConVarFloat(pain_pills_decay_rate));
+	return tmp > 0 ? tmp : 0.0;
+}
+
+stock SetSurvivorTempHealth(client, Float:newOverheal)
+{
+	SetEntPropFloat(client, Prop_Send, "m_healthBufferTime", GetGameTime());
+	SetEntPropFloat(client, Prop_Send, "m_healthBuffer", newOverheal);
+}
+
+stock bool:IsPlayerIncap(client)
+{
+	return bool:GetEntProp(client, Prop_Send, "m_isIncapacitated");
 }
