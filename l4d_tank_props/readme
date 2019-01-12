@@ -5,5 +5,4 @@ this video shows how it works: https://www.youtube.com/watch?v=UZDF6dbagxU&featu
 -command-
 "l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive"
 "l4d_tank_props_glow", "1", "Show Hittable Glow for inf team whilst the tank is alive"
-"l4d_tank_props_glow_Refresh_interval", "0.5", "Props Glow Refresh time interval"
 "l4d2_tank_prop_glow_spectators",	"1",	"Spectators can see the glow too"
