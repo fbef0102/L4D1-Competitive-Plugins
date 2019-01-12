@@ -10,7 +10,7 @@ A plugin designed to support witch party
 
 "wg_min_range", "500", "Glows will not show if a survivor is this close to the witch"
 
-"hw_max_health", "100", "Max health that a survivor can have after gaining health"
+"hw_max_health", "150", "Max health that a survivor can have after gaining health"
 "hw_cap_health", "1", "Whether to cap the health survivors can gain from this plugin"
 "hw_perm_gain", "5", "Amount of perm health to gain for killing a witch"
 "hw_temp_gain", "10", "Amount of temp health to gain for killing a witch"
