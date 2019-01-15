@@ -6,7 +6,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 > last edited:2019/1/16
 # Require
 * Clean Servers:
-  * [Sourcemod 1.8](https://www.sourcemod.net/downloads.php?branch=1.8-dev) (or newer), [Metamod](https://www.metamodsource.net/)
+  * [Sourcemod 1.8](https://www.sourcemod.net/downloads.php?branch=1.8-dev) (or newer), [Metamod](https://www.metamodsource.net/downloads.php?branch=stable)
 * <b>[l4dt-0.4.7.5.zip](https://bitbucket.org/disawar1/left4downtown/downloads/)</b>
 * <b>[l4d_direct](https://github.com/raziEiL/l4d_direct-port)</b>
 * <b>[GameRules Prop Hax](https://forums.alliedmods.net/showthread.php?t=154217)</b>
@@ -85,6 +85,6 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>AI_HardSI</b>: Improves the AI behaviour of special infected
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
-* <b>[l4d_lib.inc](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
-* <b>[colors.inc](https://forums.alliedmods.net/showthread.php?t=96831)</b>
-* <b>[l4d2util.inc](https://github.com/ConfoglTeam/l4d2util/tree/master/scripting/include)</b>
+* <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
+* <b>[colors](https://forums.alliedmods.net/showthread.php?t=96831)</b>
+* <b>[l4d2util](https://github.com/ConfoglTeam/l4d2util/tree/master/scripting/include)</b>
