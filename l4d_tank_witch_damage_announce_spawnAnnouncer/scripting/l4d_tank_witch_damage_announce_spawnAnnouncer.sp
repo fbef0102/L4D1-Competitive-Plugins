@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION	"2.0"
+#define PLUGIN_VERSION	"7.9"
 
 #pragma semicolon 1
 
@@ -47,6 +47,7 @@ new                     g_iLastTankHealth           = 0;                // Used 
 new bool:g_bIsTankAlive;
 new g_TankOtherDamage = 0;
 new g_bCvarSurvLimit;
+static bool:resuce_start = false;
 
 public OnMapStart()
 {
@@ -96,7 +97,8 @@ public OnPluginStart()
 	HookEvent("player_hurt",			PD_ev_PlayerHurt);
 	HookEvent("infected_hurt",		PD_ev_InfectedHurt);
 	HookEvent("player_bot_replace",	PD_ev_PlayerBotReplace);
-
+	HookEvent("finale_start", Event_Finale_Start);
+	
 	g_hTrine = CreateTrie();
 	
 	AutoExecConfig(true, "l4d_tank_witch_damage_announce");
@@ -106,6 +108,7 @@ public OnPluginStart()
 public Action:PD_ev_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	//LogMessage("Now round_start event");
+	resuce_start = false;
 	g_bIsTankAlive = false;
 	g_iLastTankHealth = 0;
 	g_TankOtherDamage = 0;
@@ -215,6 +218,18 @@ public Action:PD_t_CheckIsInf(Handle:timer, any:client)
 
 public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	if(resuce_start)
+	{
+		new Handle:BlockFirstTank = FindConVar("no_final_first_tank");
+		if(BlockFirstTank != INVALID_HANDLE)
+		{
+			if(GetConVarInt(BlockFirstTank) == 1)
+			{
+				resuce_start = false;
+				return;
+			}
+		}
+	}
 	if (!g_bIsTankAlive)
 	{
 		g_TankOtherDamage = 0;
@@ -801,3 +816,8 @@ public CheckSurvivorAlive()
 	if(surdead == g_bCvarSurvLimit)
 		g_iLastTankHealth = 0;
 }*/
+
+public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	resuce_start = true;
+}
