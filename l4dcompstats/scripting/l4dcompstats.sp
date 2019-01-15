@@ -157,6 +157,8 @@ new				g_iDamageDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker
 new				g_iShotsDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker, count # of shots (not pellets)
 new 	bool:	isroundreallyend;
 
+//harry
+native IsInReady();
 new     Handle:         g_hTrieEntityCreated                                = INVALID_HANDLE;   // getting classname of entity created
 // trie values: OnEntityCreated classname
 enum strOEC
@@ -284,7 +286,8 @@ public PrintMVPAndTeamStats(team)
 	for (i = 1; i <= MaxClients; i++)
 	{
 		if (!IsClientInGame(i) || !IsSurvivor(i)) continue;
-		survivor_clients[survivor_count++] = i;
+		if(g_iSurvivorLimit > survivor_count)
+			survivor_clients[survivor_count++] = i;
 	}
 	if(survivor_count == 0)
 		return;
@@ -926,7 +929,7 @@ public Action:PlayerHook_OnTakeDamagePre(victim, &attacker, &inflictor, &Float:d
 
 public Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (g_bHasRoundEnded) return;
+	if (g_bHasRoundEnded||IsInReady()) return;
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 
 	if (victim == 0 ||
@@ -985,7 +988,42 @@ public Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
 			// Let player_death handle remainder damage (avoid overkill damage)
 			if (remaining_health <= 0) return;
 
-
+			//配合G擊槍改Hunter傷害
+			if (zombieclass == ZC_HUNTER)
+			{
+				decl String:weapon[16];
+				GetEventString(event, "weapon", weapon, sizeof(weapon));	
+				if (StrEqual(weapon, "hunting_rifle"))
+				{
+					new newdmg; 
+					switch (GetEventInt(event, "hitgroup"))
+					{
+						case 2:
+						{
+							newdmg = RoundToNearest(damage*2.8);
+						}
+						case 3:
+						{
+							newdmg = RoundToNearest(damage*1.8);				
+						}	
+						default:
+						{
+						}
+					}
+					new OldHealth = GetEventInt(event,"health");
+					new originalhealth = OldHealth + damage;
+					if(originalhealth - newdmg <= 0)
+					{
+						damage = originalhealth;
+						remaining_health = 0;
+					} 
+					else
+					{
+						damage = newdmg;
+						remaining_health = originalhealth - newdmg;
+					}
+				}
+			}
 			// remainder health will be awarded as damage on kill
 			g_iLastHealth[victim] = remaining_health;
 
