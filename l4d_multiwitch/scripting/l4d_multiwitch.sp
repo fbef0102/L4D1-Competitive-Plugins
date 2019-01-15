@@ -14,10 +14,6 @@ new bool:	bEnabled;
 new Handle:	hSpawnFreq;
 new Float:	fSpawnFreq;
 
-native IsInReady();
-native IsInPause();
-native Is_Ready_Plugin_On();
-
 new Handle:	hMaxWitchAllowed;
 new MaxWitchAllowed;
 static bool:RoundEnd,bool:hasleftstartarea;
@@ -96,10 +92,7 @@ public OnPluginEnd()//Called when the plugin is about to be unloaded.
 
 public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	if(!Is_Ready_Plugin_On())
-	{
-		hasleftstartarea = true;
-	}
+	hasleftstartarea = true;
 }
 
 public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
@@ -142,11 +135,11 @@ public hMaxWitchAllowed_Changed(Handle:convar, const String:oldValue[], const St
 
 public Action:WitchSpawn_Timer(Handle:timer)
 {
-	if(!Is_Ready_Plugin_On()&&!hasleftstartarea)
+	if(!hasleftstartarea)
 	{
 		return Plugin_Handled;
 	}
-	if(RoundEnd || IsInPause() || IsInReady())
+	if(RoundEnd)
 	{
 		return Plugin_Handled;
 	}
