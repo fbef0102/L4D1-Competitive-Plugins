@@ -14,6 +14,10 @@ new bool:	bEnabled;
 new Handle:	hSpawnFreq;
 new Float:	fSpawnFreq;
 
+native IsInReady();
+native IsInPause();
+native Is_Ready_Plugin_On();
+
 new Handle:	hMaxWitchAllowed;
 new MaxWitchAllowed;
 static bool:RoundEnd,bool:hasleftstartarea;
@@ -32,7 +36,6 @@ new Handle:hw_cap_health;
 new Handle:hw_perm_gain;
 new Handle:hw_temp_gain;
 new Handle:pain_pills_decay_rate;
-static bool:ClientHasDown[MAXPLAYERS + 1];
 
 public Plugin:myinfo =
 {
@@ -62,10 +65,6 @@ public OnPluginStart()
 	HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
 	HookEvent("round_end", RoundEnd_Event, EventHookMode_PostNoCopy);
 	HookEvent("player_left_start_area", LeftStartAreaEvent, EventHookMode_PostNoCopy);
-	HookEvent("revive_success", Event_revive_success);//救起倒地的or 懸掛的
-	HookEvent("player_bot_replace", OnBotSwap);
-	HookEvent("bot_player_replace", OnBotSwap);
-	HookEvent("player_spawn", OnPlayerSpawn);
 	
 	RoundEnd = false;
 	hasleftstartarea = false;
@@ -74,7 +73,6 @@ public OnPluginStart()
 	HookEvent("witch_spawn", WitchSpawn_Event);
 	HookEvent("witch_harasser_set", OnWitchWokeup);
 	HookEvent("witch_killed", Event_WitchKilled);
-	HookEvent("heal_success", Event_heal_success);
 	
 	wg_min_range = CreateConVar("wg_min_range", "500", "Glows will not show if a survivor is this close to the witch", FCVAR_NONE, true, 0.0);
 	HookConVarChange(wg_min_range, MinRangeChange);
@@ -98,7 +96,10 @@ public OnPluginEnd()//Called when the plugin is about to be unloaded.
 
 public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	hasleftstartarea = true;
+	if(!Is_Ready_Plugin_On())
+	{
+		hasleftstartarea = true;
+	}
 }
 
 public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
@@ -106,7 +107,6 @@ public RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
 	hasleftstartarea = false;
 	RoundEnd = false;
 	g_EndMap = false;
-	for(new i = 1; i <= MaxClients; i++) ClientHasDown[i] = false;	
 	
 }
 
@@ -114,27 +114,6 @@ public RoundEnd_Event(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	RoundEnd = true;
 	g_EndMap = true;
-}
-
-public Event_revive_success(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	
-	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被救的那位
-	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
-	if (GetEventBool(event,"ledge_hang"))
-	{
-		return;
-	}
-	ClientHasDown[subject] = true;
-}
-
-public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	
-	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被治療的那位
-	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
-	
-	ClientHasDown[subject] = false;
 }
 
 public Enabled_Changed(Handle:convar, const String:oldValue[], const String:newValue[])
@@ -163,11 +142,11 @@ public hMaxWitchAllowed_Changed(Handle:convar, const String:oldValue[], const St
 
 public Action:WitchSpawn_Timer(Handle:timer)
 {
-	if(!hasleftstartarea)
+	if(!Is_Ready_Plugin_On()&&!hasleftstartarea)
 	{
 		return Plugin_Handled;
 	}
-	if(RoundEnd)
+	if(RoundEnd || IsInPause() || IsInReady())
 	{
 		return Plugin_Handled;
 	}
@@ -409,18 +388,11 @@ IncreaseHealth(client)
 
 	if(GetSurvivorPermHealth(client) == 1)
 	{
-		if(ClientHasDown[client])
-		{
-			new give_flags = GetCommandFlags("give");
-			SetCommandFlags("give", give_flags & ~FCVAR_CHEAT);
-			FakeClientCommand(client, "give health");
-			SetCommandFlags("give", give_flags);
-			
-			ClientHasDown[client] = false;
-		}
+		new give_flags = GetCommandFlags("give");
+		SetCommandFlags("give", give_flags & ~FCVAR_CHEAT);
+		FakeClientCommand(client, "give health");
+		SetCommandFlags("give", give_flags);
 	}
-	else
-		ClientHasDown[client] = false;
 	SetSurvivorPermHealth(client, targetHealth);
 	SetSurvivorTempHealth(client, targetTemp);
 }
@@ -450,41 +422,4 @@ stock SetSurvivorTempHealth(client, Float:newOverheal)
 stock bool:IsPlayerIncap(client)
 {
 	return bool:GetEntProp(client, Prop_Send, "m_isIncapacitated");
-}
-
-public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast) 
-{
-	
-	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
-	new player = GetClientOfUserId(GetEventInt(event, "player"));
-	if (IsClientIndex(bot) && IsClientIndex(player)) 
-	{
-		if (StrEqual(name, "player_bot_replace")) 
-		{
-			ClientHasDown[bot] = ClientHasDown[player];
-			ClientHasDown[player] = false;
-			
-		}
-		else 
-		{
-			ClientHasDown[player] = ClientHasDown[bot];
-			ClientHasDown[bot] = false;
-		}
-	}
-	return Plugin_Continue;
-}
-
-public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if(IsClientIndex(client)&&IsClientConnected(client)&&IsClientInGame(client)&&GetClientTeam(client)==2)
-	{
-		ClientHasDown[client] = false;
-	}
-}
-
-bool:IsClientIndex(client)
-{
-	return (client > 0 && client <= MaxClients);
 }
