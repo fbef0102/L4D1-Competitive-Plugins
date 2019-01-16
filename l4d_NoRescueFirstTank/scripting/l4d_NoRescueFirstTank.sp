@@ -7,8 +7,6 @@ static 		Handle:g_hEnableNoFinalFirstTank, bool:g_bEnableNoFinalFirstTank;
 
 static bool:resuce_start,bool:HasBlockFirstTank,bool:timercheck;
 static bool:g_bFixed,bool:Tank_firstround_spawn,Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
-#define TANKSPAWN_SOUND "music/tank/taank.wav"
-#define TANKSPAWN_SOUND2 "music/tank/tank.wav"
 
 public Plugin:myinfo = 
 {
@@ -36,9 +34,6 @@ public OnMapStart()
 	g_bFixed = false;
 	Tank_firstround_spawn = false;
 	ClearVec();
-	
-	PrecacheSound(TANKSPAWN_SOUND, true);
-	PrecacheSound(TANKSPAWN_SOUND2, true);
 }
 
 public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBroadcast)
