@@ -45,7 +45,7 @@ public Plugin:myinfo =
 	name = "1vHunters",
 	author = "Harry Potter",
 	description = "Hunter pounce survivors and die ,set hunter scratch damage, no getup animation",
-	version = "1.6",
+	version = "1.7",
 	url = "https://github.com/Attano/Equilibrium"
 };
 
@@ -154,7 +154,7 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 			new hasvictim = GetEntPropEnt(attacker, Prop_Send, "m_pounceVictim");
 			if(hasvictim>0 && hasvictim == victim) //已經撲人
 			{
-				if(damage >= CvarDmgThreshold)
+				if(damage >= CvarDmgThreshold && CvarDmgThreshold >=0)
 				{
 					new remaining_health = GetClientHealth(attacker);
 					if(CvarAnnounce == 1)
