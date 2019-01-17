@@ -1,1 +1,4 @@
 No Tank Spawn as the rescue vehicle is coming
+
+-command-
+"no_escape_tank", "1", "Removes tanks which spawn as the rescue vehicle arrives on finales."
