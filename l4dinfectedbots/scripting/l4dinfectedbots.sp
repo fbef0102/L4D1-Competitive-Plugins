@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.1.0
+* Version	: 2.1.1
 * Game		: Left 4 Dead 1
 * Author	: djromero (SkyDavid, David) and MI 5 & l4d1 port by Harry
 * Testers	: Myself, MI 5
@@ -10,6 +10,9 @@
 * 
 * WARNING	: Please use sourcemod's latest 1.3 branch snapshot.
 * 
+* Version 2.1.1
+* 	   - fixed "Exception reported: Not enough space on the stack" error
+	   
 * Version 2.1.0
 * 	   - add sm_ht to decide hunter bot limit 
 	   - add sm_timer to decide infected bot spawn timer
@@ -419,10 +422,11 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <colors>
 
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "2.0.0"
+#define PLUGIN_VERSION "2.1.1"
 
 #define DEBUGSERVER 0
 #define DEBUGCLIENTS 0
@@ -646,7 +650,7 @@ public OnPluginStart()
 	h_Announce = CreateConVar("l4d_infectedbots_infhud_announce", "1", "Toggle whether Infected HUD announces itself to clients.", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
 	h_idletime_b4slay = CreateConVar("l4d_infectedbots_lifespan", "30", "Amount of seconds before a special infected bot is kicked", FCVAR_PLUGIN|FCVAR_SPONLY);
 	h_InitialSpawn = CreateConVar("l4d_infectedbots_initial_spawn_timer", "10", "The spawn timer in seconds used when infected bots are spawned for the first time in a map", FCVAR_PLUGIN|FCVAR_SPONLY);
-	h_HumanCoopLimit = CreateConVar("l4d_infectedbots_coop_versus_human_limit", "0", "Sets the limit for the amount of humans that can join the infected team in coop/survival", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_HumanCoopLimit = CreateConVar("l4d_infectedbots_coop_versus_human_limit", "2", "Sets the limit for the amount of humans that can join the infected team in coop/survival", FCVAR_PLUGIN|FCVAR_SPONLY);
 	h_AdminJoinInfected = CreateConVar("l4d_infectedbots_admin_coop_versus", "0", "If 1, only admins can join the infected team in coop/survival", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
 	h_BotGhostTime = CreateConVar("l4d_infectedbots_ghost_time", "0", "If higher than zero, the plugin will ghost bots before they fully spawn on versus/scavenge", FCVAR_PLUGIN|FCVAR_SPONLY);
 	h_DisableSpawnsTank = CreateConVar("l4d_infectedbots_spawns_disabled_tank", "0", "If 1, Plugin will disable spawning when a tank is on the field", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
@@ -858,7 +862,7 @@ public Action:Console_Ht(client, args)
 			SetConVarInt(FindConVar("l4d_infectedbots_hunter_limit"), newlimit);
 			if(MaxPlayerZombies < newlimit)
 				SetConVarInt(FindConVar("l4d_infectedbots_max_specials"), newlimit);
-			ReplyToCommand(client, "[TS] Hunter Bot Limit has been changed to %d",newlimit);	
+			CPrintToChatAll("[{olive}TS{default}] Hunter Bot Limit has been changed to {green}%d",newlimit);	
 		}
 		else
 		{
@@ -923,7 +927,7 @@ public Action:Console_Timer(client, args)
 				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), DD);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), DD);
-				ReplyToCommand(client, "[TS] Bot Spawn Timer has been changed to %d - %d",DD,DD);	
+				CPrintToChatAll("[{olive}TS{default}] Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",DD,DD);	
 			}
 			return Plugin_Handled;
 		}
@@ -959,7 +963,7 @@ public Action:Console_Timer(client, args)
 				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), Max);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), Min);
-				ReplyToCommand(client, "[TS] Bot Spawn Timer has been changed to %d - %d",Max,Min);	
+				CPrintToChatAll("[{olive}TS{default}] Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",Max,Min);	
 			}
 			return Plugin_Handled;
 		}
@@ -3726,128 +3730,133 @@ BotTypeNeeded()
 	if  (L4DVersion)
 	{
 		new random = GetURandomIntRange(1, 7);
-		
-		if (random == 2)
+		new bool:OK = false;
+		while (!OK)
 		{
-			if ((smokers < SmokerLimit) && (canSpawnSmoker))
+			if (random == 2)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Smoker");
-				#endif
-				return 2;
+				if ((smokers < SmokerLimit) && (canSpawnSmoker))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Smoker");
+					#endif
+					return 2;
+				}
 			}
-		}
-		else if (random == 3)
-		{
-			if ((boomers < BoomerLimit) && (canSpawnBoomer))
+			else if (random == 3)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Boomer");
-				#endif
-				return 3;
+				if ((boomers < BoomerLimit) && (canSpawnBoomer))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Boomer");
+					#endif
+					return 3;
+				}
 			}
-		}
-		else if (random == 1)
-		{
-			if ((hunters < HunterLimit) && (canSpawnHunter))
+			else if (random == 1)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Hunter");
-				#endif
-				return 1;
+				if ((hunters < HunterLimit) && (canSpawnHunter))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Hunter");
+					#endif
+					return 1;
+				}
 			}
-		}
-		else if (random == 4)
-		{
-			if ((spitters < SpitterLimit) && (canSpawnSpitter))
+			else if (random == 4)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Spitter");
-				#endif
-				return 4;
+				if ((spitters < SpitterLimit) && (canSpawnSpitter))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Spitter");
+					#endif
+					return 4;
+				}
 			}
-		}
-		else if (random == 5)
-		{
-			if ((jockeys < JockeyLimit) && (canSpawnJockey))
+			else if (random == 5)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Jockey");
-				#endif
-				return 5;
+				if ((jockeys < JockeyLimit) && (canSpawnJockey))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Jockey");
+					#endif
+					return 5;
+				}
 			}
-		}
-		else if (random == 6)
-		{
-			if ((chargers < ChargerLimit) && (canSpawnCharger))
+			else if (random == 6)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Charger");
-				#endif
-				return 6;
+				if ((chargers < ChargerLimit) && (canSpawnCharger))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Charger");
+					#endif
+					return 6;
+				}
 			}
-		}
-		
-		else if (random == 7)
-		{
-			if (tanks < GetConVarInt(h_TankLimit))
+			
+			else if (random == 7)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Tank");
-				#endif
-				return 7;
+				if (tanks < GetConVarInt(h_TankLimit))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Tank");
+					#endif
+					return 7;
+				}
 			}
+			random = GetURandomIntRange(1, 7);
 		}
-		
-		return BotTypeNeeded();
+		return -1;
 	}
 	else
 	{
 		new random = GetURandomIntRange(1, 4);
-		
-		if (random == 2)
+		new bool:OK = false;
+		while (!OK)
 		{
-			if ((smokers < SmokerLimit) && (canSpawnSmoker)) // we need a smoker ???? can we spawn a smoker ??? is smoker bot allowed ??
+			if (random == 2)
 			{
-				#if DEBUGSERVER
-				LogMessage("Returning Smoker");
-				#endif
-				return 2;
+				if ((smokers < SmokerLimit) && (canSpawnSmoker)) // we need a smoker ???? can we spawn a smoker ??? is smoker bot allowed ??
+				{
+					#if DEBUGSERVER
+					LogMessage("Returning Smoker");
+					#endif
+					return 2;
+				}
 			}
-		}
-		else if (random == 3)
-		{
-			if ((boomers < BoomerLimit) && (canSpawnBoomer))
+			else if (random == 3)
 			{
-				#if DEBUGSERVER
-				LogMessage("Returning Boomer");
-				#endif
-				return 3;
+				if ((boomers < BoomerLimit) && (canSpawnBoomer))
+				{
+					#if DEBUGSERVER
+					LogMessage("Returning Boomer");
+					#endif
+					return 3;
+				}
 			}
-		}
-		else if (random == 1)
-		{
-			if (hunters < HunterLimit && canSpawnHunter)
+			else if (random == 1)
 			{
-				#if DEBUGSERVER
-				LogMessage("Returning Hunter");
-				#endif
-				return 1;
+				if (hunters < HunterLimit && canSpawnHunter)
+				{
+					#if DEBUGSERVER
+					LogMessage("Returning Hunter");
+					#endif
+					return 1;
+				}
 			}
-		}
-		
-		else if (random == 4)
-		{
-			if (tanks < GetConVarInt(h_TankLimit))
+			else if (random == 4)
 			{
-				#if DEBUGSERVER
-				LogMessage("Bot type returned Tank");
-				#endif
-				return 7;
+				if (tanks < GetConVarInt(h_TankLimit))
+				{
+					#if DEBUGSERVER
+					LogMessage("Bot type returned Tank");
+					#endif
+					return 7;
+				}
 			}
+			random = GetURandomIntRange(1, 7);
 		}
-		
-		return BotTypeNeeded();
+		return -1;
 	}
 }
 
@@ -4003,8 +4012,9 @@ public Action:Spawn_InfectedBot(Handle:timer)
 	
 	// Determine the bot class needed ...
 	new bot_type = BotTypeNeeded();
+	if(bot_type == -1) return;
 	
-	// We spawn the bot ...
+ 	// We spawn the bot ...
 	switch (bot_type)
 	{
 		case 0: // Nothing
