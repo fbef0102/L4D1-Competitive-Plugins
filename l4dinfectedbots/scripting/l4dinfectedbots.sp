@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4D/L4D2 InfectedBots (Versus Coop/Coop Versus)
-* Version	: 2.0.3
+* Version	: 2.1.0
 * Game		: Left 4 Dead 1
 * Author	: djromero (SkyDavid, David) and MI 5 & l4d1 port by Harry
 * Testers	: Myself, MI 5
@@ -10,6 +10,9 @@
 * 
 * WARNING	: Please use sourcemod's latest 1.3 branch snapshot.
 * 
+* Version 2.1.0
+* 	   - add sm_ht to decide hunter bot limit 
+	   - add sm_timer to decide infected bot spawn timer
 
 * Version 2.0.3
 * 	   - remove SI improvement cvars
@@ -803,6 +806,169 @@ public OnPluginStart()
 	
 	// Create persistent storage for client HUD preferences 
 	usrHUDPref = CreateTrie();
+	
+	
+	RegConsoleCmd("sm_ht", Console_Ht);
+	RegConsoleCmd("sm_timer", Console_Timer);
+}
+
+public Action:Console_Ht(client, args)
+{
+	if (client == 0)
+	{
+		PrintToServer("[TS] sm_ht cannot be used by server.");
+		return Plugin_Handled;
+	}
+	if(args > 1)
+	{
+		ReplyToCommand(client, "[TS] Usage: sm_ht <Integer> - Hunter Infected Bot Limit.");		
+		return Plugin_Handled;
+	}
+	if(args < 1) 
+	{
+		ReplyToCommand(client, "[TS] Current Hunter Bot Limit is %d\nUsage: sm_ht <Integer> - Hunter Infected Bot Limit.",HunterLimit);	
+		return Plugin_Handled;
+	}
+	
+	if(IsClientInGame(client))
+	{
+		if(GetClientTeam(client) == 1)
+		{
+			ReplyToCommand(client, "[TS] You are not in-game");
+			return Plugin_Handled;
+		}
+		else if(GetClientTeam(client) == 3)
+		{
+			ReplyToCommand(client, "[TS] You are not survivor");
+			return Plugin_Handled;
+		}
+	}
+	
+	new String:arg1[64];
+	GetCmdArg(1, arg1, 64);
+	if(IsInteger(arg1))
+	{
+		new newlimit = StringToInt(arg1);
+		if(newlimit>20)
+		{
+			ReplyToCommand(client, "[TS] why you need so many hunter bots?");
+		}
+		else if(newlimit!=HunterLimit)
+		{
+			SetConVarInt(FindConVar("l4d_infectedbots_hunter_limit"), newlimit);
+			if(MaxPlayerZombies < newlimit)
+				SetConVarInt(FindConVar("l4d_infectedbots_max_specials"), newlimit);
+			ReplyToCommand(client, "[TS] Hunter Bot Limit has been changed to %d",newlimit);	
+		}
+		else
+		{
+			ReplyToCommand(client, "[TS] Hunter Bot Limit is already %d",HunterLimit);	
+		}
+		return Plugin_Handled;
+	}
+	else
+	{
+		ReplyToCommand(client, "[TS] Usage: sm_ht <Integer> - Hunter Infected Bot Limit.");		
+		return Plugin_Handled;
+	}	
+}
+
+public Action:Console_Timer(client, args)
+{
+	if (client == 0)
+	{
+		PrintToServer("[TS] sm_timer cannot be used by server.");
+		return Plugin_Handled;
+	}
+	
+	if(args > 2)
+	{
+		ReplyToCommand(client, "[TS] Usage: sm_timer <Integer> |  sm_timer <MAX> <MIN> - Infected Bot Spawn Timer.");		
+		return Plugin_Handled;
+	}
+	if(args < 1) 
+	{
+		ReplyToCommand(client, "[TS] Current Spawn Timer %d-%d\nUsage: sm_timer <Integer> |  sm_timer <MAX> <MIN> - Infected Bot Spawn Timer.",GetConVarInt(h_InfectedSpawnTimeMax),GetConVarInt(h_InfectedSpawnTimeMin) );	
+		return Plugin_Handled;
+	}
+	
+	if(IsClientInGame(client))
+	{
+		if(GetClientTeam(client) == 1)
+		{
+			ReplyToCommand(client, "[TS] You are not in-game");
+			return Plugin_Handled;
+		}
+		else if(GetClientTeam(client) == 3)
+		{
+			ReplyToCommand(client, "[TS] You are not survivor");
+			return Plugin_Handled;
+		}
+	}
+	
+	if(args == 1)
+	{
+		new String:arg1[64];
+		GetCmdArg(1, arg1, 64);
+		if(IsInteger(arg1))
+		{
+			new DD = StringToInt(arg1);
+			
+			if(DD>600)
+			{
+				ReplyToCommand(client, "[TS] why so long?");
+			}
+			else
+			{
+				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
+				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), DD);
+				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), DD);
+				ReplyToCommand(client, "[TS] Bot Spawn Timer has been changed to %d - %d",DD,DD);	
+			}
+			return Plugin_Handled;
+		}
+		else
+		{
+			ReplyToCommand(client, "[TS] Usage: sm_timer <Integer> |  sm_timer <MAX> <MIN> - Infected Bot Spawn Timer.");		
+			return Plugin_Handled;
+		}	
+	}
+	else
+	{
+		new String:arg1[64];
+		GetCmdArg(1, arg1, 64);
+		new String:arg2[64];
+		GetCmdArg(2, arg2, 64);
+		if(IsInteger(arg1) && IsInteger(arg2))
+		{
+			new Max = StringToInt(arg1);
+			new Min = StringToInt(arg2);
+			if(Min>Max)
+			{
+				new temp = Max;
+				Max = Min;
+				Min = temp;
+			}
+			
+			if(Max>600)
+			{
+				ReplyToCommand(client, "[TS] why so long?");
+			}
+			else
+			{
+				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
+				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), Max);
+				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), Min);
+				ReplyToCommand(client, "[TS] Bot Spawn Timer has been changed to %d - %d",Max,Min);	
+			}
+			return Plugin_Handled;
+		}
+		else
+		{
+			ReplyToCommand(client, "[TS] Usage: sm_timer <Integer> |  sm_timer <MAX> <MIN> - Infected Bot Spawn Timer.");		
+			return Plugin_Handled;
+		}
+	}
 }
 
 public ConVarBoomerLimit(Handle:convar, const String:oldValue[], const String:newValue[])
@@ -5061,5 +5227,16 @@ stock SwitchToSurvivors(client)
 	return;
 }
 
+public bool:IsInteger(String:buffer[])
+{
+    new len = strlen(buffer);
+    for (new i = 0; i < len; i++)
+    {
+        if ( !IsCharNumeric(buffer[i]) )
+            return false;
+    }
+
+    return true;    
+}
 
 ///////////////////////////////////////////////////////////////////////////
