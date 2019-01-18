@@ -60,7 +60,7 @@ public OnPluginStart()
 	
 	HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
 	HookEvent("round_end", RoundEnd_Event, EventHookMode_PostNoCopy);
-	HookEvent("player_left_start_area", LeftStartAreaEvent, EventHookMode_PostNoCopy);
+	HookEvent("player_left_checkpoint", LeftStartAreaEvent, EventHookMode_PostNoCopy);
 	
 	RoundEnd = false;
 	hasleftstartarea = false;
