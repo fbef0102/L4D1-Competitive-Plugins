@@ -3727,8 +3727,8 @@ BotTypeNeeded()
 	if  (L4DVersion)
 	{
 		new random = GetURandomIntRange(1, 7);
-		new bool:OK = false;
-		while (!OK)
+		new try = 0;
+		while (try<1000)
 		{
 			if (random == 2)
 			{
@@ -3802,14 +3802,15 @@ BotTypeNeeded()
 				}
 			}
 			random = GetURandomIntRange(1, 7);
+			try++;
 		}
 		return -1;
 	}
 	else
 	{
 		new random = GetURandomIntRange(1, 4);
-		new bool:OK = false;
-		while (!OK)
+		new try = 0;
+		while (try<1000)
 		{
 			if (random == 2)
 			{
@@ -3852,6 +3853,7 @@ BotTypeNeeded()
 				}
 			}
 			random = GetURandomIntRange(1, 7);
+			try++;
 		}
 		return -1;
 	}
