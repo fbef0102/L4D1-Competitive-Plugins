@@ -549,9 +549,6 @@ static Handle:usrHUDPref 		= INVALID_HANDLE;	// Stores the client HUD preference
 static Handle:h_InfHUD		= INVALID_HANDLE;
 static Handle:h_Announce 	= INVALID_HANDLE;
 
-//v2.0.2
-native IsInReady();
-
 public Plugin:myinfo = 
 {
 	name = "[L4D/L4D2] Infected Bots (Versus Coop/Coop Versus)",
@@ -4383,7 +4380,7 @@ FindBotToTakeOver()
 
 bool:LeftStartArea()
 {
-	if(IsInReady()) return false;
+	return false;
 	
 	new ent = -1, maxents = GetMaxEntities();
 	for (new i = MaxClients+1; i <= maxents; i++)
