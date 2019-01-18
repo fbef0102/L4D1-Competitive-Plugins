@@ -4380,7 +4380,6 @@ FindBotToTakeOver()
 
 bool:LeftStartArea()
 {
-	return false;
 	
 	new ent = -1, maxents = GetMaxEntities();
 	for (new i = MaxClients+1; i <= maxents; i++)
