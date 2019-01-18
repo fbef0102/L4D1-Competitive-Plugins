@@ -1,6 +1,10 @@
 control and spawn Infected bots, works in l4d1 versus
 
 -command-
+  *for survivors
+  -!ht <integer>: how many hunter bots
+  -!timer <integer> | !timer <Max> <Min>: Infected Bot Spawn Timer
+
 // If 1, The plugin will adjust spawn timers depending on the gamemode, adjusts spawn timers based on number of survivor players in coop and based on amount of infected players in versus/scavenge
 // -
 // Default: "0"
