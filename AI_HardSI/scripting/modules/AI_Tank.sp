@@ -11,12 +11,15 @@ enum VelocityOverride {
 };
 
 new Handle:hCvarTankBhop;
+new Handle:hCvarTankRock;
 
 // Bibliography: 
 // TGMaster, Chanz - Infinite Jumping
 
 public Tank_OnModuleStart() {
-	hCvarTankBhop = CreateConVar("ai_tank_bhop", "0", "Flag to enable bhop facsimile on AI tanks");
+	hCvarTankBhop = CreateConVar("ai_tank_bhop", "1", "Flag to enable bhop facsimile on AI tanks");
+	hCvarTankRock = CreateConVar("ai_tank_rock", "1", "Flag to enable rocks on AI tanks");
+	
 }
 
 public Tank_OnModuleEnd() {
@@ -25,7 +28,9 @@ public Tank_OnModuleEnd() {
 // Tank bhop and blocking rock throw
 public Action:Tank_OnPlayerRunCmd( tank, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon ) {
 	// block rock throws
-	buttons &= ~IN_ATTACK2;
+	if( !(bool:GetConVarBool(hCvarTankRock)) ) {
+		buttons &= ~IN_ATTACK2;
+	}
 	
 	if( bool:GetConVarBool(hCvarTankBhop) ) {
 		new flags = GetEntityFlags(tank);
