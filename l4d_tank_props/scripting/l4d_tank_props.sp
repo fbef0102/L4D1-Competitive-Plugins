@@ -12,11 +12,14 @@ new iTankClient = -1;
 new Handle:cvar_tankProps;
 new Handle:cvar_tankPropsGlow;
 new Handle:cvar_tankPropsGlowSpec;
+new Handle:cvar_tankPropsGlowinterval;
+new Handle:g_hCvarColor;
 
 new Handle:hTankProps       = INVALID_HANDLE;
 new Handle:hTankPropsHit    = INVALID_HANDLE;
 new i_Ent[5000] = -1;
 new i_EntSpec[5000]= -1;
+new g_iCvarColor[3];
 
 public Plugin:myinfo = {
 name        = "L4D2 Tank Props,l4d1 modify by Harry",
@@ -30,10 +33,13 @@ public OnPluginStart() {
 	cvar_tankProps = CreateConVar("l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive", FCVAR_PLUGIN);
 	cvar_tankPropsGlow = CreateConVar("l4d_tank_props_glow", "1", "Show Hittable Glow for inf team whilst the tank is alive", FCVAR_PLUGIN);
 	cvar_tankPropsGlowSpec = CreateConVar( "l4d2_tank_prop_glow_spectators", "1", "Spectators can see the glow too", FCVAR_PLUGIN);
+	cvar_tankPropsGlowinterval = CreateConVar( "l4d_tank_props_glow_Refresh_interval", "0.01", "Props Glow Refresh time interval",FCVAR_PLUGIN);
+	g_hCvarColor =	CreateConVar(	"l4d2_tank_prop_glow_color",		"255 0 0",			"Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.", FCVAR_NOTIFY);
 	
 	HookConVarChange(cvar_tankProps, TankPropsChange);
 	HookConVarChange(cvar_tankPropsGlow, TankPropsGlowChange);
 	HookConVarChange(cvar_tankPropsGlowSpec, TankPropsGlowSpecChange);
+	HookConVarChange(g_hCvarColor, ConVarChanged_Glow);
 	
 	PluginEnable();
 }
@@ -48,9 +54,9 @@ PluginEnable() {
 	
 	hTankProps = CreateArray();
 	hTankPropsHit = CreateArray();
+	GetColor(g_hCvarColor,g_iCvarColor);
 	
 	HookEvent("round_start", TankPropRoundReset);
-	HookEvent("round_end", TankPropRoundReset);
 	HookEvent("tank_spawn", TankPropTankSpawn);
 	HookEvent("entity_killed", PD_ev_EntityKilled);
 	
@@ -91,6 +97,29 @@ PluginDisable() {
 	CloseHandle(hTankProps);
 	CloseHandle(hTankPropsHit);
 	tankSpawned = false;
+}
+
+public ConVarChanged_Glow( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
+	GetColor(g_hCvarColor,g_iCvarColor);
+
+	if(!tankSpawned) return;
+
+	new entity;
+
+	for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
+		if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
+			entity = i_Ent[GetArrayCell(hTankPropsHit, i)];
+			if( IsValidEntRef(entity) )
+			{
+				SetEntityRenderColor (entity, g_iCvarColor[0],g_iCvarColor[1],g_iCvarColor[2],200 );
+			}
+			entity = i_EntSpec[GetArrayCell(hTankPropsHit, i)];
+			if( IsValidEntRef(entity) )
+			{
+				SetEntityRenderColor (entity, g_iCvarColor[0],g_iCvarColor[1],g_iCvarColor[2],200 );
+			}
+		}
+	}
 }
 
 public TankPropsChange( Handle:cvar, const String:oldValue[], const String:newValue[] ) {
@@ -223,15 +252,45 @@ CreateTankPropGlow(entity)
 	
 	TeleportEntity(i_Ent[entity], vPos, vAng, NULL_VECTOR);
 	DispatchSpawn(i_Ent[entity]);
-	SetEntityRenderFx(i_Ent[entity], RENDERFX_FADE_FAST);
+	SetEntityRenderMode( i_Ent[entity], RENDER_GLOW );
+	SetEntityRenderColor (i_Ent[entity], g_iCvarColor[0],g_iCvarColor[1],g_iCvarColor[2],200 );
+		
+	//DispatchKeyValueVector(i_Ent[entity], "origin", vPos);
+	//DispatchKeyValueVector(i_Ent[entity], "angles", vAng);
 	
-	DispatchKeyValueVector(i_Ent[entity], "origin", vPos);
-	DispatchKeyValueVector(i_Ent[entity], "angles", vAng);
-	
-	SetVariantString("!activator");
-	AcceptEntityInput(i_Ent[entity], "SetParent", entity);
+	//SetVariantString("!activator");
+	//AcceptEntityInput(i_Ent[entity], "SetParent", entity);
 
+	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlow, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+}
+public Action:KeepTankPropsGlow(Handle:timer, any:entity)
+{
+	if (!IsValidEntity(entity) || !tankSpawned)
+	{
+		if (IsValidEdict(i_Ent[entity]))
+		{
+			RemoveEdict(i_Ent[entity]);
+		}
+		return Plugin_Stop;
+	}
 	
+	if (IsValidEntity(entity))
+	{
+		if (IsValidEdict(i_Ent[entity]))
+		{
+			new Float:vPos[3];
+			new Float:vAng[3];
+			GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vPos);
+			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
+			TeleportEntity(i_Ent[entity], vPos, vAng, NULL_VECTOR);
+		}
+		
+	}else
+	{
+		return Plugin_Stop;
+	}
+	
+	return Plugin_Continue;
 }
 
 CreateTankPropGlowSpectator(entity)
@@ -263,11 +322,42 @@ CreateTankPropGlowSpectator(entity)
 	SetEntityRenderFx(i_EntSpec[entity], RENDERFX_FADE_FAST);
 
 	
-	DispatchKeyValueVector(i_EntSpec[entity], "origin", vPos);
-	DispatchKeyValueVector(i_EntSpec[entity], "angles", vAng);
+	//DispatchKeyValueVector(i_EntSpec[entity], "origin", vPos);
+	//DispatchKeyValueVector(i_EntSpec[entity], "angles", vAng);
 	
-	SetVariantString("!activator");
-	AcceptEntityInput(i_EntSpec[entity], "SetParent", entity);
+	//SetVariantString("!activator");
+	//AcceptEntityInput(i_EntSpec[entity], "SetParent", entity);
+	
+	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlowSpectator, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action:KeepTankPropsGlowSpectator(Handle:timer, any:entity)
+{
+	if (!IsValidEntity(entity) || !tankSpawned)
+	{
+		if (IsValidEdict(i_EntSpec[entity]))
+		{
+			RemoveEdict(i_EntSpec[entity]);
+		}
+		return Plugin_Stop;
+	}
+	
+	if (IsValidEntity(entity))
+	{
+		if (IsValidEdict(i_EntSpec[entity]))
+		{
+			new Float:vPos[3];
+			new Float:vAng[3];
+			GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vPos);
+			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
+			TeleportEntity(i_EntSpec[entity], vPos, vAng, NULL_VECTOR);
+		}
+	}else
+	{
+		return Plugin_Stop;
+	}
+	
+	return Plugin_Continue;
 }
 
 public Action:FadeTankProps( Handle:timer ) {
@@ -365,4 +455,31 @@ bool:IsValidEntRef(entity)
 	if( entity && EntRefToEntIndex(entity) != INVALID_ENT_REFERENCE && entity!= -1 && IsValidEntity(entity) && IsValidEdict(entity))
 		return true;
 	return false;
+}
+
+public GetColor(Handle:hCvar,colorscvar[3])
+{
+	decl String:sTemp[12];
+	GetConVarString(hCvar, sTemp, sizeof(sTemp));
+	
+	if( StrEqual(sTemp, "") )
+	{
+		colorscvar[0] = 0;
+		colorscvar[1] = 0;
+		colorscvar[2] = 0;
+	}
+
+	decl String:sColors[3][4];
+	new color = ExplodeString(sTemp, " ", sColors, 3, 4);
+
+	if( color != 3 )
+	{
+		colorscvar[0] = 0;
+		colorscvar[1] = 0;
+		colorscvar[2] = 0;
+	}
+
+	colorscvar[0] = StringToInt(sColors[0]);
+	colorscvar[1] = StringToInt(sColors[1]);
+	colorscvar[2] = StringToInt(sColors[2]);
 }
