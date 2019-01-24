@@ -3,7 +3,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
 * <b>fun</b>: I write some new plugins which are just for fun
-> last edited:2019/1/22
+> last edited:2019/1/24
 # Require
 * Clean Servers:
   * [Sourcemod 1.8](https://www.sourcemod.net/downloads.php?branch=1.8-dev) (or newer), [Metamod](https://www.metamodsource.net/downloads.php?branch=stable)
@@ -21,7 +21,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_panic_notify</b>: Show who triggers the panic horde
 * <b>l4d_tank_count</b>: Show how long is tank alive, and tank punch/rock/car statistics after tank dead
 * <b>l4d_vesus_nerf_huntingrifle</b>: Make a nerf huntingrifle
-* <b>l4d_tank_props</b></b>: Stop tank props from fading + Show Hittable Glow for inf team whilst the tank is alive
+* <b>l4d_tank_props</b></b>: Stop tank props from fading + Show Hittable Glow for inf team whilst the tank is alive (Fixed car disappear)
 * <b>l4d_tankpunchstuckfix</b>: Fixes the problem where tank-punches get a survivor stuck in the roof
 * <b>1vHunters</b>: Hunter pounce survivors and die ,set hunter scratch damage, no getup animation
 * <b>hunter_growl_sound_fix</b>: Fix silence Hunter produces growl sound when player MIC on
