@@ -1,5 +1,1 @@
 Stops rocks from passing through soon-to-be-dead Survivors,L4D1 windows signature by Harry
-
--Note-
-    *use l4d_bw_rock_hit(linux).smx if you are running server with linux
-    *use l4d_bw_rock_hit(windows).smx if you are running server with windows
