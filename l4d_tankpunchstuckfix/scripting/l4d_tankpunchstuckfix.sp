@@ -42,12 +42,14 @@ new     Float:      g_fPlayerLocation       [MAXPLAYERS + 1][3];                
 new     Handle:     g_hCvarDeStuckTime                          = INVALID_HANDLE;       // convar: how long to wait and de-stuckify a punched player
 new 	Handle: 	tpsf_debug_print;
 new modelnum[MAXPLAYERS + 1];
+static bool:TankPounchClient[MAXPLAYERS + 1];
+
 public Plugin:myinfo = 
 {
     name =          "Tank Punch Ceiling Stuck Fix",
     author =        "Tabun, Visor",
     description =   "Fixes the problem where tank-punches get a survivor stuck in the roof,L4D1 windows signature by Harry",
-    version =       "0.3",
+    version =       "2.0",
     url =           "nope"
 }
 
@@ -57,8 +59,15 @@ public Plugin:myinfo =
 
 public APLRes:AskPluginLoad2( Handle:plugin, bool:late, String:error[], errMax)
 {
-    g_bLateLoad = late;
-    return APLRes_Success;
+	CreateNative("IsTankPounchClient", Native_IsTankPounchClient);
+	g_bLateLoad = late;
+	return APLRes_Success;
+}
+
+public Native_IsTankPounchClient(Handle:plugin, numParams)
+{
+   new num1 = GetNativeCell(1);
+   return TankPounchClient[num1];
 }
 
 public OnPluginStart()
@@ -68,9 +77,10 @@ public OnPluginStart()
         for (new i = 1; i < MaxClients+1; i++) {
             if (IsClientInGame(i)) {
                 SDKHook(i, SDKHook_OnTakeDamage, OnTakeDamage);
-            }
-        }
-    }
+				TankPounchClient[i] = false;
+			}
+		}
+	}
     
     // cvars
     g_hCvarDeStuckTime = CreateConVar(      "sm_punchstuckfix_unstucktime",     "1.0",      "How many seconds to wait before detecting and unstucking a punched motionless player.", FCVAR_PLUGIN, true, 0.05, false);
@@ -78,12 +88,22 @@ public OnPluginStart()
 	
     // hooks
     HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
-    
-    // trie
-    g_hInflictorTrie = BuildInflictorTrie();
+	HookEvent("player_bot_replace", OnBotSwap);
+	HookEvent("bot_player_replace", OnBotSwap);
+	HookEvent("player_spawn", OnPlayerSpawn);
+	
+	// trie
+	g_hInflictorTrie = BuildInflictorTrie();
+	HookEvent("round_start", Event_RoundStart);
 }
 
-
+public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	for(new i = 1; i <= MaxClients; i++) 
+	{
+		TankPounchClient[i] = false;
+	}
+}
 
 /* --------------------------------------
  *      General hooks / events
@@ -198,7 +218,7 @@ public Action: Timer_CheckPunch(Handle:hTimer, any:client)
                     if (GetTickedTime() - g_fPlayerStuck[client] > GetConVarFloat(g_hCvarDeStuckTime))
                     {
                         // time passed, player is stuck! fix.
-                        LogMessage("<TankPunchStuck> %N - stuckness FIX triggered!", client);
+                        //LogMessage("<TankPunchStuck> %N - stuckness FIX triggered!", client);
                         
                         g_fPlayerPunch[client] = 0.0;
                         g_bPlayerFlight[client] = false;
@@ -223,7 +243,12 @@ public Action: Timer_CheckPunch(Handle:hTimer, any:client)
             }
         }
     }
-    else if (!IsPlayerAlive(client) || IsIncapacitated(client) || GetEntProp(client, Prop_Send, "m_isHangingFromLedge") || ( iSeq == SEQ_FLIGHT_BILL+1 && modelnum[client] == 0  ) || (iSeq == SEQ_FLIGHT_FRANCIS+1 && modelnum[client] == 1)  || iSeq == SEQ_FLIGHT_ZOEY+1)
+	else if (!IsPlayerAlive(client))
+	{
+		TankPounchClient[client] = true;
+		return Plugin_Stop;
+	}
+	else if (IsIncapacitated(client) || GetEntProp(client, Prop_Send, "m_isHangingFromLedge") || ( iSeq == SEQ_FLIGHT_BILL+1 && modelnum[client] == 0  ) || (iSeq == SEQ_FLIGHT_FRANCIS+1 && modelnum[client] == 1)  || iSeq == SEQ_FLIGHT_ZOEY+1)
     {
         if (g_bPlayerFlight[client])
         {
@@ -297,10 +322,15 @@ stock CTerrorPlayer_WarpToValidPositionIfStuck(client)
 	if (WarpToValidPositionSDKCall == INVALID_HANDLE)
 	{
 		StartPrepSDKCall(SDKCall_Player);
-		//if (!PrepSDKCall_SetSignature(SDKLibrary_Server, WARPTOVALIDPOSITION_SIG, 0))
-		if (!PrepSDKCall_SetSignature(SDKLibrary_Server, WARPTOVALIDPOSITION_SIG_L4D_windows, 17))
+		if(IsWindowsOrLinux() == 1)//windows
 		{
-			return;
+			if (!PrepSDKCall_SetSignature(SDKLibrary_Server, WARPTOVALIDPOSITION_SIG_L4D_windows, 17))
+				return;
+		}
+		else
+		{
+			if (!PrepSDKCall_SetSignature(SDKLibrary_Server, WARPTOVALIDPOSITION_SIG, 0))
+				return;
 		}
 
 		WarpToValidPositionSDKCall = EndPrepSDKCall();
@@ -311,4 +341,48 @@ stock CTerrorPlayer_WarpToValidPositionIfStuck(client)
 	}
 
 	SDKCall(WarpToValidPositionSDKCall, client, 0);
+}
+
+public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast) 
+{
+	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
+	new player = GetClientOfUserId(GetEventInt(event, "player"));
+	if (IsClientIndex(bot) && IsClientIndex(player)) 
+	{
+		if (StrEqual(name, "player_bot_replace")) 
+		{
+			TankPounchClient[bot] = TankPounchClient[player];
+			TankPounchClient[player] = false;
+			
+		}
+		else 
+		{
+			TankPounchClient[player] = TankPounchClient[bot];
+			TankPounchClient[bot] = false;
+		}
+	}
+	return Plugin_Continue;
+}
+
+public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	
+	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if(IsClientIndex(client)&&IsClientConnected(client)&&IsClientInGame(client)&&GetClientTeam(client)==2)
+	{
+		TankPounchClient[client] = false;
+	}
+}
+
+bool:IsClientIndex(client)
+{
+	return (client > 0 && client <= MaxClients);
+}
+
+stock IsWindowsOrLinux()
+{
+     new Handle:conf = LoadGameConfigFile("windowsorlinux");
+     new WindowsOrLinux = GameConfGetOffset(conf, "WindowsOrLinux");
+     CloseHandle(conf);
+     return WindowsOrLinux; //1 for windows; 2 for linux
 }
