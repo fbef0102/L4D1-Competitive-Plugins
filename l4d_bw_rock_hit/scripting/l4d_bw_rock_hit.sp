@@ -113,11 +113,17 @@ CTankRock__Detonate(rock)
 	if (call == INVALID_HANDLE)
 	{
 		StartPrepSDKCall(SDKCall_Entity);
-		//if (!PrepSDKCall_SetSignature(SDKLibrary_Server, "@_ZN9CTankRock8DetonateEv", 0))
-		if (!PrepSDKCall_SetSignature(SDKLibrary_Server, "\x83\xEC\x30\x53\x55\x56\x8B\xF1\x80\xBE\xD4\x08\x00\x00\x00", 15))//l4d1 windows signature
+		if(IsWindowsOrLinux() == 1)//windows
 		{
-			return;
+			if (!PrepSDKCall_SetSignature(SDKLibrary_Server, "\x83\xEC\x30\x53\x55\x56\x8B\xF1\x80\xBE\xD4\x08\x00\x00\x00", 15))//l4d1 windows signature
+				return;
 		}
+		else
+		{
+			if (!PrepSDKCall_SetSignature(SDKLibrary_Server, "@_ZN9CTankRock8DetonateEv", 0))
+				return;
+		}
+		
 		call = EndPrepSDKCall();
 		if (call == INVALID_HANDLE)
 		{
@@ -125,4 +131,12 @@ CTankRock__Detonate(rock)
 		}
 	}
 	SDKCall(call, rock);
+}
+
+stock IsWindowsOrLinux()
+{
+     new Handle:conf = LoadGameConfigFile("windowsorlinux");
+     new WindowsOrLinux = GameConfGetOffset(conf, "WindowsOrLinux");
+     CloseHandle(conf);
+     return WindowsOrLinux; //1 for windows; 2 for linux
 }
