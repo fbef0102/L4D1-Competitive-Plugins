@@ -74,7 +74,6 @@ PluginDisable() {
 	SetConVarBool(FindConVar("sv_tankpropfade"), true);
 	
 	UnhookEvent("round_start", TankPropRoundReset);
-	UnhookEvent("round_end", TankPropRoundReset);
 	UnhookEvent("tank_spawn", TankPropTankSpawn);
 	UnhookEvent("entity_killed",		PD_ev_EntityKilled);
 	
