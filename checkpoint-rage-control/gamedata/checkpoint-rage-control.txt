@@ -56,10 +56,11 @@
 		"Offsets"
 		{
 			/* Offset into CTerrorPlayer::UpdateZombieFrustration */
+			/* string: tank_frustrated*/
 			"UpdateZombieFrustration_SaferoomCheck"
 			{
-				"windows"	"310"   /* call sub_10224460 (v1.0.3.6 2018/7/2) */
-				"linux"		"673"  /* call _ZNK9CDirector29IsAnySurvivorInExitCheckpointEv (v1.0.3.6 2018/7/2)*/
+				"windows"	"310"   /* call sub_10223D10 (v1.0.3.7 2019/1/29) */
+				"linux"		"475"  /* call _ZNK9CDirector29IsAnySurvivorInExitCheckpointEv (v1.0.3.7 2019/1/29)*/
 			}
 		}
 		
