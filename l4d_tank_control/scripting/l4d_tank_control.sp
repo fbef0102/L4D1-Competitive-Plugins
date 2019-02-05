@@ -10,8 +10,6 @@
 
 #define CVAR_FLAGS			FCVAR_PLUGIN|FCVAR_NOTIFY
 
-native Is_Ready_Plugin_On();
-
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
 static		bool:IsSecondTank,bool:IsFinal;	
@@ -19,15 +17,22 @@ public Plugin:myinfo = {
 	name = "L4D Tank Control",
 	author = "Jahze, vintik, raziEiL [disawar1]",
 	version = "1.5",
-	description = "Forces each player to play the tank once before resetting the pool."
+	description = "Forces each player to play the tank at least once before Map change."
 };
 
 static bool:g_bCvartankcontroldisable,Handle:hCvarFlags, Handle:gCvarFlags;
+static bool:resuce_start = false;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
 	CreateNative("ChoseTankPrintWhoBecome", Native_ChoseTankPrintWhoBecome);
+	CreateNative("WhoIsTank", Native_WhoIsTank);
 	return APLRes_Success;
+}
+
+public Native_WhoIsTank(Handle:plugin, numParams)
+{
+	return queuedTank;
 }
 
 public Native_ChoseTankPrintWhoBecome(Handle:plugin, numParams)
@@ -62,6 +67,7 @@ public OnPluginStart()
 	HookEvent("round_end", TC_ev_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("player_team", TC_ev_OnTeamChange);
 	HookEvent("player_left_start_area", TC_ev_LeftStartAreaEvent, EventHookMode_PostNoCopy);
+	HookEvent("finale_start", Event_Finale_Start);
 	
 	HookConVarChange(hCvarFlags, OnCvarChange_tank_control_disable);
 	HookConVarChange(gCvarFlags, OnCvarChange_clear_hasbeentank_team);
@@ -69,6 +75,7 @@ public OnPluginStart()
 	RegConsoleCmd("sm_tank", Command_FindNexTank);
 	RegConsoleCmd("sm_t", Command_FindNexTank);
 	RegConsoleCmd("sm_boss", Command_FindNexTank);
+	RegAdminCmd("sm_settank", Command_SetTank, ADMFLAG_BAN, "sm_settank <player> - force this player will become the tank");
 	
 	//hTeamATanks = CreateArray(32);
 	//hTeamBTanks = CreateArray(32);
@@ -80,8 +87,37 @@ public OnPluginStart()
 
 public TC_ev_LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	if(!Is_Ready_Plugin_On())
-		ChoseTankAndPrintWhoBecome();
+	ChoseTankAndPrintWhoBecome();
+}
+
+public Action:Command_SetTank(client, args)
+{
+	if (args < 1 || args > 1)
+	{
+		ReplyToCommand(client, "[SM] Usage: sm_settank <player> - force this player will become the tank");
+		return Plugin_Handled;
+	}
+	
+	new player_id;
+
+	new String:player[64];
+	
+	GetCmdArg(1, player, sizeof(player));
+	player_id = FindTarget(client, player, true /*nobots*/, false /*immunity*/);
+	
+	if(player_id == -1)
+		return Plugin_Handled;	
+	
+	if(GetClientTeam(player_id) != 3)
+	{
+		ReplyToCommand(client, "[SM] <%N> is not in infected team",player_id);
+		return Plugin_Handled;
+	}
+	
+	queuedTank = player_id;
+	CPrintToChatAll("{green}[我是坦]{default} Adm forces {red}%N {default}will become the {green}tank{default}!", queuedTank); 
+	
+	return Plugin_Handled;	
 }
 
 public Action:Command_FindNexTank(client, args)
@@ -145,6 +181,7 @@ PrintTankOwners(client)//給玩家debug用,查看那些人已經當過tank
 
 public OnMapStart()//每個地圖的第一關載入時清除所有has been tank list
 {
+	resuce_start = false;
 	IsSecondTank = false;
 	queuedTank = 0;
 	if(IsNewMission()||Is_First_Stage())
@@ -172,6 +209,7 @@ bool:Is_First_Stage()//非官方圖第一關
 public TC_ev_RoundEnd(Handle:event, String:name[], bool:dontBroadcast)
 {
 	queuedTank = 0;
+	resuce_start = false;
 }
 
 public TC_ev_OnTeamChange(Handle:event, String:name[], bool:dontBroadcast)
@@ -183,8 +221,9 @@ public TC_ev_OnTeamChange(Handle:event, String:name[], bool:dontBroadcast)
 }
 public Action:PlayerChangeTeamCheck(Handle:timer,any:client)
 {
-	if (client && client == queuedTank && GetClientTeam(client)!=3)
-		ChoseTankAndPrintWhoBecome();
+	if (client && client == queuedTank)
+		if(!IsClientInGame(client) || GetClientTeam(client)!=3)
+			ChoseTankAndPrintWhoBecome();
 }
 public OnClientDisconnect(client)
 {
@@ -220,7 +259,21 @@ public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
 {
 	if (IsPluginDisabled()) 
 		return Plugin_Continue;
-
+		
+	if(resuce_start)
+	{
+		new Handle:BlockFirstTank = FindConVar("no_final_first_tank");
+		if(BlockFirstTank != INVALID_HANDLE)
+		{
+			if(GetConVarInt(BlockFirstTank) == 1)
+			{
+				resuce_start = false;
+				return Plugin_Continue;
+			}
+		}
+	}
+	
+	
 	if(tank_index<=0) return Plugin_Continue;
 	if (!IsFakeClient(tank_index)){
 
@@ -547,4 +600,9 @@ public OnCvarChange_clear_hasbeentank_team(Handle:convar, const String:oldValue[
 		ClearArray(hTeamTanks);
 		ClearArray(hTeamFinalTanks);
 	}	
+}
+
+public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	resuce_start = true;
 }
