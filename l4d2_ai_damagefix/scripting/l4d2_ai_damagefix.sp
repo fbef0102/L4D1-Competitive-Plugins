@@ -218,6 +218,8 @@ public Action:PlayerShoved_Timer(Handle:timer, any:client)
 {
 	if (IsClientAndInGame(client))
 		g_bProhibitMelee[client] = false;
+	else
+		g_bProhibitMelee[client] = false;
 }
 
 // hunters pouncing / tracking
