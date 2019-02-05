@@ -12,7 +12,7 @@ public Plugin:myinfo =
 {
 	name        = "L4D Drop Secondary",
 	author      = "Jahze, Visor,l4d1 modify by Harry",
-	version     = "2.2",
+	version     = "2.3",
 	description = "Survivor players will drop their secondary weapon when they die + Survivor players won't drop their weapons when ready mode",
 	url         = "https://github.com/Attano/Equilibrium"
 };
@@ -89,7 +89,7 @@ public Action:OnPlayerDeath(Handle:event, const String:name[], bool:dontBroadcas
 	{
 		new weapon = g_PlayerSecondaryWeapons[client];
 		
-		if(weapon!=-1)
+		if(weapon!=-1 && IsValidEntity(weapon))
 			SetEntPropEnt(weapon, Prop_Data, "m_hOwner",client);
 		if(IdentifyWeapon(weapon) != WEPID_NONE && client == GetWeaponOwner(weapon) )
 		{
