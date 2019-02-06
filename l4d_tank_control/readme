@@ -3,3 +3,6 @@ Forces each player to play the tank at least once before Map change.
 -command-
 "tank_control_disable", "0", "if set, no Forces each player to play the tank at once,1=disabled"
 "tank_control_clear_team", "0", "clear who_has_been_tank_arraylist for certain team, useful when map change. 1 = both sur and inf teams"
+  
+  *for adm
+  "sm_settank" "sm_settank <player> - force this player will become the tank"
