@@ -9,8 +9,10 @@ Allow players to change server slots by using vote.
 "sm_slotvote_player_limit", "3", "Minimum # of players in game to start the vote"
 "sm_matchvotes_s", "0.60", "百分比."
   
-
-"sm_slots" - start vote to change server slots
-"sm_nospec", "sm_nospecs", "sm_kickspec", "sm_kickspecs", "sm_maxslots" - start vote to kick all spectators who are not adm
+*for non-spectator
+!slots - start vote to change server slots
+!nospec, !nospecs, !kickspec, !kickspecs, !maxslots - start vote to kick all spectators who are not adm
+  
+*ServerCmd
 "sm_lock_slots" - lock vote
 "sm_unlock_slots" - unlock vote
