@@ -3,6 +3,7 @@ type !match/!load/!mode to vote a new mode
 
 -Require-
 BuiltinVotes 0.5.8 (2013-01-29): https://forums.alliedmods.net/showthread.php?t=162164
+(linux broken)
 
 -command-
 "sm_match_player_limit", "1", "Minimum # of players in game to start the vote"
