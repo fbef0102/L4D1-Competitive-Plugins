@@ -1,0 +1,16 @@
+Allow players to change server slots by using vote.
+
+-command-
+"sm_slot_vote_enabled", "1", "Enabled?"
+"sm_slot_autoconf", "1", "Autoconfigure slots vote max|min cvars?"
+"sm_slot_vote_min", "8", "Minimum allowed number of server slots (this value must be equal or lesser than sm_slot_vote_max)."
+"sm_slot_vote_max", "25", "Maximum allowed number of server slots (this value must be equal or greater than sm_slot_vote_min)."
+"sv_maxslots", "31", "Maximum server slots."
+"sm_slotvote_player_limit", "3", "Minimum # of players in game to start the vote"
+"sm_matchvotes_s", "0.60", "百分比."
+  
+
+"sm_slots" - start vote to change server slots
+"sm_nospec", "sm_nospecs", "sm_kickspec", "sm_kickspecs", "sm_maxslots" - start vote to kick all spectators who are not adm
+"sm_lock_slots" - lock vote
+"sm_unlock_slots" - unlock vote
