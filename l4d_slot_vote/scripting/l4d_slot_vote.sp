@@ -68,7 +68,7 @@ public OnPluginStart()
 	LoadTranslations("slotvote.phrases");
 	g_cvarSlotsPluginEnabled = CreateConVar("sm_slot_vote_enabled", "1", "Enabled?", FCVAR_PLUGIN);
 	g_cvarSlotsAutoconf = CreateConVar("sm_slot_autoconf", "1", "Autoconfigure slots vote max|min cvars?", FCVAR_PLUGIN);
-	g_hCVarMinAllowedSlots = CreateConVar("sm_slot_vote_min", "8", "Minimum allowed number of server slots (this value must be equal or lesser than sm_slot_vote_max).", FCVAR_PLUGIN, true, 1.0, true, 32.0);
+	g_hCVarMinAllowedSlots = CreateConVar("sm_slot_vote_min", "10", "Minimum allowed number of server slots (this value must be equal or lesser than sm_slot_vote_max).", FCVAR_PLUGIN, true, 1.0, true, 32.0);
 	g_hCVarMaxAllowedSlots = CreateConVar("sm_slot_vote_max", "25", "Maximum allowed number of server slots (this value must be equal or greater than sm_slot_vote_min).", FCVAR_PLUGIN, true, 1.0, true, 32.0);
 
 	g_hCVarMaxPlayersDowntown = FindConVar("l4d_maxplayers");
@@ -108,7 +108,7 @@ public OnPluginStart()
 	}
 	if(GetConVarBool(g_cvarSlotsAutoconf)) {
 		new Handle:hSurvivorLimit = FindConVar("survivor_limit");
-		SetConVarInt(g_hCVarMinAllowedSlots, GetConVarInt(hSurvivorLimit) * 2);
+		//SetConVarInt(g_hCVarMinAllowedSlots, GetConVarInt(hSurvivorLimit) * 2);
 		PrintToServer("Min slots automatically configured to %d", GetConVarInt(hSurvivorLimit) * 2);
 		CloseHandle(hSurvivorLimit);
 	}
@@ -196,7 +196,7 @@ public Action:Cmd_SlotVote(iClient, iArgs)
 		return Plugin_Handled;
 	}
 	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return Plugin_Handled;
-
+	
 	
 	if(iClient < 1) return Plugin_Handled;
 	if (GetClientTeam(iClient) == 1)
@@ -269,7 +269,6 @@ public Action:Cmd_NoSpec(iClient, iArgs)
 		return Plugin_Handled;
 	}
 	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return Plugin_Handled;
-
 
 
 	if (GetClientTeam(iClient) == 1)
