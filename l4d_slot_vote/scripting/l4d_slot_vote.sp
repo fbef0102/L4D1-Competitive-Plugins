@@ -43,7 +43,6 @@ static g_iDesiredSlots;
 static Handle:g_cvarSlotsPluginEnabled = INVALID_HANDLE;
 static Handle:g_cvarSlotsAutoconf	= INVALID_HANDLE;
 static Handle:g_cvarSvVisibleMaxPlayers = INVALID_HANDLE;
-static Handle:g_cvarCurrentMaxSlots = INVALID_HANDLE;
 new bool:g_bSlotsLocked = false;
 static g_slotdelay;
 new Handle:g_hCvarPlayerLimit;
@@ -71,7 +70,6 @@ public OnPluginStart()
 	g_cvarSlotsAutoconf = CreateConVar("sm_slot_autoconf", "1", "Autoconfigure slots vote max|min cvars?", FCVAR_PLUGIN);
 	g_hCVarMinAllowedSlots = CreateConVar("sm_slot_vote_min", "8", "Minimum allowed number of server slots (this value must be equal or lesser than sm_slot_vote_max).", FCVAR_PLUGIN, true, 1.0, true, 32.0);
 	g_hCVarMaxAllowedSlots = CreateConVar("sm_slot_vote_max", "25", "Maximum allowed number of server slots (this value must be equal or greater than sm_slot_vote_min).", FCVAR_PLUGIN, true, 1.0, true, 32.0);
-	g_cvarCurrentMaxSlots = CreateConVar("sv_maxslots", "31", "Maximum server slots.", FCVAR_PLUGIN);
 
 	g_hCVarMaxPlayersDowntown = FindConVar("l4d_maxplayers");
 	g_hCVarMaxPlayersToolZ = FindConVar("sv_maxplayers");
@@ -79,24 +77,19 @@ public OnPluginStart()
 	g_iMinAllowedSlots = GetConVarInt(g_hCVarMinAllowedSlots);
 	g_iMaxAllowedSlots = GetConVarInt(g_hCVarMaxAllowedSlots);
 
-	SetConVarInt(g_cvarCurrentMaxSlots, GetConVarInt(g_hCVarMaxPlayersToolZ));
 	//PrintToServer("Slots set onload to: %d", GetConVarInt(g_hCVarMaxPlayersToolZ));
 	HookConVarChange(g_hCVarMinAllowedSlots, CVarChangeMinAllowedSlots);
 	HookConVarChange(g_hCVarMaxAllowedSlots, CVarChangeMaxAllowedSlots);
 
-	HookConVarChange(g_cvarCurrentMaxSlots, CurrentMaxSlots_Changed);
-	HookConVarChange(g_cvarSvVisibleMaxPlayers, SvVisibleMaxPlayers_Changed);
 	if (g_hCVarMaxPlayersDowntown != INVALID_HANDLE)
 	{
 		g_iCurrentSlots = GetConVarInt(g_hCVarMaxPlayersDowntown);
-		HookConVarChange(g_hCVarMaxPlayersDowntown, CVarChangeMaxPlayers);
 		g_bLeft4Downtown2 = true;
 	}
 
 	if (g_hCVarMaxPlayersToolZ != INVALID_HANDLE)
 	{
 		g_iCurrentSlots = GetConVarInt(g_hCVarMaxPlayersToolZ);
-		HookConVarChange(g_hCVarMaxPlayersToolZ, CVarChangeMaxPlayers);
 		g_bL4DToolz = true;
 	}
 
@@ -168,10 +161,8 @@ public Action:Cmd_MaxSlots(client, args) {
 	if(slots < 0 || slots > 32) return Plugin_Handled;
 	if(g_bSlotsLocked) {
 		g_bSlotsLocked = false;
-		SetConVarInt(g_cvarCurrentMaxSlots, slots);	
 		g_bSlotsLocked = true;
 	} else {
-		SetConVarInt(g_cvarCurrentMaxSlots, slots);
 	}
 	return Plugin_Handled;
 }
@@ -197,30 +188,7 @@ public CVarChangeMaxAllowedSlots(Handle:hCVar, const String:sOldValue[], const S
 		g_iMaxAllowedSlots = g_iMinAllowedSlots;
 	}
 }
-public CurrentMaxSlots_Changed(Handle:cvar, const String:oldValue[], const String:newValue[]) {
-	//new any:slots = StringToInt(newValue);
-	SetConVarInt(g_hCVarMaxPlayersToolZ, GetConVarInt(g_cvarCurrentMaxSlots));
-	SetConVarInt(g_cvarSvVisibleMaxPlayers, GetConVarInt(g_cvarCurrentMaxSlots));
-}
 
-public Action:ChangeTrueSlots_Timed(Handle:timer) {
-	SetConVarInt(g_hCVarMaxPlayersToolZ, GetConVarInt(g_cvarCurrentMaxSlots));
-	SetConVarInt(g_cvarSvVisibleMaxPlayers, GetConVarInt(g_cvarCurrentMaxSlots));
-	return Plugin_Stop;
-}
-
-public CVarChangeMaxPlayers(Handle:hCVar, const String:sOldValue[], const String:sNewValue[])
-{
-	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return;
-	SetConVarInt(hCVar, GetConVarInt(g_cvarCurrentMaxSlots));
-	SetConVarInt(g_cvarSvVisibleMaxPlayers, GetConVarInt(g_cvarCurrentMaxSlots));
-}
-
-public SvVisibleMaxPlayers_Changed(Handle:cvar, const String:oldValue[], const String:newValue[]) {
-	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return;
-	SetConVarInt(g_hCVarMaxPlayersToolZ, GetConVarInt(g_cvarCurrentMaxSlots));
-	SetConVarInt(g_cvarSvVisibleMaxPlayers, GetConVarInt(g_cvarCurrentMaxSlots));
-}
 public Action:Cmd_SlotVote(iClient, iArgs)
 {
 	if(g_bSlotsLocked) {
@@ -229,7 +197,7 @@ public Action:Cmd_SlotVote(iClient, iArgs)
 	}
 	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return Plugin_Handled;
 
-
+	
 	if(iClient < 1) return Plugin_Handled;
 	if (GetClientTeam(iClient) == 1)
 	{
@@ -301,6 +269,7 @@ public Action:Cmd_NoSpec(iClient, iArgs)
 		return Plugin_Handled;
 	}
 	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return Plugin_Handled;
+
 
 
 	if (GetClientTeam(iClient) == 1)
@@ -487,11 +456,13 @@ public Action:TimerChangeMaxPlayers(Handle:timer)
 {
 	if (g_bL4DToolz)
 	{
-		SetConVarInt(g_cvarCurrentMaxSlots, g_iDesiredSlots);	
+		SetConVarInt(g_hCVarMaxPlayersToolZ, g_iDesiredSlots);	
+		SetConVarInt(g_cvarSvVisibleMaxPlayers, g_iDesiredSlots);
 	}
 	if (g_bLeft4Downtown2)
 	{
 		SetConVarInt(g_hCVarMaxPlayersDowntown, g_iDesiredSlots);
+		SetConVarInt(g_cvarSvVisibleMaxPlayers, g_iDesiredSlots);
 	}
 
 	return Plugin_Stop;
