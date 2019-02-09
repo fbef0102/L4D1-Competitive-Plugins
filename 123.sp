@@ -59,10 +59,11 @@ public OnPluginStart ()
     
     // commands:
     RegConsoleCmd( "sm_teamshuffle", Cmd_TeamShuffle, "Vote for a team shuffle.");
-	RegConsoleCmd( "sm_shuffle", Cmd_TeamShuffle, "Vote for a team shuffle." );
-	RegConsoleCmd( "sm_mix", Cmd_Mix, "Vote for a Mix" );
-	RegAdminCmd("sm_forceteamshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
-	RegAdminCmd("sm_forceshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
+    RegConsoleCmd( "sm_shuffle", Cmd_TeamShuffle, "Vote for a team shuffle." );
+    RegConsoleCmd( "sm_mix", Cmd_Mix, "Vote for a Mix" );
+    RegAdminCmd("sm_forceteamshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
+    RegAdminCmd("sm_forceshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
+    RegAdminCmd("sm_forcemix", Cmd_ForceMix,ADMFLAG_BAN,"Mix. Only works during readyup. Admins only.");
 }
 
 public Action: Cmd_Mix ( client, args )
@@ -77,7 +78,7 @@ public Action: Cmd_Mix ( client, args )
         return Plugin_Handled;
     }
 	
-	if ( g_iMixTimeout != 0 && GetTime() < g_iMixTimeout )
+    if ( g_iMixTimeout != 0 && GetTime() < g_iMixTimeout )
     {
         if ( client == 0 ) {
             PrintToServer( "[Mix] Too soon after previous teamshuffle. (Wait %is).", (g_iMixTimeout - GetTime()) );
@@ -105,7 +106,7 @@ public Action: Cmd_TeamShuffle ( client, args )
 	
 	if ( g_iTimeout != 0 && GetTime() < g_iTimeout )
     {
-        if ( client == 0 ) {
+    if ( client == 0 ) {
             PrintToServer( "[Shuffle] Too soon after previous teamshuffle. (Wait %is).", (g_iTimeout - GetTime()) );
         } else {
             PrintToChat( client, "\x01[Shuffle] Too soon after previous teamshuffle. (Wait \x05%i\x01s).", (g_iTimeout - GetTime()) );
@@ -136,9 +137,14 @@ public Action: Cmd_ForceTeamShuffle ( client, args )
     return Plugin_Handled;
 }
 
+public Action: Cmd_ForceMix ( client, args )
+{
+    //MixTeams(client,true);
+    return Plugin_Handled;
+}
+
 public Event_RoundStart (Handle:hEvent, const String:name[], bool:dontBroadcast)
 {
-    g_bRoundIsLive = false;
     g_bSrvVoted = false;
     g_bInfVoted = false;
     g_iTimeout = GetTime() + 5;
@@ -174,7 +180,7 @@ stock TeamShuffleVote ( client )
             {
                 g_bSrvVoted = true;
                 PrintToChatAll("[Shuffle] {blue}The Survivors{default} have requested to start a {green}team shuffle{default}.");
-				PrintToChatAll("{red}The Infected{default} must agree by typing {green}!shuffle{default}.", client);
+		PrintToChatAll("{red}The Infected{default} must agree by typing {green}!shuffle{default}.", client);
             }
         }
     }
@@ -209,7 +215,7 @@ public Action: Timer_ShuffleTeams ( Handle:timer )
 
 stock ShuffleTeams ( client = -1 , bool: adm = false)
 {
-     if ( !Is_Ready_Plugin_On() || !IsInReady() )
+    if ( !Is_Ready_Plugin_On() || !IsInReady() )
     {
         if (client == -1) {
             PrintToChatAll("\x01[Shuffle] Team shuffle only allowed before a round is live.(ready stage)");
