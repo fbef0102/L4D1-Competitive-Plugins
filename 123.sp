@@ -3,443 +3,386 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
-#include <left4downtown>
-#include <l4d_direct>
 #include <colors>
+#include <l4d_lib>
 
+#define WARPTOVALIDPOSITION_SIG       "@_ZN13CTerrorPlayer26WarpToValidPositionIfStuckEv"
+#define WARPTOVALIDPOSITION_SIG_L4D_windows       "\x55\x8B\xEC\x83\xE4\xC0\x81\xEC\xB0\x00\x00\x00\x53\x55\x56\x8B\xF1" //string "unsticking %s from %.1f %.1f %.1f to %."
 
-#define TEAM_SPECTATOR      1
-#define TEAM_SURVIVOR       2
-#define TEAM_INFECTED       3
+#define DEBUG_MODE              0
 
-#define IS_VALID_CLIENT(%1)     (%1 > 0 && %1 <= MaxClients)
-#define IS_SURVIVOR(%1)         (GetClientTeam(%1) == 2)
-#define IS_INFECTED(%1)         (GetClientTeam(%1) == 3)
-#define IS_VALID_INGAME(%1)     (IS_VALID_CLIENT(%1) && IsClientInGame(%1))
-#define IS_VALID_SURVIVOR(%1)   (IS_VALID_INGAME(%1) && IS_SURVIVOR(%1))
-#define IS_VALID_INFECTED(%1)   (IS_VALID_INGAME(%1) && IS_INFECTED(%1))
-#define IS_SURVIVOR_ALIVE(%1)   (IS_VALID_SURVIVOR(%1) && IsPlayerAlive(%1))
-#define IS_INFECTED_ALIVE(%1)   (IS_VALID_INFECTED(%1) && IsPlayerAlive(%1))
+#define TEAM_SPECTATOR          1
+#define TEAM_SURVIVOR           2
+#define TEAM_INFECTED           3
 
-#define TIMEOUT_TIME    30
-#define MAX_PLY         48
+#define SEQ_FLIGHT_BILL         544
+//#define SEQ_FLIGHT_BILL_INCAP         527
+#define SEQ_FLIGHT_FRANCIS      545
+#define SEQ_FLIGHT_ZOEY         526
+#define SEQ_FLIGHT_ZOEY_INCAP   505
+//#define SEQ_FLIGHT_LOUIS        544
+//#define SEQ_FLIGHT_LOUIS_INCAP         527
 
+#define TIMER_CHECKPUNCH        0.025   // interval for checking 'flight' of punched survivors
+#define TIME_CHECK_UNTIL        0.5     // try this long to find a stuck-position, then assume it's OK
 
-// globals
-new     bool:   g_bRoundIsLive = false;
-
-new             g_iTeamSize = 4;
-
-new             g_iPreviousCount[4];                // for each GetClientTeam(), the # players in it
-new             g_iPreviousTeams[4][MAX_PLY];       // for each GetClientTeam(), the players in it
-
-// voting
-new     bool:   g_bSrvVoted = false;                // whether anyone in survivor team voted using the command
-new     bool:   g_bInfVoted = false;
-new             g_iTimeout = 0;                     // how long to wait until a 'time out' is assumed, seconds
-new g_iMixTimeout = 0;
-native IsInReady();
-native Is_Ready_Plugin_On();
-#define L4D_TEAM_SURVIVORS 2
-#define L4D_TEAM_INFECTED 3
-#define L4D_TEAM_SPECTATE 1
-
-public Plugin:myinfo = {
-    name = "Team Shuffle & Mix",
-    author = "Tabun & Zen & Sir (L4D1 port by Harry)",
-    description = "Allows teamshuffles and Mix by voting or admin-forced during readyup.",
-    version = "1.0",
-    url = "none"
-};
-
-public OnPluginStart ()
+enum eTankWeapon
 {
-    // events    
-    HookEvent("round_start",                Event_RoundStart,               EventHookMode_PostNoCopy);
-    
-    // commands:
-    RegConsoleCmd( "sm_teamshuffle", Cmd_TeamShuffle, "Vote for a team shuffle.");
-    RegConsoleCmd( "sm_shuffle", Cmd_TeamShuffle, "Vote for a team shuffle." );
-    RegConsoleCmd( "sm_mix", Cmd_Mix, "Vote for a Mix" );
-    RegAdminCmd("sm_forceteamshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
-    RegAdminCmd("sm_forceshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
-    RegAdminCmd("sm_forcemix", Cmd_ForceMix,ADMFLAG_BAN,"Mix. Only works during readyup. Admins only.");
+    TANKWEAPON
 }
 
-public Action: Cmd_Mix ( client, args )
+new     bool:       g_bLateLoad                                 = false;
+new     Handle:     g_hInflictorTrie                            = INVALID_HANDLE;       // names to look up
+
+new     Float:      g_fPlayerPunch          [MAXPLAYERS + 1];                           // when was the last tank punch on this player?
+new     bool:       g_bPlayerFlight         [MAXPLAYERS + 1];                           // is a player in (potentially stuckable) punched flight?
+new     Float:      g_fPlayerStuck          [MAXPLAYERS + 1];                           // when did the (potential) 'stuckness' occur?
+new     Float:      g_fPlayerLocation       [MAXPLAYERS + 1][3];                        // where was the survivor last during the flight?
+
+new     Handle:     g_hCvarDeStuckTime                          = INVALID_HANDLE;       // convar: how long to wait and de-stuckify a punched player
+new 	Handle: 	tpsf_debug_print;
+new modelnum[MAXPLAYERS + 1];
+static bool:TankPounchClient[MAXPLAYERS + 1];
+
+public Plugin:myinfo = 
 {
-    if ( !Is_Ready_Plugin_On() || !IsInReady() )
-    {
-        if ( client == 0 ) {
-            PrintToServer( "[Mix] Start Mix when round is not live.(ready stage)" );
-        } else {
-            PrintToChat( client, "[Mix] Start Mix when round is not live.(ready stage)" );
-        }
-        return Plugin_Handled;
-    }
+    name =          "Tank Punch Ceiling Stuck Fix",
+    author =        "Tabun, Visor",
+    description =   "Fixes the problem where tank-punches get a survivor stuck in the roof,L4D1 windows signature by Harry",
+    version =       "0.3",
+    url =           "nope"
+}
+
+/* -------------------------------
+ *      Init
+ * ------------------------------- */
+
+public APLRes:AskPluginLoad2( Handle:plugin, bool:late, String:error[], errMax)
+{
+	CreateNative("IsTankPounchClient", Native_IsTankPounchClient);
+	g_bLateLoad = late;
+	return APLRes_Success;
+}
+
+public Native_IsTankPounchClient(Handle:plugin, numParams)
+{
+   new num1 = GetNativeCell(1);
+   return TankPounchClient[num1];
+}
+
+public OnPluginStart()
+{
+    // hook already existing clients if loading late
+    if (g_bLateLoad) {
+        for (new i = 1; i < MaxClients+1; i++) {
+            if (IsClientInGame(i)) {
+                SDKHook(i, SDKHook_OnTakeDamage, OnTakeDamage);
+		TankPounchClient[i] = false;
+			}
+		}
+	}
+    
+    // cvars
+    g_hCvarDeStuckTime = CreateConVar(      "sm_punchstuckfix_unstucktime",     "0.5",      "How many seconds to wait before detecting and unstucking a punched motionless player.", FCVAR_PLUGIN, true, 0.05, false);
+    tpsf_debug_print = CreateConVar("tpsf_debug_print", "1","Enable the Debug Print?", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	
-    if ( g_iMixTimeout != 0 && GetTime() < g_iMixTimeout )
-    {
-        if ( client == 0 ) {
-            PrintToServer( "[Mix] Too soon after previous teamshuffle. (Wait %is).", (g_iMixTimeout - GetTime()) );
-        } else {
-            PrintToChat( client, "\x01[Mix] Too soon after previous teamshuffle. (Wait \x05%i\x01s).", (g_iMixTimeout - GetTime()) );
-        }
-        return Plugin_Handled;
-    }
-    
-    //MixVote( client );
-    return Plugin_Handled;
-}
-
-public Action: Cmd_TeamShuffle ( client, args )
-{
-    if ( !Is_Ready_Plugin_On() || !IsInReady() )
-    {
-        if ( client == 0 ) {
-            PrintToServer( "[Shuffle] Teams can only be shuffled when round is not live.(ready stage)" );
-        } else {
-            PrintToChat( client, "\x01[Shuffle] Teams can only be shuffled when round is not live.(ready stage)" );
-        }
-        return Plugin_Handled;
-    }
+    // hooks
+    HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
+    HookEvent("player_bot_replace", OnBotSwap);
+    HookEvent("bot_player_replace", OnBotSwap);
+    HookEvent("player_spawn", OnPlayerSpawn);
 	
-	if ( g_iTimeout != 0 && GetTime() < g_iTimeout )
-    {
-    if ( client == 0 ) {
-            PrintToServer( "[Shuffle] Too soon after previous teamshuffle. (Wait %is).", (g_iTimeout - GetTime()) );
-        } else {
-            PrintToChat( client, "\x01[Shuffle] Too soon after previous teamshuffle. (Wait \x05%i\x01s).", (g_iTimeout - GetTime()) );
-        }
-        return Plugin_Handled;
-    }
-	
-    /*
-        maybe argument for 'schemes'?
-    new String: sArg[24];
-    if ( args )
-    {
-        GetCmdArg( 1, sArg, sizeof(sArg) );
-    }
-    else
-    {
-        sArg = "a";
-    }
-    */
+    // trie
+    g_hInflictorTrie = BuildInflictorTrie();
+    HookEvent("round_start", Event_RoundStart);
+}
+
+public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	for(new i = 1; i <= MaxClients; i++) 
+	{
+		TankPounchClient[i] = false;
+	}
+}
+
+/* --------------------------------------
+ *      General hooks / events
+ * -------------------------------------- */
+
+public OnClientPostAdminCheck(client)
+{
+    SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
+}
+
+public OnMapStart()
+{
+    setCleanSlate();
+}
+
+public Action: RoundStart_Event (Handle:event, const String:name[], bool:dontBroadcast)
+{
+    setCleanSlate();
+}
+
+
+/* --------------------------------------
+ *     GOT MY EYES ON YOU, PUNCH
+ * -------------------------------------- */
+
+public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damageType, &weapon, Float:damageForce[3], Float:damagePosition[3])
+{
+    if (!inflictor || !attacker || !Issurvivor(victim) || !IsValidEdict(inflictor)) { return Plugin_Continue; }
     
-    TeamShuffleVote( client );
-    return Plugin_Handled;
-}
-
-public Action: Cmd_ForceTeamShuffle ( client, args )
-{
-    ShuffleTeams(client,true);
-    return Plugin_Handled;
-}
-
-public Action: Cmd_ForceMix ( client, args )
-{
-    //MixTeams(client,true);
-    return Plugin_Handled;
-}
-
-public Event_RoundStart (Handle:hEvent, const String:name[], bool:dontBroadcast)
-{
-    g_bSrvVoted = false;
-    g_bInfVoted = false;
-    g_iTimeout = GetTime() + 5;
-}
-
-stock TeamShuffleVote ( client )
-{
-    if ( !IS_VALID_SURVIVOR(client) && !IS_VALID_INFECTED(client) ) { return; }
-    
-    if ( g_bSrvVoted && g_bInfVoted)
+    // only check player-to-player damage
+    decl String:classname[64];
+    if (IsclientAndInGame(attacker) && IsclientAndInGame(victim) && GetClientTeam(victim) == TEAM_SURVIVOR)
     {
-        PrintToChat(client, "\x01Shuffle is already in progress!");
-        return;
-    }
-    
-    // status?
-    if ( GetClientTeam(client) == TEAM_SURVIVOR )
-    {
-        if ( g_bInfVoted)
+        if (attacker == inflictor)                                              // for claws
         {
-            // survivors respond
-            if ( !g_bSrvVoted)
-            {
-                g_bSrvVoted = true;
-                CPrintToChatAll("[Shuffle] {blue}The Survivors{default} have agreed to start the {green}team shuffle{default}. Shuffling in {green}3 {default}seconds.", client);
-                CreateTimer( 3.0, Timer_ShuffleTeams, _, TIMER_FLAG_NO_MAPCHANGE );
-            }
+            GetClientWeapon(inflictor, classname, sizeof(classname));
         }
         else
         {
-            // survivors first
-            if ( !g_bSrvVoted )
-            {
-                g_bSrvVoted = true;
-                PrintToChatAll("[Shuffle] {blue}The Survivors{default} have requested to start a {green}team shuffle{default}.");
-		PrintToChatAll("{red}The Infected{default} must agree by typing {green}!shuffle{default}.", client);
-            }
+            GetEdictClassname(inflictor, classname, sizeof(classname));         // for tank punch/rock
         }
     }
-    else
-    {
-        if ( g_bSrvVoted )
-        {
-            // infected respond
-            if ( !g_bInfVoted )
-            {
-                g_bInfVoted = true;
-                PrintToChatAll("\x05%N\x01 (\x04Infected\x01) accepted the team shuffle. Shuffling in 3 seconds.", client);
-                CreateTimer(3.0, Timer_ShuffleTeams, _, TIMER_FLAG_NO_MAPCHANGE);
-            }
-        } else {
-            // Infected first
-            if ( !g_bInfVoted )
-            {
-                g_bInfVoted = true;
-                PrintToChatAll("\x05%N\x01 (\x04Infected\x01) voted for a team shuffle. Survivors can \x04!teamshuffle\x01 to accept.", client);
-            }
-        }
-    }
+    else { return Plugin_Continue; }
+    
+    // only check tank punch (also rules out anything but infected-to-survivor damage)
+    new eTankWeapon: inflictorID;
+    if (!GetTrieValue(g_hInflictorTrie, classname, inflictorID)) { return Plugin_Continue; }
+    
+    // tank punched survivor, check the result
+    g_fPlayerPunch[victim] = GetTickedTime();
+    g_bPlayerFlight[victim] = false;
+    g_fPlayerStuck[victim] = 0.0;
+    g_fPlayerLocation[victim][0] = 0.0;
+    g_fPlayerLocation[victim][1] = 0.0;
+    g_fPlayerLocation[victim][2] = 0.0;new String:modelname[40];GetEntPropString(victim, Prop_Data, "m_ModelName", modelname, 40); if(StrEqual(modelname, "models/survivors/survivor_biker.mdl"))
+		modelnum[victim] = 1;
+	else 
+		modelnum[victim] = 0;
+	//PrintToChatAll("%N : modelnum %d",victim,modelnum[victim]);
+    CreateTimer(TIMER_CHECKPUNCH, Timer_CheckPunch, victim, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+    return Plugin_Continue;
 }
 
-public Action: Timer_ShuffleTeams ( Handle:timer )
+public Action: Timer_CheckPunch(Handle:hTimer, any:client)
 {
-    g_bSrvVoted = false;
-    g_bInfVoted = false;
-    ShuffleTeams();
-}
-
-stock ShuffleTeams ( client = -1 , bool: adm = false)
-{
-    if ( !Is_Ready_Plugin_On() || !IsInReady() )
-    {
-        if (client == -1) {
-            PrintToChatAll("\x01[Shuffle] Team shuffle only allowed before a round is live.(ready stage)");
-        } else {
-            PrintToChat(client, "\x01[Shuffle] Team shuffle only allowed before a round is live.(ready stage)");
-        }
-        return;
-    }
+    // stop the timer when we no longer have a proper client
+    if (!Issurvivor(client)) { return Plugin_Stop; }
     
-    g_iTeamSize = GetConVarInt( FindConVar("survivor_limit") );
-    
-    // save current player / team setup
-    new tmpTeam;
-    for ( new i = 1; i <= MaxClients; i++ )
+    // stop the time if we're passed the time for checking
+    if (GetTickedTime() - g_fPlayerPunch[client] > TIME_CHECK_UNTIL && g_fPlayerStuck[client])
     {
-        if ( !IS_VALID_INGAME( i ) || IsFakeClient(i) ) { continue; }
+        g_fPlayerPunch[client] = 0.0;
+        g_bPlayerFlight[client] = false;
+        g_fPlayerStuck[client] = 0.0;
         
-        tmpTeam = GetClientTeam(i);
-        g_iPreviousTeams[tmpTeam][ g_iPreviousCount[tmpTeam] ] = i;
-        g_iPreviousCount[tmpTeam]++;
+        return Plugin_Stop;
     }
     
-    // check amount
-    new iTotal = g_iPreviousCount[TEAM_SURVIVOR] + g_iPreviousCount[TEAM_INFECTED];
-    new bool: bSpecs = false;
-    new i, j;
+    // get current animation frame and location of survivor
+    new iSeq = GetEntProp(client, Prop_Send, "m_nSequence");
+    //PrintToChatAll("iSeq: %N is %d",client,iSeq);
     
-    if ( iTotal < (2 * g_iTeamSize) )
+    // if the player is not in flight, check if they are
+    if ( (( iSeq == SEQ_FLIGHT_BILL && modelnum[client] == 0 ) || (iSeq == SEQ_FLIGHT_FRANCIS && modelnum[client] == 1 ) || iSeq == SEQ_FLIGHT_ZOEY ) && (IsPlayerAlive(client) && !IsIncapacitated(client) && !GetEntProp(client, Prop_Send, "m_isHangingFromLedge")) )
     {
-        iTotal += g_iPreviousCount[TEAM_SPECTATOR];
-        bSpecs = true;
+        
+        new Float: vOrigin[3];
+        GetEntPropVector(client, Prop_Send, "m_vecOrigin", vOrigin);
+        
+        if (!g_bPlayerFlight[client])
+        {
+            // if the player is not detected as in punch-flight, they are now
+            g_bPlayerFlight[client] = true;
+            g_fPlayerLocation[client] = vOrigin;
+            
+            //PrintToChatAll("[test] %N - flight start [seq:%4i][loc:%.f %.f %.f]", client, iSeq, vOrigin[0], vOrigin[1], vOrigin[2]);
+        }
+        else
+        {
+            // if the player is in punch-flight, check location / difference to detect stuckness
+            if (GetVectorDistance(g_fPlayerLocation[client], vOrigin) == 0.0) {
+                
+                // are we /still/ in the same position? (ie. if stucktime is recorded)
+                if (g_fPlayerStuck[client])
+                {
+                    g_fPlayerStuck[client] = GetTickedTime();
+                    
+                    //PrintToChatAll("[test] %N - stuck start [loc:%.f %.f %.f]", client, vOrigin[0], vOrigin[1], vOrigin[2]);
+                }
+                else
+                {
+                    if (GetTickedTime() - g_fPlayerStuck[client] > GetConVarFloat(g_hCvarDeStuckTime))
+                    {
+                        // time passed, player is stuck! fix.
+                        //LogMessage("<TankPunchStuck> %N - stuckness FIX triggered!", client);
+                        
+                        g_fPlayerPunch[client] = 0.0;
+                        g_bPlayerFlight[client] = false;
+                        g_fPlayerStuck[client] = 0.0;
+
+                        CTerrorPlayer_WarpToValidPositionIfStuck(client);
+                        if(GetConVarBool(tpsf_debug_print)) 
+							CPrintToChatAll("<{olive}TankPunchStuck{default}> Found {blue}%N{default} stuck after a punch. Warped him to a valid position.", client);
+                        return Plugin_Stop;
+                    }
+                }
+            }
+            else
+            {
+                // if we were detected as stuck, undetect
+                if (g_fPlayerStuck[client])
+                {
+                    g_fPlayerStuck[client] = 0.0;
+                    
+                    //PrintToChatAll("[test] %N - stuck end (previously detected, now gone) [loc:%.f %.f %.f]", client, vOrigin[0], vOrigin[1], vOrigin[2]);
+                }
+            }
+        }
     }
-    
-	new freeslots = GetTeamMaxHumans(2)+GetTeamMaxHumans(3);
-	new UsedSlots = GetTeamHumanCount(2)+GetTeamHumanCount(3);
-	if(freeslots != UsedSlots)
+	else if (!IsPlayerAlive(client))
 	{
-        PrintToChatAll("[Shuffle] Can't shuffle, both team must be full first");
-    }
-    
-	if(adm)
-	{
-		CPrintToChatAll("[Shuffle] {lightgreen}%N {default}has forced the team shuffle");
+		TankPounchClient[client] = true;
+		return Plugin_Stop;
 	}
-	
-    // move specs to teams, to see available totals
-    if ( bSpecs )
+	else if (IsIncapacitated(client) || GetEntProp(client, Prop_Send, "m_isHangingFromLedge") || ( iSeq == SEQ_FLIGHT_BILL+1 && modelnum[client] == 0  ) || (iSeq == SEQ_FLIGHT_FRANCIS+1 && modelnum[client] == 1)  || iSeq == SEQ_FLIGHT_ZOEY+1)
     {
-        for ( j = TEAM_SURVIVOR; j <= TEAM_INFECTED; j++ )
+        if (g_bPlayerFlight[client])
         {
-            while ( g_iPreviousCount[j] < g_iTeamSize && g_iPreviousCount[TEAM_SPECTATOR] > 0 )
-            {
-                g_iPreviousCount[TEAM_SPECTATOR]--;
-                g_iPreviousTeams[j][ g_iPreviousCount[j] ] = g_iPreviousTeams[TEAM_SPECTATOR][ g_iPreviousCount[TEAM_SPECTATOR] ];
-                g_iPreviousCount[j]++;
-            }
-        }
-    }
-    
-    
-    // if there are uneven players, move one to the other
-    new tmpDif = g_iPreviousCount[TEAM_SURVIVOR] - g_iPreviousCount[TEAM_INFECTED];
-    if ( tmpDif > 1 )
-    {
-        g_iPreviousCount[TEAM_SURVIVOR]--;
-        g_iPreviousTeams[TEAM_INFECTED][ g_iPreviousCount[TEAM_INFECTED] ] = g_iPreviousTeams[TEAM_SURVIVOR][ g_iPreviousCount[TEAM_SURVIVOR] ];
-        g_iPreviousCount[TEAM_INFECTED]++;
-        
-    }
-    else if ( tmpDif < -1 )
-    {
-        g_iPreviousCount[TEAM_INFECTED]--;
-        g_iPreviousTeams[TEAM_SURVIVOR][ g_iPreviousCount[TEAM_SURVIVOR] ] = g_iPreviousTeams[TEAM_INFECTED][ g_iPreviousCount[TEAM_INFECTED] ];
-        g_iPreviousCount[TEAM_SURVIVOR]++;
-    }
-    
-    // if the teams are too full (for whatever glitchy reason), truncate
-    for ( j = TEAM_SURVIVOR; j <= TEAM_INFECTED; j++ )
-    {
-        while( g_iPreviousCount[j] > g_iTeamSize )
-        {
-            g_iPreviousCount[j]--;
-            g_iPreviousTeams[TEAM_SPECTATOR][ g_iPreviousCount[TEAM_SPECTATOR] ] = g_iPreviousTeams[j][ g_iPreviousCount[j] ];
-            g_iPreviousCount[TEAM_SPECTATOR]++;
-        }
-    }
-    
-    // do shuffle: swap at least teamsize/2 rounded up players
-    new bool: bShuffled[MAXPLAYERS+1];
-    new iShuffleCount = RoundToCeil( float( (g_iPreviousCount[TEAM_INFECTED] > g_iPreviousCount[TEAM_SURVIVOR]) ? g_iPreviousCount[TEAM_INFECTED] : g_iPreviousCount[TEAM_SURVIVOR]  ) / 2.0 );
-    
-    new pickA, pickB;
-    new spotA, spotB;
-    
-    for ( j = 0; j < iShuffleCount; j++ )
-    {
-        pickA = -1;
-        pickB = -1;
-        
-        while ( pickA == -1 || bShuffled[pickA] ) {
-            spotA = GetRandomInt( 0, g_iPreviousCount[TEAM_SURVIVOR] - 1 );
-            pickA = g_iPreviousTeams[TEAM_SURVIVOR][ spotA ];
-        }
-        while ( pickB == -1 || bShuffled[pickB] ) {
-            spotB = GetRandomInt( 0, g_iPreviousCount[TEAM_INFECTED] - 1 );
-            pickB = g_iPreviousTeams[TEAM_INFECTED][ spotB ];
+            // landing frame, so not stuck
+            g_fPlayerPunch[client] = 0.0;
+            g_bPlayerFlight[client] = false;
+            g_fPlayerStuck[client] = 0.0;
+            
+            //PrintToChatAll("[test] %N - flight end (natural)", client);
         }
         
-        bShuffled[pickA] = true;
-        bShuffled[pickB] = true;
-        
-        g_iPreviousTeams[TEAM_SURVIVOR][spotA] = pickB;
-        g_iPreviousTeams[TEAM_INFECTED][spotB] = pickA;
+        return Plugin_Stop;
     }
     
-    // set all players to spec
-    for ( i = 1; i <= MaxClients; i++ )
-    {
-        if ( !IS_VALID_INGAME(i) || IsFakeClient(i) ) { continue; }
-        ChangePlayerTeam( i, TEAM_SPECTATOR );
-    }
-    
-    // now place all the players in the teams according to previousteams (silly name now, but ok)
-    for ( j = TEAM_SURVIVOR; j <= TEAM_INFECTED; j++ )
-    {
-        for ( i = 0; i < g_iPreviousCount[j]; i++ )
-        {
-            ChangePlayerTeam( g_iPreviousTeams[j][i], j );
-        }
-    }
-    
-    PrintToChatAll("\x01Teams were shuffled.");
-    
-    // set timeout
-    g_iTimeout = GetTime() + TIMEOUT_TIME;
-    
+    return Plugin_Continue;
 }
 
-/*      Helper functions
-        ----------------    */
 
-stock bool: ChangePlayerTeam(client, team )
+/* --------------------------------------
+ *     Shared function(s)
+ * -------------------------------------- */
+
+stock bool:IsclientAndInGame(index) return (index > 0 && index <= MaxClients && IsClientInGame(index));
+stock bool:Issurvivor(client)
 {
-    if ( !IS_VALID_INGAME(client) || GetClientTeam(client) == team )
-    {
-        return true;
-    }
-    
-    if ( team != TEAM_SURVIVOR )
-    {
-        ChangeClientTeam( client, team );
-        return true;
-    }
-    else
-    {
-        new bot = FindSurvivorBot();
-        if ( bot > 0 )
-        {
-            CheatCommand( client, "sb_takecontrol", "" );
-            return true;
-        }
+    if (IsclientAndInGame(client)) {
+        return GetClientTeam(client) == TEAM_SURVIVOR;
     }
     return false;
 }
 
-stock FindSurvivorBot()
+
+stock setCleanSlate()
 {
-    for ( new client = 1; client <= MaxClients; client++ )
+    new i, maxplayers = MaxClients;
+    for (i = 1; i <= maxplayers; i++)
     {
-        if ( IS_VALID_SURVIVOR(client) && IsFakeClient(client) )
-        {
-            return client;
-        }
+        g_fPlayerPunch[i] = 0.0;
+        g_bPlayerFlight[i] = false;
+        g_fPlayerStuck[i] = 0.0;
+        g_fPlayerLocation[i][0] = 0.0;
+        g_fPlayerLocation[i][1] = 0.0;
+        g_fPlayerLocation[i][2] = 0.0;
     }
-    return -1;
 }
 
-CheatCommand(client, const String:command[], const String:arguments[])
+public PrintDebug(const String:Message[], any:...)
 {
-    if ( !client ) { return; }
-    
-    new admindata = GetUserFlagBits(client);
-    SetUserFlagBits(client, ADMFLAG_ROOT);
-    
-    new flags = GetCommandFlags(command);
-    SetCommandFlags(command, flags & ~FCVAR_CHEAT);
-    
-    FakeClientCommand(client, "%s %s", command, arguments);
-    
-    SetCommandFlags(command, flags);
-    SetUserFlagBits(client, admindata);
+    #if DEBUG_MODE
+        decl String:DebugBuff[256];
+        VFormat(DebugBuff, sizeof(DebugBuff), Message, 2);
+        //LogMessage(DebugBuff);
+        //PrintToServer(DebugBuff);
+        PrintToChatAll(DebugBuff);
+    #endif
 }
 
-stock GetTeamMaxHumans(team)
+stock Handle: BuildInflictorTrie()
 {
-	if(team == 2)
-	{
-		return GetConVarInt(FindConVar("survivor_limit"));
-	}
-	else if(team == 3)
-	{
-		return GetConVarInt(FindConVar("z_max_player_zombies"));
-	}
-	
-	return -1;
+    new Handle: trie = CreateTrie();
+    SetTrieValue(trie, "weapon_tank_claw",      TANKWEAPON);
+    /*
+    SetTrieValue(trie, "tank_rock",             TANKWEAPON);
+    */
+    return trie;    
 }
 
-stock GetTeamHumanCount(team)
+stock CTerrorPlayer_WarpToValidPositionIfStuck(client)
 {
-	new humans = 0;
-	
-	new i;
-	for(i = 1; i < (MaxClients + 1); i++)
+	static Handle:WarpToValidPositionSDKCall = INVALID_HANDLE;
+	if (WarpToValidPositionSDKCall == INVALID_HANDLE)
 	{
-		if(IsClientInGameHuman(i) && GetClientTeam(i) == team)
+		StartPrepSDKCall(SDKCall_Player);
+		if(IsWindowsOrLinux() == 1)//windows
 		{
-			humans++;
+			if (!PrepSDKCall_SetSignature(SDKLibrary_Server, WARPTOVALIDPOSITION_SIG_L4D_windows, 17))
+				return;
+		}
+		else
+		{
+			if (!PrepSDKCall_SetSignature(SDKLibrary_Server, WARPTOVALIDPOSITION_SIG, 0))
+				return;
+		}
+
+		WarpToValidPositionSDKCall = EndPrepSDKCall();
+		if (WarpToValidPositionSDKCall == INVALID_HANDLE)
+		{
+			return;
 		}
 	}
-	
-	return humans;
+
+	SDKCall(WarpToValidPositionSDKCall, client, 0);
 }
 
-bool:IsClientInGameHuman(client)
+public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast) 
 {
-	return IsClientInGame(client) && !IsFakeClient(client) && ((GetClientTeam(client) == L4D_TEAM_SURVIVORS || GetClientTeam(client) == L4D_TEAM_INFECTED));
+	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
+	new player = GetClientOfUserId(GetEventInt(event, "player"));
+	if (IsClientIndex(bot) && IsClientIndex(player)) 
+	{
+		if (StrEqual(name, "player_bot_replace")) 
+		{
+			TankPounchClient[bot] = TankPounchClient[player];
+			TankPounchClient[player] = false;
+			
+		}
+		else 
+		{
+			TankPounchClient[player] = TankPounchClient[bot];
+			TankPounchClient[bot] = false;
+		}
+	}
+	return Plugin_Continue;
+}
+
+public Action:OnPlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	
+	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if(IsClientIndex(client)&&IsClientConnected(client)&&IsClientInGame(client)&&GetClientTeam(client)==2)
+	{
+		TankPounchClient[client] = false;
+	}
+}
+
+bool:IsClientIndex(client)
+{
+	return (client > 0 && client <= MaxClients);
+}
+
+stock IsWindowsOrLinux()
+{
+     new Handle:conf = LoadGameConfigFile("windowsorlinux");
+     new WindowsOrLinux = GameConfGetOffset(conf, "WindowsOrLinux");
+     CloseHandle(conf);
+     return WindowsOrLinux; //1 for windows; 2 for linux
 }
