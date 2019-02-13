@@ -117,7 +117,7 @@ public OnPluginStart()
 	RegConsoleCmd("sm_nospecs", Cmd_NoSpec);
 	RegConsoleCmd("sm_kickspec", Cmd_NoSpec);
 	RegConsoleCmd("sm_kickspecs", Cmd_NoSpec);
-	RegConsoleCmd("sm_maxslots", Cmd_MaxSlots);
+	RegConsoleCmd("sm_maxslots", Cmd_SlotVote);
 	RegServerCmd("sm_lock_slots", Cmd_LockSlots);
 	RegServerCmd("sm_unlock_slots", Cmd_UnLockSlots);
 	
@@ -146,24 +146,6 @@ public Action:Cmd_UnLockSlots(args) {
 	g_bSlotsLocked = false;
 	PrintToServer("[SM] Server slots count unlocked!");
 	PrintToChatAll("[SM] Server slots count unlocked!");
-	return Plugin_Handled;
-}
-public Action:Cmd_MaxSlots(client, args) {
-	decl String:buf[3];
-	if(client > 0) {
-		if(!GetAdminFlag(GetUserAdmin(client), Admin_Generic)) {
-			PrintToChat(client, "[SM] You are not allowed to use this command!");
-			return Plugin_Handled;
-		}
-	}
-	GetCmdArg(1, buf, sizeof(buf));
-	new slots = StringToInt(buf);
-	if(slots < 0 || slots > 32) return Plugin_Handled;
-	if(g_bSlotsLocked) {
-		g_bSlotsLocked = false;
-		g_bSlotsLocked = true;
-	} else {
-	}
 	return Plugin_Handled;
 }
 
@@ -197,14 +179,41 @@ public Action:Cmd_SlotVote(iClient, iArgs)
 	}
 	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return Plugin_Handled;
 	
-	
 	if(iClient < 1) return Plugin_Handled;
+
+	if(GetAdminFlag(GetUserAdmin(iClient), Admin_Generic))
+	{
+		if (iArgs == 1)
+		{
+			decl String:buf[3];
+			GetCmdArg(1, buf, sizeof(buf));
+			g_iDesiredSlots = StringToInt(buf);
+			
+			if (g_iDesiredSlots == g_iCurrentSlots)
+			{
+				CPrintToChat(iClient, "%t", "Same as current", g_iDesiredSlots);
+				return Plugin_Handled;
+			}
+
+			if (g_iDesiredSlots >= g_iMinAllowedSlots && g_iDesiredSlots <= g_iMaxAllowedSlots)
+			{
+				CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default} Changes Server Slots: {green}%d{default} - > {green}%d",iClient,g_iCurrentSlots,g_iDesiredSlots);
+				ChangeSeverSlots();
+			}
+			else
+			{
+				CPrintToChat(iClient, "%t", "Usage", g_iMinAllowedSlots, g_iMaxAllowedSlots);
+			}
+			return Plugin_Handled;
+		}
+	}
+	
 	if (GetClientTeam(iClient) == 1)
 	{
 		PrintToChat(iClient, "%t", "Spectator response");
 		return Plugin_Handled;
 	}
-
+	
 	if (!TestVoteDelay(iClient))
 	{
 		return Plugin_Handled;
@@ -269,13 +278,6 @@ public Action:Cmd_NoSpec(iClient, iArgs)
 		return Plugin_Handled;
 	}
 	if(!GetConVarBool(g_cvarSlotsPluginEnabled)) return Plugin_Handled;
-
-
-	if (GetClientTeam(iClient) == 1)
-	{
-		PrintToChat(iClient, "%t", "Spectator response");
-		return Plugin_Handled;
-	}
 	
 	new iSpecs = 0;
 
@@ -289,15 +291,27 @@ public Action:Cmd_NoSpec(iClient, iArgs)
 		}
 	}
 
-	if (iSpecs != 0)
-	{
-		CreateTimer(0.1, Timer_StartNoSpecVote, iClient, TIMER_FLAG_NO_MAPCHANGE);
-	}
-	else
+	if (iSpecs == 0)
 	{
 		PrintToChat(iClient, "%t", "No spectators");
+		return Plugin_Handled;
 	}
 
+	if(GetAdminFlag(GetUserAdmin(iClient), Admin_Generic))
+	{
+		CPrintToChatAll("[{olive}TS{default}] {lightgreen}%N{default} kicks all spectators.",iClient);
+		KickAllSpectators();
+		return Plugin_Handled;
+	}
+
+	if (GetClientTeam(iClient) == 1)
+	{
+		PrintToChat(iClient, "%t", "Spectator response");
+		return Plugin_Handled;
+	}
+	
+	CreateTimer(0.1, Timer_StartNoSpecVote, iClient, TIMER_FLAG_NO_MAPCHANGE);
+	
 	return Plugin_Handled;
 }
 
@@ -338,7 +352,15 @@ public MenuHandler_SlotMenu(Handle:hSlotMenu, MenuAction:action, param1, param2)
 		if (GetMenuItem(hSlotMenu, param2, sInfo, sizeof(sInfo)))
 		{
 			g_iDesiredSlots = StringToInt(sInfo);
-
+			
+			if (g_hCVarMaxPlayersDowntown != INVALID_HANDLE)
+			{
+				g_iCurrentSlots = GetConVarInt(g_hCVarMaxPlayersDowntown);
+			}
+			else if (g_hCVarMaxPlayersToolZ != INVALID_HANDLE)
+			{
+				g_iCurrentSlots = GetConVarInt(g_hCVarMaxPlayersToolZ);
+			}
 			if (g_iDesiredSlots == g_iCurrentSlots)
 			{
 				CPrintToChat(param1, "%t", "Same as current", g_iDesiredSlots);
@@ -453,17 +475,7 @@ public SlotVoteResultHandler(Handle:vote, num_votes, num_clients, const client_i
 */
 public Action:TimerChangeMaxPlayers(Handle:timer)
 {
-	if (g_bL4DToolz)
-	{
-		SetConVarInt(g_hCVarMaxPlayersToolZ, g_iDesiredSlots);	
-		SetConVarInt(g_cvarSvVisibleMaxPlayers, g_iDesiredSlots);
-	}
-	if (g_bLeft4Downtown2)
-	{
-		SetConVarInt(g_hCVarMaxPlayersDowntown, g_iDesiredSlots);
-		SetConVarInt(g_cvarSvVisibleMaxPlayers, g_iDesiredSlots);
-	}
-
+	ChangeSeverSlots();
 	return Plugin_Stop;
 }
 
@@ -582,7 +594,7 @@ static KickAllSpectators()
 		if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == 1)
 		{
 			if(IsPlayerGenericAdmin(i)) { 
-				CPrintToChatAll("[{olive}TS{default}] Can not kick {olive}%N {default}from spectators. This player is ADM!", i);
+				CPrintToChatAll("[{olive}TS{default}] Can not kick {olive}%N {default}from spectators. This player is {lightgreen}ADM{default}!", i);
 				continue;
 			}
 			BanClient(i, 5, BANFLAG_AUTHID, reason, reason, "nospec");
@@ -866,4 +878,20 @@ stock bool:DisplayVoteMenuToNoSpecators(Handle:hMenu,iTime)
     }
     
     return VoteMenu(hMenu, iPlayers, iTotal, iTime, 0);
-}   
+}
+
+ChangeSeverSlots()
+{
+	if (g_bL4DToolz)
+	{
+		SetConVarInt(g_hCVarMaxPlayersToolZ, g_iDesiredSlots);	
+		SetConVarInt(g_cvarSvVisibleMaxPlayers, g_iDesiredSlots);
+		g_iCurrentSlots = GetConVarInt(g_hCVarMaxPlayersToolZ);
+	}
+	if (g_bLeft4Downtown2)
+	{
+		SetConVarInt(g_hCVarMaxPlayersDowntown, g_iDesiredSlots);
+		SetConVarInt(g_cvarSvVisibleMaxPlayers, g_iDesiredSlots);
+		g_iCurrentSlots = GetConVarInt(g_hCVarMaxPlayersDowntown);
+	}
+}
