@@ -77,7 +77,7 @@ public OnPluginStart()
         for (new i = 1; i < MaxClients+1; i++) {
             if (IsClientInGame(i)) {
                 SDKHook(i, SDKHook_OnTakeDamage, OnTakeDamage);
-				TankPounchClient[i] = false;
+                TankPounchClient[i] = false;
 			}
 		}
 	}
@@ -88,13 +88,13 @@ public OnPluginStart()
 	
     // hooks
     HookEvent("round_start", RoundStart_Event, EventHookMode_PostNoCopy);
-	HookEvent("player_bot_replace", OnBotSwap);
-	HookEvent("bot_player_replace", OnBotSwap);
-	HookEvent("player_spawn", OnPlayerSpawn);
+    HookEvent("player_bot_replace", OnBotSwap);
+    HookEvent("bot_player_replace", OnBotSwap);
+    HookEvent("player_spawn", OnPlayerSpawn);
 	
-	// trie
-	g_hInflictorTrie = BuildInflictorTrie();
-	HookEvent("round_start", Event_RoundStart);
+    // trie
+    g_hInflictorTrie = BuildInflictorTrie();
+    HookEvent("round_start", Event_RoundStart);
 }
 
 public Action:Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
