@@ -7,7 +7,7 @@
 #include <l4d_lib>
 
 #define WARPTOVALIDPOSITION_SIG       "@_ZN13CTerrorPlayer26WarpToValidPositionIfStuckEv"
-#define WARPTOVALIDPOSITION_SIG_L4D_windows       "\x55\x8B\xEC\x83\xE4\xC0\x81\xEC\xB0\x00\x00\x00\x53\x55\x56\x8B\xF1"
+#define WARPTOVALIDPOSITION_SIG_L4D_windows       "\x55\x8B\xEC\x83\xE4\xC0\x81\xEC\xB0\x00\x00\x00\x53\x55\x56\x8B\xF1" //string "unsticking %s from %.1f %.1f %.1f to %."
 
 #define DEBUG_MODE              0
 
@@ -47,7 +47,7 @@ static bool:TankPounchClient[MAXPLAYERS + 1];
 public Plugin:myinfo = 
 {
     name =          "Tank Punch Ceiling Stuck Fix",
-    author =        "Tabun, Visor",
+    author =        "Tabun, Visor & Harry Potter",
     description =   "Fixes the problem where tank-punches get a survivor stuck in the roof,L4D1 windows signature by Harry",
     version =       "2.0",
     url =           "nope"
@@ -83,7 +83,7 @@ public OnPluginStart()
 	}
     
     // cvars
-    g_hCvarDeStuckTime = CreateConVar(      "sm_punchstuckfix_unstucktime",     "1.0",      "How many seconds to wait before detecting and unstucking a punched motionless player.", FCVAR_PLUGIN, true, 0.05, false);
+    g_hCvarDeStuckTime = CreateConVar(      "sm_punchstuckfix_unstucktime",     "0.5",      "How many seconds to wait before detecting and unstucking a punched motionless player.", FCVAR_PLUGIN, true, 0.05, false);
     tpsf_debug_print = CreateConVar("tpsf_debug_print", "1","Enable the Debug Print?", FCVAR_PLUGIN, true, 0.0, true, 1.0);
 	
     // hooks
