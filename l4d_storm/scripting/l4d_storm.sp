@@ -255,7 +255,7 @@ public OnPluginStart()
 	SetMenuExitBackButton(g_hMenuPos, true);
 	 
 	cvarFogDensity = CreateConVar("sm_envtools_fogdensity", "0.99", "霧濃度", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	cvarFogStartDist = CreateConVar("sm_envtools_fogstart", "180", "離自身中心多少距離才漸層起霧", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
+	cvarFogStartDist = CreateConVar("sm_envtools_fogstart", "0", "離自身中心多少距離才漸層起霧", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
 	cvarFogEndDist = CreateConVar("sm_envtools_fogend", "250", "離自身中心多少距離才完全起霧(影響特感能生的距離) 0:disable 500:效果", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
 }
 
