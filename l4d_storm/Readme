@@ -1,7 +1,18 @@
 Control L4d1 skybox/sun color/snow/rain/wind/maplight...and etc
 
 -Command-
-l4d_storm_allow
+"l4d_storm_allow",			"1",			"0=Plugin off, 1=Plugin on."
+"l4d_storm_modes",			"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all)."
+"l4d_storm_modes_off",		"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none)."
+"l4d_storm_modes_tog",		"0",			"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together."
+"l4d_storm_mixer",			"0",			"0=Off, 1=Turn down the voip voice transmit volume during the storm state."
+"l4d_storm_post",			"-0.0",		"0.0=Off. Applies post process effect during the storm state. Value near 0 will blur, lower values cause other effects."
+"l4d_storm_style",			"0",			"Method to refresh map light style: 0=Old (0.2 sec low FPS, does not the whole world). 1=Almost always lights the whole world (0.5 sec low FPS), 2=Lights the whole world (1 sec low FPS)."
+"l4d_storm_version",		PLUGIN_VERSION,	"Weather Control plugin version."
+"sm_envtools_fogdensity", "0.99", "霧濃度"
+"sm_envtools_fogstart", "180", "離自身中心多少距離才漸層起霧"
+"sm_envtools_fogend", "250", "離自身中心多少距離才完全起霧(影響特感能生的距離) 0:disable 500:效果"
+
 !snow
 !rains
 !fog
