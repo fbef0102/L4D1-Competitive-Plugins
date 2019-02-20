@@ -1,0 +1,5 @@
+Prevents people from blocking players who climb on the ladder.
+
+-command-
+"stop_trolls_flags", "110", "Who can push trolls when climbs on the ladder. 0=Disable, 2=Smoker, 4=Boomer, 8=Hunter, 32=Tank, 64=Survivors, 110=All"
+"stop_trolls_immune", "0", "What class is immune. 0=Disable, 2=Smoker, 4=Boomer, 8=Hunter, 32=Tank, 64=Survivors, 110=All"
