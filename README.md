@@ -86,6 +86,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>finalefix</b>: Kills survivors before the score is calculated so they don't get full distance and health bonus if they are incapped as the rescue vehicle leaves.
 * <b>l4d_slot_vote</b>: Allow players to change server slots by using vote.
 * <b>hunter_callout_blocker</b>: Stops Survivors from saying 'Hunter!' (sometimets survivors didn't see the silence hunter but their mouth keep saying 'Hunter!')
+* <b>l4d_ladderblock</b>: Prevents people from blocking players who climb on the ladder.
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
