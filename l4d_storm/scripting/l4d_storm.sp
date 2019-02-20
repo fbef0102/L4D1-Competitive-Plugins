@@ -1,16 +1,21 @@
-#define PLUGIN_VERSION		"1.6"
+#define PLUGIN_VERSION		"1.7"
 
 /*======================================================================================
 	Plugin Info:
 
 *	Name	:	[l4d] Weather Control
-*	Author	:	SilverShot
+*	Author	:	SilverShot & Harry Potter
 *	Descrp	:	Create storms, lightning, fog, rain, wind, changes the skybox, sun and background colors.
 *	Link	:	http://forums.alliedmods.net/showthread.php?t=184890
 
 ========================================================================================
 	Change Log:
-
+1.7 (20-2-2019)
+	- CreateConVar("sm_envtools_fogdensity", "0.99", "霧濃度", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	- CreateConVar("sm_envtools_fogstart", "180", "離自身中心多少距離才漸層起霧", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
+	- CreateConVar("sm_envtools_fogend", "250", "離自身中心多少距離才完全起霧(影響特感能生的距離) 0:disable 500:效果", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
+	- Add "Fog" in l4d_storm.cfg
+	
 1.6 (12-Aug-2013)
 	- Added snow.
 	- Added command "sm_stormconfig" to show which section has loaded from the data config.
@@ -139,7 +144,7 @@ new Handle:cvarFogEndDist;
 public Plugin:myinfo =
 {
 	name = "[L4D] Weather Control",
-	author = "SilverShot",
+	author = "SilverShot & Harry",
 	description = "Create storms, lightning, fog, rain, wind, changes the skybox, sun and background colors.",
 	version = PLUGIN_VERSION,
 	url = "http://forums.alliedmods.net/showthread.php?t=184890"
@@ -179,7 +184,6 @@ public OnPluginStart()
 	g_hCvarPost =	CreateConVar(		"l4d_storm_post",			"-0.0",		"0.0=Off. Applies post process effect during the storm state. Value near 0 will blur, lower values cause other effects.", CVAR_FLAGS);
 	g_hCvarStyle =	CreateConVar(		"l4d_storm_style",			"0",			"Method to refresh map light style: 0=Old (0.2 sec low FPS, does not the whole world). 1=Almost always lights the whole world (0.5 sec low FPS), 2=Lights the whole world (1 sec low FPS).", CVAR_FLAGS);
 	CreateConVar(						"l4d_storm_version",		PLUGIN_VERSION,	"Weather Control plugin version.", CVAR_FLAGS|FCVAR_REPLICATED|FCVAR_DONTRECORD);
-	AutoExecConfig(true,				"l4d_storm");
 
 	g_hCvarGameMode = FindConVar("mp_gamemode");
 	HookConVarChange(g_hCvarGameMode,		ConVarChanged_Allow);
@@ -249,10 +253,10 @@ public OnPluginStart()
 	AddMenuItem(g_hMenuPos, "", "SAVE");
 	SetMenuTitle(g_hMenuPos, "Storm - Set Origin");
 	SetMenuExitBackButton(g_hMenuPos, true);
-	
-	cvarFogDensity = CreateConVar("sm_envtools_fogdensity", "0.0", "霧濃度", FCVAR_PLUGIN, true, 0.0, true, 1.0);
-	cvarFogStartDist = CreateConVar("sm_envtools_fogstart", "0", "離自身中心多少距離才漸層起霧", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
-	cvarFogEndDist = CreateConVar("sm_envtools_fogend", "0", "離自身中心多少距離才完全起霧(影響特感能生的距離) 0:disable 500:效果", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
+	 
+	cvarFogDensity = CreateConVar("sm_envtools_fogdensity", "0.99", "霧濃度", FCVAR_PLUGIN, true, 0.0, true, 1.0);
+	cvarFogStartDist = CreateConVar("sm_envtools_fogstart", "180", "離自身中心多少距離才漸層起霧", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
+	cvarFogEndDist = CreateConVar("sm_envtools_fogend", "250", "離自身中心多少距離才完全起霧(影響特感能生的距離) 0:disable 500:效果", FCVAR_PLUGIN, true, 0.0, true, 8000.0);
 }
 
 public OnPluginEnd()
@@ -2422,7 +2426,7 @@ LoadStorm(client = 0)
 	strcopy(g_sConfigSection, sizeof(g_sConfigSection), "");
 
 	new Handle:hFile = ConfigOpen();
-
+	new g_iFogOnOn;
 	if( hFile != INVALID_HANDLE )
 	{
 		decl String:sMap[64];
@@ -2438,7 +2442,8 @@ LoadStorm(client = 0)
 			}
 
 			KvGetString(hFile, "light_style", g_sCfgLightStyle, sizeof(g_sCfgLightStyle));
-			KvGetString(hFile, "fog_color", g_sCfgFogColor, sizeof(g_sCfgFogColor));
+			KvGetString(hFile, "fog_color", g_sCfgFogColor, sizeof(g_sCfgFogColor)); 
+			g_iFogOnOn		=		KvGetNum(hFile,		"fog",0);
 			g_iCfgFogBlend =		KvGetNum(hFile,		"fog_blend", -1);
 			g_iCfgFogIdle =			KvGetNum(hFile,		"fog_idle", 0);
 			g_iCfgFogStorm =		KvGetNum(hFile,		"fog_storm", 0);
@@ -2487,6 +2492,7 @@ LoadStorm(client = 0)
 
 				KvGetString(hFile, "fog_color", g_sCfgFogColor, sizeof(g_sCfgFogColor), g_sCfgFogColor);
 				KvGetString(hFile, "light_style", g_sCfgLightStyle, sizeof(g_sCfgLightStyle), g_sCfgLightStyle);
+				g_iFogOnOn		=		KvGetNum(hFile,		"fog",				g_iFogOnOn);
 				g_iCfgFogBlend =		KvGetNum(hFile,		"fog_blend",				g_iCfgFogBlend);
 				g_iCfgFogIdle =			KvGetNum(hFile,		"fog_idle",					g_iCfgFogIdle);
 				g_iCfgFogStorm =		KvGetNum(hFile,		"fog_storm",				g_iCfgFogStorm);
@@ -2614,7 +2620,7 @@ LoadStorm(client = 0)
 				CreateSnow();
 			if( g_iCfgWind )
 				CreateWind();
-			if( g_iCfgFogIdle && g_iCfgFogStorm )
+			if( g_iFogOnOn || (g_iCfgFogIdle && g_iCfgFogStorm) )
 				CreateFog();
 
 			if( g_iCfgLight != 0 || g_iCfgRain != 0 || g_iCfgWind != 0 || g_iCfgFogIdle != 0 || g_iCfgFogStorm != 0 )
