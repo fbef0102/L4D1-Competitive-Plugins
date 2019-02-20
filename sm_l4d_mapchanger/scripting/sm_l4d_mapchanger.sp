@@ -1,6 +1,5 @@
 /**
 * L4D Force Mission Changer
-* For Sourcemod 1.2.0
 * 
 * CREDITS:
 * 			DDR Khat
@@ -40,7 +39,6 @@
 
 new Handle:cvarAnnounce = INVALID_HANDLE;
 new Handle:Allowed = INVALID_HANDLE;
-new Handle:AllowedDie = INVALID_HANDLE;
 new Handle:DebugEvent = INVALID_HANDLE;
 new Handle:DefM;
 new Handle:CheckRoundCounter;
@@ -91,12 +89,10 @@ public OnPluginStart()
 
 	HookEvent("round_end", Event_RoundEnd);
 	HookEvent("finale_win", Event_FinalWin);
-	HookEvent("mission_lost", Event_FinalLost);
 	
 	CreateConVar("sm_l4d_fmc_version", Version, "Version of L4D Force Mission Changer plugin.", FCVAR_NOTIFY);
 	DebugEvent = CreateConVar("sm_l4d_fmc_dbug", "0", "on-off Write event to log file.");
 	Allowed = CreateConVar("sm_l4d_fmc", "1", "Enables Force changelevel when mission end.");
-	AllowedDie = CreateConVar("sm_l4d_fmc_ifdie", "0", "Enables Force changelevel when all player die on final map in coop gamemode.");
 	DefM = CreateConVar("sm_l4d_fmc_def", "l4d_vs_hospital01_apartment", "Mission for change by default.");
 	CheckRoundCounter = CreateConVar("sm_l4d_fmc_crec", "4", "Quantity of events RoundEnd before force of changelevel in versus: 4 for l4d <> 1.0.1.2");
 	ChDelayVS = CreateConVar("sm_l4d_fmc_chdelayvs", "0.0", "Delay before versus mission change (float in sec).");
@@ -225,20 +221,6 @@ public Action:Event_FinalWin(Handle:event, const String:name[], bool:dontBroadca
 		CreateTimer(GetConVarFloat(ChDelayCOOP), TimerChDelayCOOP);
 }
 
-public Action:Event_FinalLost(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	if (GetConVarInt(DebugEvent) == 1)
-	{
-		PrintToChatAll("\x04[FMC DEBUG]\x03 MODE: \"%d\" EVENT: \"%s\" ", l4d_gamemode(), name);
-		decl String:mBuffer[128];
-		Format(mBuffer, sizeof(mBuffer), "MODE: \"%d\" MAP: \"%s\" EVENT: \"%s\" ", l4d_gamemode(), current_map, name);
-		WriteFileLine(logfile, mBuffer);
-	}
-
-	if(GetConVarInt(Allowed) == 1 && GetConVarInt(AllowedDie) && l4d_gamemode() == 1 && StrEqual(next_mission_force, "none") != true)
-		CreateTimer(GetConVarFloat(ChDelayCOOP), TimerChDelayCOOP);
-}
-
 public OnCVGameModeChange(Handle:convar, const String:oldValue[], const String:newValue[])
 {
 	//If game mode actually changed
@@ -249,7 +231,6 @@ public OnCVGameModeChange(Handle:convar, const String:oldValue[], const String:n
 		{
 			HookEvent("round_end", Event_RoundEnd);
 			HookEvent("finale_win", Event_FinalWin);
-			HookEvent("mission_lost", Event_FinalLost);
 		}
 
 		if(GetConVarInt(Allowed) == 1)
