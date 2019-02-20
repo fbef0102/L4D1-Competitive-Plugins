@@ -1,1 +1,17 @@
 When final stage round ends, auto change next Map based on date/...txt
+
+-command-
+"sm_l4d_fmc_version", Version, "Version of L4D Force Mission Changer plugin."
+"sm_l4d_fmc_dbug", "0", "on-off Write event to log file."
+"sm_l4d_fmc", "1", "Enables Force changelevel when mission end."
+"sm_l4d_fmc_ifdie", "0", "Enables Force changelevel when all player die on final map in coop gamemode."
+"sm_l4d_fmc_def", "l4d_vs_hospital01_apartment", "Mission for change by default."
+"sm_l4d_fmc_crec", "4", "Quantity of events RoundEnd before force of changelevel in versus: 4 for l4d <> 1.0.1.2"
+"sm_l4d_fmc_chdelayvs", "0.0", "Delay before versus mission change (float in sec)."
+"sm_l4d_fmc_chdelaycoop", "0.0", "Delay before coop mission change (float in sec)."
+"sm_l4d_fmc_re_timer_block", "0.5", "Time in which current event round_end is not considered (float in sec)."
+"sm_l4d_fmc_announce", "1", "Enables next mission to advertise to players."
+	
+"sm_l4d_fmc_crec_add", "Add custom value sm_l4d_fmc_crec and sm_l4d_fmc_re_timer_block for the specified map. Max 50."
+"sm_l4d_fmc_crec_clear","Clear all custom value sm_l4d_fmc_crec and sm_l4d_fmc_re_timer_block."
+"sm_l4d_fmc_crec_list", "Show all custom value sm_l4d_fmc_crec and sm_l4d_fmc_re_timer_block."
