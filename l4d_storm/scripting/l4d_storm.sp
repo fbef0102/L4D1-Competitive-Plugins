@@ -137,7 +137,6 @@ static	String:g_sConfigSection[64];
 new Handle:cvarFogDensity;
 new Handle:cvarFogStartDist;
 new Handle:cvarFogEndDist;
-
 // ====================================================================================================
 //					PLUGIN INFO / START / END
 // ====================================================================================================
