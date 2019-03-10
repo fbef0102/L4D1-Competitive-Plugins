@@ -157,8 +157,6 @@ new				g_iDamageDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker
 new				g_iShotsDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker, count # of shots (not pellets)
 new 	bool:	isroundreallyend;
 
-//harry
-native IsInReady();
 new     Handle:         g_hTrieEntityCreated                                = INVALID_HANDLE;   // getting classname of entity created
 // trie values: OnEntityCreated classname
 enum strOEC
@@ -307,7 +305,7 @@ public PrintMVPAndTeamStats(team)
 	}
 	if (total == 0 || totalkills == 0)
 	{
-		//CPrintToChatAll("{green}★{default} SI - 特感殺手:{blue} N/A{default}");
+		//CPrintToChatAll("{green}★{default} SI:{blue} N/A{default}");
 	}
 	else
 	{
@@ -318,11 +316,11 @@ public PrintMVPAndTeamStats(team)
 		new kills = g_iMapStats[client][SIKills];
 		// This string (colors, etc) is stolen wholesale from Tabun's L4D2 MVP plugin, credit to him
 		if(team == 0)
-			CPrintToChatAll("{green}★{default} SI - 特感殺手:{blue} %N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}], {olive}%d{default} kills [{green}%d%%%%{default}])",client, val, percent, kills,RoundFloat((float(kills) / float(totalkills)) * 100.0));
+			CPrintToChatAll("{green}★{default} SI:{blue} %N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}], {olive}%d{default} kills [{green}%d%%%%{default}])",client, val, percent, kills,RoundFloat((float(kills) / float(totalkills)) * 100.0));
 		else
 			for (new j = 1; j <= MaxClients; j++)
 				if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
-					CPrintToChat(j,"{green}★{default} SI - 特感殺手:{blue} %N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}], {olive}%d{default} kills [{green}%d%%%%{default}])",client, val, percent, kills,RoundFloat((float(kills) / float(totalkills)) * 100.0));
+					CPrintToChat(j,"{green}★{default} SI:{blue} %N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}], {olive}%d{default} kills [{green}%d%%%%{default}])",client, val, percent, kills,RoundFloat((float(kills) / float(totalkills)) * 100.0));
 		
 
 		// Print individual reports for each survivor that isn't the MVP
@@ -349,7 +347,7 @@ public PrintMVPAndTeamStats(team)
 	}
 	if (total == 0)
 	{
-		//CPrintToChatAll("{green}★{default} CI - 清屍狂人: {blue}N/A{default}");
+		//CPrintToChatAll("{green}★{default} CI: {blue}N/A{default}");
 	}
 	else
 	{
@@ -360,11 +358,11 @@ public PrintMVPAndTeamStats(team)
 		// Again, credit to Tabun
 		
 		if(team == 0)
-			CPrintToChatAll("{green}★{default} CI - 清屍狂人: {blue}%N{default} ({olive}%d{default} common [{green}%d%%%%{default}])",client, val, percent);
+			CPrintToChatAll("{green}★{default} CI: {blue}%N{default} ({olive}%d{default} common [{green}%d%%%%{default}])",client, val, percent);
 		else
 			for (new j = 1; j <= MaxClients; j++)
 				if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
-					CPrintToChat(j,"{green}★{default} CI - 清屍狂人: {blue}%N{default} ({olive}%d{default} common [{green}%d%%%%{default}])",client, val, percent);
+					CPrintToChat(j,"{green}★{default} CI: {blue}%N{default} ({olive}%d{default} common [{green}%d%%%%{default}])",client, val, percent);
 		/*
 		for (i = 1; i < survivor_count; i++)
 		{
@@ -389,17 +387,17 @@ public PrintMVPAndTeamStats(team)
 	}
 	if (MVP_damage == 0)
 	{
-		//CPrintToChatAll("{green}★{default} FF - 黑槍之王: {blue}N/A{default}");
+		//CPrintToChatAll("{green}★{default} FF: {blue}N/A{default}");
 	}
 	else
 	{
 		percent = RoundFloat((float(MVP_damage) / float(total)) * 100.0);
 		if(team == 0)
-			CPrintToChatAll("{green}★{default} FF - 黑槍之王: {blue}%N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}])",MVP_client, MVP_damage, percent);
+			CPrintToChatAll("{green}★{default} FF: {blue}%N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}])",MVP_client, MVP_damage, percent);
 		else
 			for (new j = 1; j <= MaxClients; j++)
 				if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
-					CPrintToChat(j,"{green}★{default} FF - 黑槍之王: {blue}%N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}])",MVP_client, MVP_damage, percent);
+					CPrintToChat(j,"{green}★{default} FF: {blue}%N{default} ({olive}%d{default} dmg [{green}%d%%%%{default}])",MVP_client, MVP_damage, percent);
 
 	}
 	
@@ -461,7 +459,7 @@ public PrintMVPAndTeamStats(team)
 	}
 	if (MVP_deadstop == 0)
 	{
-		//CPrintToChatAll("{green}★{default} Deadstops - 推推小王子: {blue}N/A{default}");
+		//CPrintToChatAll("{green}★{default} Deadstops: {blue}N/A{default}");
 	}
 	else
 	{
@@ -469,11 +467,11 @@ public PrintMVPAndTeamStats(team)
 		{
 			percent = RoundFloat((float(MVP_deadstop) / float(total)) * 100.0);
 			if(team == 0)
-				CPrintToChatAll("{green}★{default} Deadstops - 推推小王子: {blue}%N{default} ({olive}%d{default} times [{green}%d%%%%{default}])",MVP_client, MVP_deadstop,percent);
+				CPrintToChatAll("{green}★{default} Deadstops: {blue}%N{default} ({olive}%d{default} times [{green}%d%%%%{default}])",MVP_client, MVP_deadstop,percent);
 			else
 				for (new j = 1; j <= MaxClients; j++)
 					if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
-						CPrintToChat(j,"{green}★{default} Deadstops - 推推小王子: {blue}%N{default} ({olive}%d{default} times [{green}%d%%%%{default}])",MVP_client, MVP_deadstop,percent);
+						CPrintToChat(j,"{green}★{default} Deadstops: {blue}%N{default} ({olive}%d{default} times [{green}%d%%%%{default}])",MVP_client, MVP_deadstop,percent);
 		}
 	}
 	/*
@@ -499,7 +497,7 @@ public PrintMVPAndTeamStats(team)
 	}
 	if (MVP_damage == 0)
 	{
-		//CPrintToChatAll("{default}[{olive}TS{default}] MVP - 抖M受: {blue}N/A{default}");
+		//CPrintToChatAll("{default}[{olive}TS{default}] MVP: {blue}N/A{default}");
 	}
 	else
 	{
@@ -512,11 +510,11 @@ public PrintMVPAndTeamStats(team)
 		else
 			CIDamageTaken_percent = 0;
 		if(team == 0)
-			CPrintToChatAll("{default}[{olive}TS{default}] MVP - 抖M受: {blue}%N{default} ({olive}%d{default} 特感傷害 [{green}%d%%%%{default}], {olive}%d{default} 殭屍傷害 [{green}%d%%%%{default}])",MVP_client, MVP_SIDamageTaken,SIDamageTaken_percent,MVP_CIDamageTaken, CIDamageTaken_percent);
+			CPrintToChatAll("{default}[{olive}TS{default}] MVP: {blue}%N{default} ({olive}%d{default} si [{green}%d%%%%{default}], {olive}%d{default} common [{green}%d%%%%{default}])",MVP_client, MVP_SIDamageTaken,SIDamageTaken_percent,MVP_CIDamageTaken, CIDamageTaken_percent);
 		else
 			for (new j = 1; j <= MaxClients; j++)
 				if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
-					CPrintToChat(j,"{default}[{olive}TS{default}] MVP - 抖M受: {blue}%N{default} ({olive}%d{default} 特感傷害 [{green}%d%%%%{default}], {olive}%d{default} 殭屍傷害 [{green}%d%%%%{default}])",MVP_client, MVP_SIDamageTaken,SIDamageTaken_percent,MVP_CIDamageTaken, CIDamageTaken_percent);
+					CPrintToChat(j,"{default}[{olive}TS{default}] MVP: {blue}%N{default} ({olive}%d{default} si [{green}%d%%%%{default}], {olive}%d{default} common [{green}%d%%%%{default}])",MVP_client, MVP_SIDamageTaken,SIDamageTaken_percent,MVP_CIDamageTaken, CIDamageTaken_percent);
 		
 	}
 	*/
@@ -564,7 +562,7 @@ TEAM - Damage: 173 from SI, 97 from common, 23 from FF
 	else
 	{
 		
-		CPrintToChatAll("{default}TEAM - Hunters: {green}%d%%{default} ({olive}%d{default}/{olive}%d{default}) shutdown (\x05%d{default} skeet%s,{olive}%d{default} DS, {olive}%d{default} DP%s landed)",
+		CPrintToChatAll("{default}TEAM - Hunters: {green}%d%%%%{default} ({olive}%d{default}/{olive}%d{default}) shutdown (\x05%d{default} skeet%s,{olive}%d{default} DS, {olive}%d{default} DP%s landed)",
 			RoundFloat((float(skeets + deadstops) / float(skeets + deadstops + pounce_eats)) * 100.0),
 			(skeets + deadstops), (skeets + deadstops + pounce_eats),
 			skeets, skeets == 1 ? "":"s", deadstops, dp_eats, dp_eats == 1 ? "":"s");
@@ -578,7 +576,7 @@ TEAM - Damage: 173 from SI, 97 from common, 23 from FF
 	else
 	{
 		
-		CPrintToChatAll("{default}TEAM - Boomers: {green}%d%%{default} ({olive}%d{default}/{olive}%d{default}) shutdown (\x05%d{default} vomited, {olive}%d{default} proxied)",
+		CPrintToChatAll("{default}TEAM - Boomers: {green}%d%%%%{default} ({olive}%d{default}/{olive}%d{default}) shutdown (\x05%d{default} vomited, {olive}%d{default} proxied)",
 			RoundFloat((float(shutdown_booms) / float(successful_booms + shutdown_booms)) * 100.0),
 			shutdown_booms, (shutdown_booms + successful_booms), vomited_survivors, proxied_survivors);
 		
@@ -929,7 +927,7 @@ public Action:PlayerHook_OnTakeDamagePre(victim, &attacker, &inflictor, &Float:d
 
 public Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (g_bHasRoundEnded||IsInReady()) return;
+	if (g_bHasRoundEnded) return;
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 
 	if (victim == 0 ||
@@ -1213,7 +1211,7 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 		if (IsSurvivor(victim))
 		{
 			CPrintToChatAll("{default}[{olive}TS{default}] {red}Witch {default}had{green} %d{default} health remaining.", health);
-			CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}反被 {green}妹子 {olive}波囉波羅密{default}.", victim);
+			CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}was killed by {green}Witch.", victim);
 			/*for (new i = 1; i <= MaxClients; i++)
 			{
 				if (g_iWitchDamage[i] > 0 && IsClientInGame(i))
@@ -1434,7 +1432,7 @@ public Event_PlayerIncapacitated(Handle:event, const String:name[], bool:dontBro
 	if (health < 0) health = 0;
 
 	CPrintToChatAll("{default}[{olive}TS{default}]{red} Witch{default} had{green} %d{default} health remaining.", health);
-	CPrintToChatAll("{green}[提示]{blue} %N {default}反被 {green}妹子 {olive}爆☆殺{default}.", victim);
+	CPrintToChatAll("{green}[SM]{green}Witch {default}crowned {blue}%N{default}.", victim);
 	/*
 	for (new i = 1; i <= MaxClients; i++)
 	{
