@@ -5,12 +5,16 @@
 1.1 (26-03-2019)
 	- Initial release.
 	- Cleared old code, converted to new syntax and methodmaps.	
+1.2 (12-04-2019)
+	- fix error, optimize codes, and handle exception
+  
 ========================================================================================
 	Credits:
 
 	KaiN - for request and the original idea	
 	ZenServer -[ ZS ]- - for the original plugin
-	JOSHE GATITO SPARTANSKII >>> (Ex Aya Supay) - for writing  plugin again and add new commands.  
+	JOSHE GATITO SPARTANSKII >>> (Ex Aya Supay) - for writing  plugin again and add new commands. 
+  Harry - fix error, optimize codes, and handle exception
 
 ========================================================================================*/
 
