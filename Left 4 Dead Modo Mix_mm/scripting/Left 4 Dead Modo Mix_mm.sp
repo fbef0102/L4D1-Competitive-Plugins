@@ -14,7 +14,7 @@
 	KaiN - for request and the original idea	
 	ZenServer -[ ZS ]- - for the original plugin
 	JOSHE GATITO SPARTANSKII >>> (Ex Aya Supay) - for writing  plugin again and add new commands. 
-  Harry - fix error, optimize codes, and handle exception
+        Harry - fix error, optimize codes, and handle exception
 
 ========================================================================================*/
 
@@ -55,7 +55,7 @@ float g_flTickInterval;
 public Plugin myinfo = 
 {
 	name = "Left 4 Dead Modo Mix",
-	author = "Joshe Gatito & ZenServer",
+	author = "Harry & Joshe Gatito & ZenServer",
 	description = "Modo de juego Mix",
 	version = PLUGIN_VERSION,
 	url = "https://steamcommunity.com/id/joshegatito/"
