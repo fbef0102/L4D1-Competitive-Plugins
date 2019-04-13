@@ -40,8 +40,6 @@ new             g_iTimeout = 0;                     // how long to wait until a 
 #define L4D_TEAM_INFECTED 3
 #define L4D_TEAM_SPECTATE 1
 new bool:g_shuffle = false;
-native IsInReady();
-native Is_Ready_Plugin_On();
 
 public Plugin:myinfo = {
     name = "Team Shuffle",
@@ -65,15 +63,6 @@ public OnPluginStart ()
 
 public Action: Cmd_TeamShuffle ( client, args )
 {
-    if ( !Is_Ready_Plugin_On() || !IsInReady() )
-    {
-        if ( client == 0 ) {
-            PrintToServer( "[Shuffle] Teams can only be shuffled during ready-up" );
-        } else {
-            PrintToChat( client, "\x01[Shuffle] Teams can only be shuffled during ready-up" );
-        }
-        return Plugin_Handled;
-    }
 	
     if ( g_iTimeout != 0 && GetTime() < g_iTimeout )
     {
@@ -213,15 +202,6 @@ public Action: Timer_ShuffleTeamsRequest ( Handle:timer )
 
 stock ShuffleTeams ( client = -1 , bool: adm = false)
 {
-    if ( !Is_Ready_Plugin_On() || !IsInReady() )
-    {
-        if (client == -1) {
-            PrintToChatAll("\x01[Shuffle] Team shuffle only allowed before a round is live.(ready stage)");
-        } else {
-            PrintToChat(client, "\x01[Shuffle] Team shuffle only allowed before a round is live.(ready stage)");
-        }
-        return;
-    }
    
     g_iTeamSize = GetConVarInt( FindConVar("survivor_limit") );
     
