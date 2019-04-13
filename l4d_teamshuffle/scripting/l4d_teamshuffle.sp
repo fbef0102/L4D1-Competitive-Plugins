@@ -57,8 +57,8 @@ public OnPluginStart ()
     // commands:
     RegConsoleCmd( "sm_teamshuffle", Cmd_TeamShuffle, "Vote for a team shuffle.");
     RegConsoleCmd( "sm_shuffle", Cmd_TeamShuffle, "Vote for a team shuffle." );
-    RegAdminCmd("sm_forceteamshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
-    RegAdminCmd("sm_forceshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Only works during readyup. Admins only.");
+    RegAdminCmd("sm_forceteamshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Admins only.");
+    RegAdminCmd("sm_forceshuffle", Cmd_ForceTeamShuffle,ADMFLAG_BAN,"Shuffle the teams. Admins only.");
 }
 
 public Action: Cmd_TeamShuffle ( client, args )
