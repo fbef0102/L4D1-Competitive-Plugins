@@ -3,6 +3,6 @@ Allows teamshuffles by voting or admin-forced.
 -command-
 "sm_teamshuffle" "Vote for a team shuffle."
 "sm_shuffle" "Vote for a team shuffle."
- **adm only
- "sm_forceteamshuffle" "Shuffle the teams. Only works during readyup. Admins only."
- "sm_forceshuffle" "Shuffle the teams. Only works during readyup. Admins only."
+   ***adm only***
+   "sm_forceteamshuffle" "Shuffle the teams. Only works during readyup. Admins only."
+   "sm_forceshuffle" "Shuffle the teams. Only works during readyup. Admins only."
