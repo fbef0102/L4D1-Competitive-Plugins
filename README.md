@@ -87,6 +87,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_slot_vote</b>: Allow players to change server slots by using vote.
 * <b>hunter_callout_blocker</b>: Stops Survivors from saying 'Hunter!' (sometimets survivors didn't see the silence hunter but their mouth keep saying 'Hunter!')
 * <b>l4d_ladderblock</b>: Prevents people from blocking players who climb on the ladder.
+* <b>l4d_teamshuffle</b>: Allows teamshuffles by voting or admin-forced.
 * <b>l4d_Modo_mix_mm</b>: Left 4 Dead Mix
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
