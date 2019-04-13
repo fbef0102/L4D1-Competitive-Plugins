@@ -92,8 +92,8 @@ public void OnPluginStart()
 public void CaptainVote_OnPluginStart()
 {
 	LoadTranslations("common.phrases");
-	RegConsoleCmd("sm_mix", Command_Captainvote, "Initiate a player mix. Only works during readyup");
-	RegAdminCmd("sm_forcemix", Command_ForceCaptainvote, ADMFLAG_BAN, "Initiate a player mix. Only works during readyup. Admins only.");
+	RegConsoleCmd("sm_mix", Command_Captainvote, "Initiate a player mix.");
+	RegAdminCmd("sm_forcemix", Command_ForceCaptainvote, ADMFLAG_BAN, "Initiate a player mix. Admins only.");
 	g_CvarMixStatus.SetInt(0, false, false);
 	ResetSelectedPlayers();
 	ResetTeams();
