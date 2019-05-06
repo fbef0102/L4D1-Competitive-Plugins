@@ -38,7 +38,7 @@ public Plugin:myinfo =
 {
     name = "L4D Tank Swap",
     author = "AtomicStryker, l4d1 port by Harry",
-    description = " Allows a primary Tank Player to surrender control to one of his teammates, or admins to take it anytime ",
+    description = " Allows a primary Tank Player to surrender control to one of his teammates",
     version = PLUGIN_VERSION,
     url = "http://forums.alliedmods.net/showthread.php?t=120807"
 }
