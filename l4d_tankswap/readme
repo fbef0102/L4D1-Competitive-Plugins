@@ -1,0 +1,5 @@
+Allows a primary Tank Player to surrender control to one of his teammates
+
+-command-
+"l4d_tankswap_timelimit", "10", " How many seconds can a primary Tank Player surrender control "
+"l4d_tankswap_choicetype", "2", " 0 - Disabled; 1 - press Button to call Menu; 2 - Menu appears for every Tank "
