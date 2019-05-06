@@ -294,9 +294,9 @@ ProcessPlayerLerp(client,bool:teamchange = false)
 			if(ShouldAnnounceLerpChanges())
 			{
 				if (iTeam == 2)
-					CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{green}'s Lerp改變 {olive}%.01f {green}成 {olive}%.01f", client, GetCurrentLerp(client)*1000, m_fLerpTime*1000);
+					CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, m_fLerpTime*1000);
 				else if (iTeam == 3)
-					CPrintToChatAll("<{olive}Lerp{default}> {red}%N{green}'s Lerp改變 {olive}%.01f {green}成 {olive}%.01f", client, GetCurrentLerp(client)*1000, m_fLerpTime*1000);
+					CPrintToChatAll("<{olive}Lerp{default}> {red}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, m_fLerpTime*1000);
 			}
 		}
 	}
@@ -322,9 +322,9 @@ ProcessPlayerLerp(client,bool:teamchange = false)
 	if ( ((FloatCompare(m_fLerpTime, GetConVarFloat(cVarMinLerp)) == -1) || (FloatCompare(m_fLerpTime, GetConVarFloat(cVarMaxLerp)) == 1)) && Is_Ready_Plugin_On() && GetClientTeam(client) != 1) {
 		
 		//PrintToChatAll("<{olive}Lerp{default}> %N's lerp changed to %.01f", client, m_fLerpTime*1000);
-		CPrintToChatAll("<{olive}Lerp{default}> {lightgreen}%N{default}'s Lerp {olive}%.01f{default} 被移至旁觀!", client, m_fLerpTime*1000);
+		CPrintToChatAll("<{olive}Lerp{default}> {lightgreen}%N{default} was moved to spectators for lerp {olive}%.01f{default}", client, m_fLerpTime*1000);
 		ChangeClientTeam(client, 1);
-		CPrintToChat(client, "{blue}{default}[{green}提示{default}] Illegal lerp value (min: {olive}%.01f{default}, max: {olive}%.01f{default})",
+		CPrintToChat(client, "{blue}{default}[{green}lerp{default}] Illegal lerp value (min: {olive}%.01f{default}, max: {olive}%.01f{default})",
 					GetConVarFloat(cVarMinLerp)*1000, GetConVarFloat(cVarMaxLerp)*1000);
 		// nothing else to do
 		return;

@@ -19,7 +19,7 @@ new		bool:	g_bIsWitch[MAXENTITIES];							// Membership testing for fast witch c
 
 public Plugin:myinfo = 
 {
-	name = "l4d 豬隊友提示",
+	name = "l4d 豬隊友sm",
 	author = "Harry Potter",
 	description = "Show who the god teammate boom the Tank, Tank use which weapon(car,pounch,rock) to kill teammates S.I. and Witch , player open door to stun tank",
 	version = PLUGIN_VERSION,
@@ -86,7 +86,7 @@ public Action:Timer_TankStumbleByDoorCheck(Handle:timer, any:client)
 	//PrintToChatAll("判定");
 	if (SDKCall(g_hIsStaggering, Tankclient) && !surkillboomerboomtank && !tankstumblebydoor && !tankkillboomerboomhimself && !boomerboomtank)//tank在暈眩 by door
 	{
-		CPrintToChatAll("{green}[提示] {olive}%N {default}用門 暈眩 {green}Tank{default}.",client);
+		CPrintToChatAll("{green}[TS] {olive}%N {default}used door to stumble {green}Tank{default}.",client);
 		tankstumblebydoor = true;
 		CreateTimer(3.0,COLD_DOWN,_);
 	}
@@ -98,15 +98,22 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 	if( IsWitch(GetEventInt(event, "attackerentid")) && victim != 0 && IsClientConnected(victim) && IsClientInGame(victim) && GetClientTeam(victim) == 3 )
 	{
 		if(!IsFakeClient(victim))//真人特感 player
-			CPrintToChatAll("{green}[提示]{default} {red}妹子 {default}使出 {olive}天馬流星拳 {default}打死 隊友.");
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS]{default} {red}Witch {default}killed teammate.");
+		}
 		else
-			CPrintToChatAll("{green}[提示]{default} {red}妹子 {default}使出 {olive}天馬流星拳 {default}打死 AI隊友.");
-		
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS]{default} {red}Witch {default}killed AI teammate.");
+		}
 		return;
 	}
 	
 	new attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-	decl String:weapon[15];
+	decl String:weapon[20];
 	GetEventString(event, "weapon", weapon, sizeof(weapon));//殺死人的武器名稱
 	decl String:victimname[8];
 	GetEventString(event, "victimname", victimname, sizeof(victimname));
@@ -114,44 +121,62 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 	if((attacker == 0 || attacker == victim)
 	&& victim != 0 && IsClientConnected(victim) && IsClientInGame(victim) && GetClientTeam(victim) == 3)//特感自殺
 	{
-		decl String:kill_weapon[15];
+		decl String:kill_weapon[20];
 
 		if(StrEqual(weapon,"entityflame")||StrEqual(weapon,"env_fire"))//地圖的自然火
-			kill_weapon = "玩火自焚";
+			kill_weapon = "killed by fire";
 		else if(StrEqual(weapon,"trigger_hurt"))//跳樓 跳海 地圖火 都有可能
-			kill_weapon = "自爆";
+			kill_weapon = "killed by map";
 		else if(StrEqual(weapon,"inferno"))//玩家丟的火
 			return;
 		else if(StrEqual(weapon,"trigger_hurt_g"))//跳樓 跳海 地圖火 都有可能
-			kill_weapon = "自殺";
+			kill_weapon = "killed himself";
 		else if(StrEqual(weapon,"prop_physics")||StrEqual(weapon, "prop_car_alarm"))//玩車殺死自己
-			kill_weapon = "玩車自爆";
+			kill_weapon = "killed by toy";
 		else if(StrEqual(weapon,"pipe_bomb")||StrEqual(weapon,"prop_fuel_barr"))//自然的爆炸(土製炸彈 砲彈 瓦斯罐)
-			kill_weapon = "被炸死";
+			kill_weapon = "killed by boom";
 		else if(StrEqual(weapon,"world"))//玩家使用指令kill 殺死特感
 			return;
-		else kill_weapon = "自我爆☆殺";	//卡住了 由伺服器自動處死特感
+		else kill_weapon = "killed by server";	//卡住了 由伺服器自動處死特感
 			
 		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == 5)//Tank suicide
 		{
 			if(!IsFakeClient(victim))//真人SI player
-				CPrintToChatAll("{green}[提示] {green}Tank {olive}%s {default}了.",kill_weapon);
+			{
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+						CPrintToChat(i,"{green}[TS] {green}Tank is {olive}%s{default}.",kill_weapon);
+			}
 			else
-				CPrintToChatAll("{green}[提示] {green}Tank {olive}%s {default}了.",kill_weapon);
+			{
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+						CPrintToChat(i,"{green}[TS] {green}Tank is {olive}%s{default}.",kill_weapon);
+			}
 		}
 		else if(GetEntProp(victim, Prop_Send, "m_zombieClass") == 2)
 			CreateTimer(0.2, Timer_BoomerSuicideCheck, victim);//boomer suicide check	
 		else
 			if(!IsFakeClient(victim))//真人SI player
-				CPrintToChatAll("{green}[提示] {red}%N{default} {olive}%s {default}了.",victim,kill_weapon);
+			{
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+						CPrintToChat(i,"{green}[TS] {red}%N{default} is {olive}%s{default}.",victim,kill_weapon);
+			}
 			else
-				CPrintToChatAll("{green}[提示] {red}AI{default} {olive}%s {default}了.",kill_weapon);
+			{
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+						CPrintToChat(i,"{green}[TS] {red}AI{default} is {olive}%s{default}.",kill_weapon);
+			}
 	
 		return;
 	}
 	else if (attacker==0 && victim == 0 && StrEqual(victimname,"Witch"))//Witch自己不知怎的自殺了
 	{
-		CPrintToChatAll("{green}[提示] {red}妹子{default} {olive}歸天 {default}了.");
+		for (new i = 1; i < MaxClients; i++)
+			if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+				CPrintToChat(i,"{green}[TS] {red}Witch{default} {olive}gone{default}.");
 	}
 	
 	Tankclient = GetTankClient();
@@ -159,19 +184,24 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 	
 	if( StrEqual(victimname,"Witch") && PlayerIsTank(attacker) )
 	{
-		decl String:Tank_weapon[15];
+		decl String:Tank_weapon[20];
 		if(StrEqual(weapon,"tank_claw"))
 			Tank_weapon = "One-Punch";
 		else if(StrEqual(weapon,"tank_rock"))
 			Tank_weapon = "Rock-Stone";
 		else if(StrEqual(weapon,"prop_physics"))
-			Tank_weapon = "Car-Flying";
+			Tank_weapon = "Toy";
 		
 		if(!IsFakeClient(attacker))//真人Tank player
-			CPrintToChatAll("{green}[提示] Tank {default}uses {olive}%s {default}to terminate {red}妹子{default}.",Tank_weapon);
+		{	for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] Tank {default}uses {olive}%s {default}to terminate {red}Witch{default}.",Tank_weapon);
+		}
 		else
-			CPrintToChatAll("{green}[提示] Tank {default}uses {olive}%s {default}to terminate {red}妹子{default}.",Tank_weapon);
-		
+		{	for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] Tank {default}uses {olive}%s {default}to terminate {red}Witch{default}.",Tank_weapon);
+		}
 		return;
 	}
 	
@@ -191,16 +221,16 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 			}
 			else if (PlayerIsTank(attacker))//Tank kill infected
 			{
-				decl String:Tank_weapon[15];
+				decl String:Tank_weapon[25];
 				//Tank weapon
 				if(StrEqual(weapon,"tank_claw"))
-					Tank_weapon = "拍";
+					Tank_weapon = "punches";
 				else if(StrEqual(weapon,"tank_rock"))
-					Tank_weapon = "砸";
+					Tank_weapon = "smashes";
 				else if(StrEqual(weapon,"prop_physics"))
-					Tank_weapon = "玩車殺";
+					Tank_weapon = "plays toy to kill";
 				else if(StrEqual(weapon, "prop_car_alarm"))
-					Tank_weapon = "玩警報車殺";
+					Tank_weapon = "plays alarm car to kill";
 					
 				//Tank kill boomer
 				if(victimzombieclass == 2)
@@ -213,9 +243,16 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
 				else if(victimzombieclass == 1||victimzombieclass == 3)//Tank kill teammates S.I. (Hunter,Smoker)	
 				{
 					if(!IsFakeClient(victim))//真人SI player
-						CPrintToChatAll("{green}[提示] {green}Tank {olive}%s死 {default}隊友.",Tank_weapon);
+					{	for (new i = 1; i < MaxClients; i++)
+							if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+								CPrintToChat(i,"{green}[TS] {green}Tank {olive}%s {default}teammate.",Tank_weapon);
+					}
 					else
-						CPrintToChatAll("{green}[提示] {green}Tank {olive}%s死 {default}AI隊友.",Tank_weapon);
+					{
+						for (new i = 1; i < MaxClients; i++)
+							if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+								CPrintToChat(i,"{green}[TS] {green}Tank {olive}%s {default}AI teammate.",Tank_weapon);
+					}
 				}
 			}
 		}
@@ -229,9 +266,9 @@ public Action:Timer_SurKillBoomerCheck(Handle:timer, any:client)
 	if(SDKCall(g_hIsStaggering, Tankclient) && !surkillboomerboomtank && !tankstumblebydoor && !tankkillboomerboomhimself && !boomerboomtank)//tank在暈眩
 	{
 		if(!IsFakeClient(client))//真人boomer player
-			CPrintToChatAll("{green}[提示] {olive}%N {default}殺死 {red}%N{default}'s 肥宅 炸暈 {green}Tank{default}.",surclient, client);
+			CPrintToChatAll("{green}[TS] {olive}%N {default}kills {red}%N{default}'s Boomer to stumble {green}Tank{default}.",surclient, client);
 		else
-			CPrintToChatAll("{green}[提示] {olive}%N {default}殺死 {red}AI {default}肥宅 炸暈 {green}Tank{default}.",surclient);
+			CPrintToChatAll("{green}[TS] {olive}%N {default}kills {red}AI {default}Boomer to stumble {green}Tank{default}.",surclient);
 		surkillboomerboomtank=true;
 		CreateTimer(3.0,COLD_DOWN,_);
 	}
@@ -253,18 +290,33 @@ public Action:Timer_TankKillBoomerCheck(Handle:timer, Handle:h_Pack)
 	if(SDKCall(g_hIsStaggering, Tankclient) && !surkillboomerboomtank && !tankstumblebydoor && !tankkillboomerboomhimself && !boomerboomtank)//tank在暈眩
 	{
 		if(!IsFakeClient(client))//真人SI player
-			CPrintToChatAll("{green}[提示] {green}Tank {olive}%s死 {red}%N{default}'s 肥宅 炸暈 {default}自己.",Tank_weapon,client);
+		{	for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {green}Tank {olive}%s {red}%N{default}'s Boomer to stumble {default}himself.",Tank_weapon,client);
+		}
 		else	
-			CPrintToChatAll("{green}[提示] {green}Tank {olive}%s死 {red}AI {default}肥宅 炸暈 {default}自己.",Tank_weapon);
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {green}Tank {olive}%s {red}AI {default}Boomer to stumble {default}himself.",Tank_weapon);
+		}
 		tankkillboomerboomhimself = true;
 		CreateTimer(3.0,COLD_DOWN,_);
 	}
 	else
 	{
 		if(!IsFakeClient(client))//真人SI player
-			CPrintToChatAll("{green}[提示] {green}Tank {olive}%s死 {default}肥宅.",Tank_weapon);
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {green}Tank {olive}%s {default}Boomer.",Tank_weapon);
+		}
 		else
-			CPrintToChatAll("{green}[提示] {green}Tank {olive}%s死 {default}AI肥宅.",Tank_weapon);
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {green}Tank {olive}%s {default}AI Boomer.",Tank_weapon);
+		}
 	}
 }
 
@@ -277,27 +329,48 @@ public Action:Timer_BoomerSuicideCheck(Handle:timer, any:client)
 	if(Tankclient<0 || !IsClientConnected(Tankclient) ||!IsClientInGame(Tankclient))
 	{
 		if(!IsFakeClient(client))//真人boomer player
-			CPrintToChatAll("{green}[提示] {red}%N{default}'s 肥宅 爆炸了.",client);
+		{	for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {red}%N{default}'s Boomer exploded.",client);
+		}
 		else
-			CPrintToChatAll("{green}[提示] {red}AI {default}肥宅 爆炸了.");
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {red}AI {default}Boomer exploded.");
+		}
 		return;
 	}
 	
 	if (SDKCall(g_hIsStaggering, Tankclient) && !surkillboomerboomtank && !tankstumblebydoor && !tankkillboomerboomhimself && !boomerboomtank)//tank在暈眩
 	{
 		if(!IsFakeClient(client))//真人boomer player
-			CPrintToChatAll("{green}[提示] {default}神隊友 {red}%N{default}'s 肥宅 炸暈 {green}Tank{default}.",client);
+		{	for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {default}Player {red}%N{default}'s Boomer stumbles {green}Tank{default}.",client);
+		}
 		else
-			CPrintToChatAll("{green}[提示] {default}神{red}AI {default}肥宅 炸暈 {green}Tank{default}.");
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {default}{red}AI {default}Boomer stumbles {green}Tank{default}.");
+		}
 		boomerboomtank = true;
 		CreateTimer(3.0,COLD_DOWN,_);
 	}
 	else
 	{
 		if(!IsFakeClient(client))//真人boomer player
-			CPrintToChatAll("{green}[提示] {red}%N{default}'s 肥宅 爆炸了.",client);
+		{	for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {red}%N{default}'s Boomer exploded.",client);
+		}
 		else
-			CPrintToChatAll("{green}[提示] {red}AI {default}肥宅 爆炸了.");
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3))
+					CPrintToChat(i,"{green}[TS] {red}AI {default}Boomer exploded.");
+		}
 	}
 }
 

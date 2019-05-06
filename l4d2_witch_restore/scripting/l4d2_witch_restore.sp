@@ -88,8 +88,13 @@ public WitchSpawn_Event(Handle:event, const String:name[], bool:dontBroadcast)
 		new WitchID = GetEventInt(event, "witchid");
 		if (WitchID == NULL || !IsValidEntity(WitchID)) return;
 		TeleportEntity(WitchID, originWitch, anglesWitch, NULL_VECTOR);
-		WitchRestore = false;
+		CreateTimer(0.5, ColdDown, TIMER_FLAG_NO_MAPCHANGE);
 	}
+}
+
+public Action:ColdDown(Handle:timer)
+{
+	WitchRestore = false;
 }
 
 bool:IsValidTank(client)

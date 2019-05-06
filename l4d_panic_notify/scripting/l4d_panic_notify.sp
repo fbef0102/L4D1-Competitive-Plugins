@@ -55,13 +55,17 @@ public Event_PlayerUse (Handle:event, const String:name[], bool:dontBroadcast)
 			finaltriggernum++;
 			if(finaltriggernum == 2)
 			{
-				CPrintToChatAll("{green}[提示] {olive}%N {default}啟動了 {lightgreen}最後救援", client); 
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+						CPrintToChat(i,"{green}[TS] %N {default}started {lightgreen}Final Rescue", client); 
 				alreadytrigger = true;
 			}	
 		}
 		else
 		{
-			CPrintToChatAll("{green}[提示] {olive}%N {default}啟動了 {lightgreen}最後救援", client); 
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}started {lightgreen}Final Rescue", client); 
 			alreadytrigger = true;
 		}
 	}
@@ -75,20 +79,50 @@ public Event_PlayerUse (Handle:event, const String:name[], bool:dontBroadcast)
 		#endif
 		GetCurrentMap(mapbuf, sizeof(mapbuf));
 		if(StrEqual(targetname, "washer_lift_button2") && StrEqual(mapbuf, "l4d_vs_hospital03_sewers"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}升降梯屍潮事件", client); alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}lift horde event", client); 
+			alreadytrigger = true;
+		}
 		else if (StrEqual(targetname, "button_safedoor_PANIC") && StrEqual(mapbuf, "l4d_vs_smalltown03_ranchhouse"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}喪鐘屍潮事件", client); alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}church horde event", client); 
+			alreadytrigger = true;
+		}
 		else if (iEntid == 1197 && StrEqual(mapbuf, "l4d_vs_city17_04")) 
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}City 17屍潮事件", client);  alreadytrigger = true;} 
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}City 17 horde event", client);  
+			alreadytrigger = true;
+		} 
 		else if (StrEqual(targetname, "van_button") && StrEqual(mapbuf, "l4d_jsarena02_alley"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}貨車屍潮事件", client); alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}The Arena of the Dead horde event", client); 
+			alreadytrigger = true;
+		}
 		else if (StrEqual(targetname, "tower_window_0_button") && StrEqual(mapbuf, "l4d_ihm02_manor"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}I Hate Mountains屍潮事件", client); alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}I Hate Mountains horde event", client); 
+			alreadytrigger = true;
+		}
 		else if (StrEqual(targetname, "finale_start") && StrEqual(mapbuf, "l4d_dbd_new_dawn"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}啟動了 {lightgreen}最後救援", client); alreadytrigger = true;}			
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}started {lightgreen}Final Rescue", client); 
+			alreadytrigger = true;
+		}			
 		else{
 			#if DEBUG
-				CPrintToChatAll("{green}[提示] {lightgreen}按鈕事件", client); 
+				CPrintToChatAll("{green}[TS] {lightgreen}horde event", client); 
 			#endif
 		}
 	}
@@ -96,13 +130,33 @@ public Event_PlayerUse (Handle:event, const String:name[], bool:dontBroadcast)
 	{
 		decl String:mapbuf[32];GetCurrentMap(mapbuf, sizeof(mapbuf));
 		if (iEntid == 62 && StrEqual(mapbuf, "l4d_vs_city17_02"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}警報門屍潮事件", client);  alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}horde alert", client);  
+			alreadytrigger = true;
+		}
 		else if (iEntid == 754 &&StrEqual(mapbuf, "l4d_vs_deadflagblues02_library"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}警報門屍潮事件", client);  alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}horde alert", client);  
+			alreadytrigger = true;
+		}
 		else if (iEntid == 205 &&StrEqual(mapbuf, "l4d_vs_farm02_traintunnel"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}警報門屍潮事件", client); alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}horde alert", client); 
+			alreadytrigger = true;
+		}
 		else if (iEntid == 621 &&StrEqual(mapbuf, "l4d_jsarena01_town"))
-			{CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}警報門屍潮事件", client); alreadytrigger = true;}
+		{
+			for (new i = 1; i < MaxClients; i++)
+				if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+					CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}horde alert", client); 
+			alreadytrigger = true;
+		}
 	}
 }
 
@@ -113,7 +167,10 @@ public Event_create_panic_event(Handle:event, String:name[], bool:dontBroadcast)
 		PrintToChatAll("Panic Event: %N",client);
 	#endif
 	if(client&&IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client))
-		CPrintToChatAll("{green}[提示] {olive}%N {default}觸發了 {lightgreen}屍潮事件", client);
+	{	for (new i = 1; i < MaxClients; i++)
+			if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+				CPrintToChat(i,"{green}[TS] {olive}%N {default}triggered {lightgreen}a horde event", client);
+	}
 	else
 		if(!resuce_start)
 		{
@@ -121,18 +178,22 @@ public Event_create_panic_event(Handle:event, String:name[], bool:dontBroadcast)
 			GetCurrentMap(mapbuf, sizeof(mapbuf));
 			if(StrEqual(mapbuf, "l4d_river02_barge"))
 			{
-				CPrintToChatAll("{green}[提示] {olive}烏鴉 {lightgreen}屍潮事件", client); 
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+						CPrintToChat(i,"{green}[TS] {olive}crow {lightgreen}horde event"); 
 				return ;
 			}
 			else if(StrEqual(mapbuf, "l4d_deathaboard04_ship"))
 			{
-				CPrintToChatAll("{green}[提示] {olive}Deadth Aboard {lightgreen}屍潮事件", client); 
+				for (new i = 1; i < MaxClients; i++)
+					if (IsClientInGame(i) && IsClientConnected(i) && !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 2))
+						CPrintToChat(i,"{green}[TS] {olive}Deadth Aboard {lightgreen}horde event"); 
 				return;
 			}
 			else if(IsFinalMap())
 			{
 				#if DEBUG
-					CPrintToChatAll("{green}[提示] {lightgreen}屍潮事件", client); 
+					CPrintToChatAll("{green}[TS] {lightgreen}a horde event"); 
 				#endif
 			}
 		}
@@ -142,6 +203,6 @@ public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBro
 {
 	if(IsFinalMap()){
 		resuce_start = true;
-		CPrintToChatAll("{green}[提示] {lightgreen}救援開始"); 
+		CPrintToChatAll("{green}[TS] {lightgreen}Rescue Started"); 
 	}
 }

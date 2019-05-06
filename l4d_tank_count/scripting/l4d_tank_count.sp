@@ -237,15 +237,15 @@ Tank_Stats()
 
 	if(FirstTankClient>0)
 		if(SecondTankClient>0||AiTankClient>0)
-			CPrintToChatAll("{olive}[提示] First Tank 存活了 {green}%d{olive}分 {green}%d{olive}秒.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[FirstTankClient]/60,TimeCount[FirstTankClient]%60,PounchSuccessCount[FirstTankClient],RockSuccessCout[FirstTankClient],ToySuccessCount[FirstTankClient]);
+			CPrintToChatAll("{olive}[TS] First Tank Survived {green}%d{olive}: {green}%d{olive}.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[FirstTankClient]/60,TimeCount[FirstTankClient]%60,PounchSuccessCount[FirstTankClient],RockSuccessCout[FirstTankClient],ToySuccessCount[FirstTankClient]);
 		else
-			CPrintToChatAll("{olive}[提示] Tank 存活了 {green}%d{olive}分 {green}%d{olive}秒.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[FirstTankClient]/60,TimeCount[FirstTankClient]%60,PounchSuccessCount[FirstTankClient],RockSuccessCout[FirstTankClient],ToySuccessCount[FirstTankClient]);	
+			CPrintToChatAll("{olive}[TS] Tank Survived {green}%d{olive}: {green}%d{olive}.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[FirstTankClient]/60,TimeCount[FirstTankClient]%60,PounchSuccessCount[FirstTankClient],RockSuccessCout[FirstTankClient],ToySuccessCount[FirstTankClient]);	
 	if(SecondTankClient>0)
-		CPrintToChatAll("{olive}[提示] Second Tank 存活了 {green}%d{olive}分 {green}%d{olive}秒.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[SecondTankClient]/60,TimeCount[SecondTankClient]%60,PounchSuccessCount[SecondTankClient],RockSuccessCout[SecondTankClient],ToySuccessCount[SecondTankClient]);
+		CPrintToChatAll("{olive}[TS] Second Tank Survived {green}%d{olive}: {green}%d{olive}.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[SecondTankClient]/60,TimeCount[SecondTankClient]%60,PounchSuccessCount[SecondTankClient],RockSuccessCout[SecondTankClient],ToySuccessCount[SecondTankClient]);
 	if(ThirdTankClient>0)
-		CPrintToChatAll("{olive}[提示] Third Tank 存活了 {green}%d{olive}分 {green}%d{olive}秒.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[ThirdTankClient]/60,TimeCount[ThirdTankClient]%60,PounchSuccessCount[ThirdTankClient],RockSuccessCout[ThirdTankClient],ToySuccessCount[ThirdTankClient]);
+		CPrintToChatAll("{olive}[TS] Third Tank Survived {green}%d{olive}: {green}%d{olive}.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[ThirdTankClient]/60,TimeCount[ThirdTankClient]%60,PounchSuccessCount[ThirdTankClient],RockSuccessCout[ThirdTankClient],ToySuccessCount[ThirdTankClient]);
 	if(AiTankClient>0)//AI
-		CPrintToChatAll("{olive}[提示] AI Tank 存活了 {green}%d{olive}分 {green}%d{olive}秒.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[AiTankClient]/60,TimeCount[AiTankClient]%60,PounchSuccessCount[AiTankClient],RockSuccessCout[AiTankClient],ToySuccessCount[AiTankClient]);
+		CPrintToChatAll("{olive}[TS] AI Tank Survived {green}%d{olive}: {green}%d{olive}.(Pounch: {green}%d{olive}, Rock: {green}%d{olive}, Toy: {green}%d{olive})",TimeCount[AiTankClient]/60,TimeCount[AiTankClient]%60,PounchSuccessCount[AiTankClient],RockSuccessCout[AiTankClient],ToySuccessCount[AiTankClient]);
 }
 
 stock GetZombieClass(client) return GetEntProp(client, Prop_Send, "m_zombieClass");

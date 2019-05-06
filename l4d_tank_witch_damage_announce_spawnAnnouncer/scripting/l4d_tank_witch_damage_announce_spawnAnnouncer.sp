@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION	"7.9"
+#define PLUGIN_VERSION	"2.0"
 
 #pragma semicolon 1
 
@@ -153,7 +153,7 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 			GetClientName(iTank, sName, 32);
 			if(g_bIsTankAlive&& IsClientAndInGame(iTank)&& GetClientTeam(iTank) == 3 && IsPlayerTank(iTank) ) 
 			{
-				CPrintToChatAll("{green}[提示] Tank {default}({red}%s{default}) had {red}%d {default}health remaining", IsFakeClient(iTank) ? "AI" : sName, g_iLastTankHealth);
+				CPrintToChatAll("{default}[{olive}TS{default}] Tank {default}({red}%s{default}) had {red}%d {default}health remaining", IsFakeClient(iTank) ? "AI" : sName, g_iLastTankHealth);
 				g_bIsTankAlive = false;
 			}
 		}
@@ -163,12 +163,8 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 
 		if (g_iTotalDamage[i][TANK]){
 			if( g_bIsTankAlive&& IsClientAndInGame(i)&& GetClientTeam(i) == 3 && IsPlayerTank(i) ){
-				if (!IsClientInGame(i))
-					CPrintToChatAll("{green}[提示] Tank{default} had {red}%d {default}health remaining", g_iLastTankHealth);
-				else{
-					//GetClientName(i, sName, 32);
-					CPrintToChatAll("{green}[提示] Tank{default} had {red}%d {default}health remaining",  g_iLastTankHealth);
-				}
+				CPrintToChatAll("{default}[{olive}TS{default}] Tank{default} had {red}%d {default}health remaining",  g_iLastTankHealth);
+				
 				PrintDamage(i, true, false,0);
 				//g_bIsTankAlive = false;
 			}
@@ -177,7 +173,7 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 
 			if (g_bCvarRunAway && g_iWitchRef[i] != INVALID_ENT_REFERENCE && EntRefToEntIndex(g_iWitchRef[i]) == INVALID_ENT_REFERENCE) continue;
 
-			//CPrintToChatAll("{green}[提示] 妹子{default} had {red}%d {default}health remaining", g_iCvarHealth[WITCH] - g_iTotalDamage[i][WITCH]);
+			//CPrintToChatAll("{default}[{olive}TS{default}] {red}Witch{default} had {red}%d {default}health remaining", g_iCvarHealth[WITCH] - g_iTotalDamage[i][WITCH]);
 			PrintDamage(i, false, false,5);
 		}
 	}
@@ -234,7 +230,7 @@ public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 	{
 		g_TankOtherDamage = 0;
 		g_bIsTankAlive = true;
-		PrintToChatAll("\x04[提示] Tank\x01 has spawned!");
+		PrintToChatAll("\x01[\x05TS\x01] \x04Tank\x01 has spawned!");
 		EmitSoundToAll("ui/pickup_secret01.wav");
 	}
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -374,7 +370,7 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 		}
 		else //
 		{
-			//PrintToChatAll("\x04[提示] Tank \x01自爆了(也許卡住了).");
+			//PrintToChatAll("\x01[\x05TS\x01] Tank \x01自爆了(也許卡住了).");
 			//PrintDamage(client, true);
 			g_bIsTankAlive = false;
 			g_TankOtherDamage = 0;
@@ -403,7 +399,7 @@ public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 		}
 		else //else if (!g_bCvar1v1Mode)// wtf?
 		{
-			PrintToChatAll("\x04[提示] Tank \x01自爆了(也許卡住了).");
+			PrintToChatAll("\x01[\x05TS\x01] Tank \x01自爆了(也許卡住了).");
 			//PrintDamage(client, true);
 			g_bIsTankAlive = false;
 			g_TankOtherDamage = 0;
@@ -459,7 +455,7 @@ public Action:PD_ev_TankFrustrated(Handle:event, const String:name[], bool:dontB
 		g_iLastKnownTank = client;
 		if(control_time == 2)
 		{
-			//CPrintToChatAll("{green}[提示] {red}特感隊伍{default}已經失去了兩次{green}Tank{default}控制權機會!");
+			//CPrintToChatAll("{default}[{olive}TS{default}] {red}特感隊伍{default}已經失去了兩次{green}Tank{default}控制權機會!");
 			control_time=1;
 			return;
 		}
@@ -482,8 +478,8 @@ public Action:CheckForAITank(Handle:timer,any:client)//passing to AI
 			{
 				g_bTankInGame = false;
 					
-				CPrintToChatAll("{green}[提示] Tank{default} ({red}%N{default}) 迷路失去控制權了.", client);
-				CPrintToChatAll("{green}[提示]{default} He had {red}%d {default}health remaining", g_iLastTankHealth);
+				CPrintToChatAll("{default}[{olive}TS{default}] {green}Tank{default} ({red}%N{default}) got lost and lost control.", client);
+				CPrintToChatAll("{default}[{olive}TS{default}] {default}He had {red}%d {default}health remaining", g_iLastTankHealth);
 	
 				if (g_iTotalDamage[client][TANK])//人類沒有造成任何傷害就不印
 					PrintDamage(client, true, false);
@@ -506,9 +502,10 @@ public TP_OnTankPass(old_tank, new_tank)
 // Witch
 public Action:PD_ev_WitchSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
-		for (new i = 1; i <= MaxClients; i++) 
+		/*for (new i = 1; i <= MaxClients; i++) 
 			if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && (GetClientTeam(i) == 1 || GetClientTeam(i) == 3) )
-				CPrintToChat(i, "{green}[提示]{red} 妹子{default} has spawned!");
+				CPrintToChat(i, "{default}[{olive}TS{default}] {red}Witch{default} has spawned!");*/
+		CPrintToChatAll("[{olive}TS{default}] {green}Witch{default} has spawned!");
 		CreateTimer(0.5, PD_t_EnumThisWitch, EntIndexToEntRef(GetEventInt(event, "witchid")), TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -630,22 +627,22 @@ PrintDamage(iIndex, bool:bTankBoss, bool:bLoose = false, iCrownTech = 0)
 		if (bTankBoss){
 			/*
 			if(istankAI)
-				CPrintToChatAll("{green}[提示]{blue} %N {default}dealt {olive}%d {default}damage to {green}Tank{default} ({red}AI{default}).",iClient[0][INDEX],iClient[0][DMG]);
+				CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}dealt {olive}%d {default}damage to {green}Tank{default} ({red}AI{default}).",iClient[0][INDEX],iClient[0][DMG]);
 			else
-				CPrintToChatAll("{green}[提示]{blue} %N {default}dealt {olive}%d {default}damage to {green}Tank{default} ({red}%s{default}).",iClient[0][INDEX],iClient[0][DMG],tankplayerName);
+				CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}dealt {olive}%d {default}damage to {green}Tank{default} ({red}%s{default}).",iClient[0][INDEX],iClient[0][DMG],tankplayerName);
 			*/
-			CPrintToChatAll("{green}[提示] {blue}%N {default}dealt {olive}%d {default}damage to{green} Tank", iClient[0][INDEX], iClient[0][DMG]);
+			CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}dealt {olive}%d {default}damage to{green} Tank", iClient[0][INDEX], iClient[0][DMG]);
 			g_bIsTankAlive = false;
 		}
 		else{
 
-			if (IsIncapacitated(iClient[0][INDEX])){//只有一位玩家造成妹子傷害, 反被witch incap/秒殺(Jerkstored crown)
-				//CPrintToChatAll("{green}[提示]{blue} %N {default}反被 {green}妹子 {olive}爆☆殺{default}.", iClient[0][INDEX]);
+			if (IsIncapacitated(iClient[0][INDEX])){//只有一位玩家造成Witch傷害, 反被witch incap/秒殺(Jerkstored crown)
+				//CPrintToChatAll("{default}[{olive}TS{default}] {green}Witch {default}crowned {blue}%N{default}.", iClient[0][INDEX]);
 			}
 			else
 			{
 				if( iCrownTech==1)
-					CPrintToChatAll("{green}[提示]{blue} %N {default}一槍爆☆殺 {green}妹子{default}.", iClient[0][INDEX]);	
+					CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}crowned a {green}Witch{default}.", iClient[0][INDEX]);	
 				else if (!iCrownTech)
 				{
 					new gun = GetPlayerWeaponSlot(iClient[0][INDEX], 0); //get the players primary weapon
@@ -655,13 +652,13 @@ PrintDamage(iIndex, bool:bTankBoss, bool:bLoose = false, iCrownTech = 0)
 					GetEdictClassname(gun, currentgunname, sizeof(currentgunname)); //get the primary weapon name
 			
 					if (StrEqual(currentgunname, "weapon_pumpshotgun")&&!IsIncapacitated(iClient[0][INDEX]))
-						CPrintToChatAll("{green}[提示]{blue} %N {default}引秒-爆☆殺 {green}妹子{default}.", iClient[0][INDEX]);	
+						CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}draw-crowned {green}Witch{default}.", iClient[0][INDEX]);	
 				}
 				else if (iCrownTech == 5){//被witch incap/秒殺結束回合
-					//CPrintToChatAll("{green}[提示]{blue} %N {default}反被 {green}妹子 {olive}爆☆殺 {default}結束這回合.", iClient[0][INDEX]);
+					//CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}反被 {green}Witch {olive}爆☆殺 {default}結束這回合.", iClient[0][INDEX]);
 				}
 				else
-				{/*CPrintToChatAll("{green}[提示]{blue} %N {default}打昏-爆☆殺 {green}妹子{default}.", iClient[0][INDEX]);*/}
+				{/*CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}打昏-爆☆殺 {green}Witch{default}.", iClient[0][INDEX]);*/}
 			}
 		}
 	}
@@ -673,11 +670,11 @@ PrintDamage(iIndex, bool:bTankBoss, bool:bLoose = false, iCrownTech = 0)
 		
 		if (!bLoose && !(g_iCvarPrivateFlags & (1 << (bTankBoss ? 1 : 0))))
 			if(bTankBoss){
-				CPrintToChatAll("{olive}[提示] Damage dealt to Tank ({red}%s{olive}):", ( istankAI ? "AI":tankplayerName));
+				CPrintToChatAll("{olive}[TS] Damage dealt to Tank ({red}%s{olive}):", ( istankAI ? "AI":tankplayerName));
 				g_bIsTankAlive = false;
 			}
 			else
-				CPrintToChatAll("{olive}[提示] Damage dealt to{red} 妹子{olive}:");
+				CPrintToChatAll("{olive}[TS] Damage dealt to{red} Witch{olive}:");
 
 		if (bTankBoss){
 
@@ -702,14 +699,14 @@ PrintDamage(iIndex, bool:bTankBoss, bool:bLoose = false, iCrownTech = 0)
 				if (g_iCvarPrivateFlags & (1 << _:TANK)){
 
 					if (bInGame)
-						PrintToChat(client, "\x03[提示] Damage dealt to Tank (\x02%d\x03):\nYou #%d: %d (%.0f%%)", g_iTotalDamage[iIndex][bTankBoss], i + 1, iClient[i][DMG], FloatMul(FloatDiv(float(iClient[i][DMG]), fTotalDamage), 100.0));
+						PrintToChat(client, "\x05[TS] Damage dealt to Tank (\x02%d\x03):\nYou #%d: %d (%.0f%%)", g_iTotalDamage[iIndex][bTankBoss], i + 1, iClient[i][DMG], FloatMul(FloatDiv(float(iClient[i][DMG]), fTotalDamage), 100.0));
 				}
 				else{ // public
 					CPrintToChatAll("{olive} %d {default}[{green}%.0f%%%%%{default}] -{blue} %s", iClient[i][DMG], FloatMul(FloatDiv(float(iClient[i][DMG]), fTotalDamage), 100.0),sName);
 				}
 			}
 			if (!(g_iCvarPrivateFlags & (1 << _:TANK))&&g_TankOtherDamage){
-				CPrintToChatAll("{olive} %d {default}[{green}%.0f%%%%%{default}] -{lightgreen} 來自其他傷害",g_TankOtherDamage,FloatMul(FloatDiv(float(g_TankOtherDamage), fTotalDamage), 100.0));
+				CPrintToChatAll("{olive} %d {default}[{green}%.0f%%%%%{default}] -{lightgreen} Other damage",g_TankOtherDamage,FloatMul(FloatDiv(float(g_TankOtherDamage), fTotalDamage), 100.0));
 				g_TankOtherDamage = 0;
 			}
 		}
@@ -718,7 +715,7 @@ PrintDamage(iIndex, bool:bTankBoss, bool:bLoose = false, iCrownTech = 0)
 			for (new i; i < iSurvivors; i++){
 			
 				if (g_iCvarPrivateFlags & (1 << _:WITCH))
-					PrintToChat(iClient[i][INDEX], "\x04[提示] Damage dealt to Witch (\x02%d\x03):\nYou #%d: %d (%.0f%%)", g_iTotalDamage[iIndex][bTankBoss], i + 1, iClient[i][DMG], FloatMul(FloatDiv(float(iClient[i][DMG]), fTotalDamage), 100.0));
+					PrintToChat(iClient[i][INDEX], "\x05[TS] Damage dealt to Witch (\x02%d\x03):\nYou #%d: %d (%.0f%%)", g_iTotalDamage[iIndex][bTankBoss], i + 1, iClient[i][DMG], FloatMul(FloatDiv(float(iClient[i][DMG]), fTotalDamage), 100.0));
 				else{
 					CPrintToChatAll("{olive} %d {default}[{green}%.0f%%%%%{default}] -{blue} %N", iClient[i][DMG], FloatMul(FloatDiv(float(iClient[i][DMG]), fTotalDamage), 100.0),iClient[i][INDEX]);
 					//CPrintToChatAll("%s",PRESENT);y

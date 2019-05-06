@@ -11,7 +11,7 @@ static bool:allow_gain_health[MAXPLAYERS + 1];
 public Plugin:myinfo = 
 {
     name = "Despawn Health",
-    author = "Jacob,l4d1 port by Harry Potter",
+    author = "Jacob",
     description = "Gives Special Infected health back when they despawn.",
     version = "1.3",
     url = "github.com/jacob404/myplugins"
@@ -32,7 +32,7 @@ public L4D_OnEnterGhostState(client)
 {
 	if(allow_gain_health[client]==false)
 	{
-		CPrintToChat(client,"{green}[提示]{default} You can't regain {red}HP, {default}Cool Down{lightgreen} 20s {default}not yet!");
+		CPrintToChat(client,"{green}[{olive}TS{default}] You can't regain {red}HP, {default}Cool Down{lightgreen} 20s {default}not yet!");
 		return;
 	}
 	//Hunter的GetZombieClass(client)是3
@@ -45,7 +45,7 @@ public L4D_OnEnterGhostState(client)
 		new NewHP=0;
 		new MissingHealth = MaxHealth - CurrentHealth;
 		NewHP = RoundFloat(MissingHealth * GetConVarFloat(si_restore_ratio)) + CurrentHealth;
-		CPrintToChat(client,"{green}[提示]{default} You have regained {red}%d {olive}HP{default}.",NewHP-CurrentHealth);
+		CPrintToChat(client,"{green}[{olive}TS{default}] You have regained {red}%d {olive}HP{default}.",NewHP-CurrentHealth);
 		SetEntityHealth(client, NewHP);
 		allow_gain_health[client]=false;
     }

@@ -182,8 +182,8 @@ displaykillinfected(team)
 		damageffss = damageff[client];
 		
 		if(team == 0){
-				CPrintToChatAll("{default}擊殺特感:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],殭屍:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],友傷:{olive}%3d{default}", killss, killssssss, killsss, killssss, damageffss);
-				CPrintToChatAll("總計被控:{olive}%3d{default}[{lightgreen}被撲{default}:{olive}%3d{default},{lightgreen}被拉{default}:{olive}%3d{default},{lightgreen}被噴{default}:{olive}%3d{default}] - {olive}%N",PouncesEaten[client]+Smoked[client]+Boomed[client],PouncesEaten[client],Smoked[client],Boomed[client],client);
+				CPrintToChatAll("{default}SI:{olive}%3d{default}[{green}headshot{default}:{olive}%3d{default}],Common:{olive}%3d{default}[{green}headshot{default}:{olive}%3d{default}],FF:{olive}%3d{default} - {olive}%N", killss, killssssss, killsss, killssss, damageffss,client);
+				//CPrintToChatAll("Cap:{olive}%3d{default}[{lightgreen}pounce{default}:{olive}%3d{default},{lightgreen}tounge{default}:{olive}%3d{default},{lightgreen}boom{default}:{olive}%3d{default}] - {olive}%N",PouncesEaten[client]+Smoked[client]+Boomed[client],PouncesEaten[client],Smoked[client],Boomed[client],client);
 		}
 		else
 		{
@@ -191,8 +191,8 @@ displaykillinfected(team)
 			{
 				if (IsClientConnected(j) && IsClientInGame(j)&& !IsFakeClient(j) && GetClientTeam(j) == team)
 				{
-				CPrintToChat(j,"{default}擊殺特感:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],殭屍:{olive}%3d{default}[{green}爆頭{default}:{olive}%3d{default}],友傷:{olive}%3d{default}", killss, killssssss, killsss, killssss, damageffss);
-				CPrintToChat(j,"總計被控:{olive}%3d{default}[{lightgreen}被撲{default}:{olive}%3d{default},{lightgreen}被拉{default}:{olive}%3d{default},{lightgreen}被噴{default}:{olive}%3d{default}] - {olive}%N",PouncesEaten[client]+Smoked[client]+Boomed[client],PouncesEaten[client],Smoked[client],Boomed[client],client);
+				CPrintToChat(j,"{default}SI:{olive}%3d{default}[{green}headshot{default}:{olive}%3d{default}],common:{olive}%3d{default}[{green}headshot{default}:{olive}%3d{default}],FF:{olive}%3d{default} - {olive}%N", killss, killssssss, killsss, killssss, damageffss,client);
+				//CPrintToChat(j,"Cap:{olive}%3d{default}[{lightgreen}pounce{default}:{olive}%3d{default},{lightgreen}tounge{default}:{olive}%3d{default},{lightgreen}boom{default}:{olive}%3d{default}] - {olive}%N",PouncesEaten[client]+Smoked[client]+Boomed[client],PouncesEaten[client],Smoked[client],Boomed[client],client);
 		
 				}
 			}

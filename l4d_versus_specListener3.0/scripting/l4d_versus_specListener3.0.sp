@@ -14,6 +14,7 @@
 
 //new Handle:hAllTalk;
 static bool:bListionActive[MAXPLAYERS + 1];
+native Is_Ready_Plugin_On();
 #define PLUGIN_VERSION "3.0"
 public Plugin:myinfo = 
 {
@@ -39,7 +40,7 @@ public Native_OpenSpectatorsListenMode(Handle:plugin, numParams) {
 			{
 				SetClientListeningFlags(client, VOICE_LISTENALL);
 				//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05On.");
-				//PrintToChat(client,"\x05(你可以看到\x04 倖存者\x05 與\x04 特感\x05 的teamchat, 亦可聽到他們的MIC對話)" );
+				//PrintToChat(client,"\x05(You can see what\x04 Survivor\x05 and\x04 Infected\x05 type via chat box, and what they say via mic)" );
 				PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05Off \x03Listen Mode\x05." );
 			}
 			else
@@ -71,23 +72,26 @@ public Native_OpenSpectatorsListenMode(Handle:plugin, numParams) {
 
 public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	for (new client = 1; client <= MaxClients; client++)
-		if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client) && GetClientTeam(client) == TEAM_SPEC)
-		{
-			if(bListionActive[client])
+	if(!Is_Ready_Plugin_On())
+	{
+		for (new client = 1; client <= MaxClients; client++)
+			if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client) && GetClientTeam(client) == TEAM_SPEC)
 			{
-				SetClientListeningFlags(client, VOICE_LISTENALL);
-				//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05On.");
-				//PrintToChat(client,"\x05(你可以看到\x04 倖存者\x05 與\x04 特感\x05 的teamchat, 亦可聽到他們的MIC對話)" );
-				PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05Off \x03Listen Mode\x05." );
+				if(bListionActive[client])
+				{
+					SetClientListeningFlags(client, VOICE_LISTENALL);
+					//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05On.");
+					//PrintToChat(client,"\x05(You can see what\x04 Survivor\x05 and\x04 Infected\x05 type via chat box, and what they say via mic)" );
+					PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05Off \x03Listen Mode\x05." );
+				}
+				else
+				{
+					SetClientListeningFlags(client, VOICE_NORMAL);
+					//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05Off.");
+					PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05On \x03Listen Mode\x05." );
+				}
 			}
-			else
-			{
-				SetClientListeningFlags(client, VOICE_NORMAL);
-				//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05Off.");
-				PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05On \x03Listen Mode\x05." );
-			}
-		}
+	}
 }
 
 public Action:Panel_hear(client,args)
@@ -101,7 +105,7 @@ public Action:Panel_hear(client,args)
 	if(bListionActive[client])
 	{
 		SetClientListeningFlags(client, VOICE_LISTENALL);
-		PrintToChat(client,"\x05(你可以看到\x04 倖存者\x05 與\x04 特感\x05 的teamchat, 亦可聽到他們的MIC對話)" );
+		PrintToChat(client,"\x05(You can see what\x04 Survivor\x05 and\x04 Infected\x05 type via chat box, and what they say via mic)" );
 	}
 	else
 	{

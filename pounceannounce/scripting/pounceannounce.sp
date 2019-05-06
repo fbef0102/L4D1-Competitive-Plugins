@@ -155,7 +155,7 @@ public Event_PlayerPounced(Handle:event, const String:name[], bool:dontBroadcast
 		#if DEBUG
 		PrintToServer("Pounce: max: %d min: %d dmg: %d dist: %d dmg: %.01f",max,min,maxDmg,distance, dmg);
 		#endif
-		Format(pounceLine,sizeof(pounceLine),"\x04[提示] %s \x01高撲 \x05%s \x01造成了 \x03%.01f \x01傷害.(最大: %d)",attackerName,victimName,dmg,maxDmg + 1);
+		Format(pounceLine,sizeof(pounceLine),"\x04[SM] %s \x01pounced \x05%s \x01for \x03%.01f \x01damage.(Max: %d)",attackerName,victimName,dmg,maxDmg + 1);
 		
 		showDistance = GetConVarInt(hShowDistance);
 		if(showDistance != None)
@@ -164,23 +164,23 @@ public Event_PlayerPounced(Handle:event, const String:name[], bool:dontBroadcast
 			{
 				case Units:
 				{
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 單位",distance);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units",distance);
 				}
 				case UnitsAndFeet:
 				{ //units / 16 = feet in game
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 單位 (%d 呎)",distance, distance / 16);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units (%d feet)",distance, distance / 16);
 				}
 				case UnitsAndMeters:
 				{	//0.0213 = conversion rate for units to meters
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 單位 (%.0f 公尺)",distance, distance * 0.0213);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d units (%.0f meters)",distance, distance * 0.0213);
 				}
 				case Feet:
 				{
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %d 呎", distance / 16); 
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %d feet", distance / 16); 
 				}
 				case Meters:
 				{
-					Format(distanceBuffer,sizeof(distanceBuffer)," 距離 %.0f 公尺", distance * 0.0213);
+					Format(distanceBuffer,sizeof(distanceBuffer)," over %.0f meters", distance * 0.0213);
 				}
 			}
 			StrCat(pounceLine,sizeof(pounceLine),distanceBuffer);

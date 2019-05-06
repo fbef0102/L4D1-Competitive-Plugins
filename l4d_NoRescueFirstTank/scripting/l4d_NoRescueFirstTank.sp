@@ -47,7 +47,7 @@ public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBro
 
 public Action:On_t_Instruction(Handle:timer)
 {
-	PrintToChatAll("\x05救援開始 \x01後只有 \x04一隻Tank!"); 
+	PrintToChatAll("\x04Only One Tank \x01after \x05Final Rescue"); 
 }
 
 public Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)

@@ -4,6 +4,7 @@
 #include <l4d_direct>
 #include <colors>
 #undef REQUIRE_PLUGIN
+native Is_Ready_Plugin_On();
 
 public Plugin:myinfo =
 {
@@ -64,9 +65,10 @@ public OnPluginStart()
 }
 public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	for (new client = 1; client <= MaxClients; client++)
-		if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client))
-			PrintBossPercents(client);
+	if(!Is_Ready_Plugin_On())
+		for (new client = 1; client <= MaxClients; client++)
+			if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client))
+				PrintBossPercents(client);
 }
 public OnMapStart()
 {
@@ -149,11 +151,11 @@ stock PrintBossPercents(client)
 	if(GetConVarBool(hCvarWitchPercent))
 	{
 		if (iWitchPercent > 0)
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} %d%%", iWitchPercent);
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} %d%%", iWitchPercent);
 		else if (iWitchPercent == -2)
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} Witch Party");
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} Witch Party");
 		else
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} None");
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} None");
 			
 	}
 }

@@ -11,7 +11,10 @@ static bool:g_bIsTankAlive;
 static passCount = 1;
 static tankclient ;
 static bool:bTankHudActive[MAXPLAYERS + 1];
-new Handle:timer_handle;
+
+native bool:IsClientSpecHud(client);//From l4d_versus_spechud
+native bool:IsClientVoteMenu(client);//From Votes2
+native bool:IsClientInfoMenu(client);//From l4d_Harry_Roto2-AZ_mod_info
 
 public Plugin:myinfo = 
 {
@@ -65,7 +68,7 @@ public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 {
 	if(!g_bIsTankAlive)
 	{
-		timer_handle = CreateTimer(TANKHUD_DRAW_INTERVAL, HudDrawTimer, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(TANKHUD_DRAW_INTERVAL, HudDrawTimer, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
 		passCount = 1;
 		g_bIsTankAlive = true;
 	}
@@ -73,6 +76,8 @@ public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 
 public Action:HudDrawTimer(Handle:hTimer) 
 {
+	if(!g_bIsTankAlive)
+		return Plugin_Handled;
 	new bool:bSpecsInfsOnServer = false;
 	for (new i = 1; i <= MaxClients; i++) 
 	{
@@ -88,7 +93,10 @@ public Action:HudDrawTimer(Handle:hTimer)
 	{
 		tankclient = FindTank();
 		if (tankclient == -1)
-			return;
+		{
+			g_bIsTankAlive = false;
+			return Plugin_Continue;
+		}
 
 		new Handle:TankHud = CreatePanel();
 		
@@ -96,10 +104,10 @@ public Action:HudDrawTimer(Handle:hTimer)
 		for (new i = 1; i <= MaxClients; i++) 
 		{
 
-			if (!bTankHudActive[i] || !IsClientConnected(i) || IsFakeClient(i) || IsSurvivor(i))
+			if (!bTankHudActive[i] || !IsClientConnected(i) || IsFakeClient(i) || IsSurvivor(i) || IsClientVoteMenu(i) || IsClientInfoMenu(i) )
 				continue;
 			
-			if(IsSpectator(i))
+			if(IsSpectator(i) && IsClientSpecHud(i))
 				continue;
 
 			//if( IsInfected(i) && GetEntProp(i, Prop_Send, "m_zombieClass") == 5)//Tank自己不顯示
@@ -110,6 +118,7 @@ public Action:HudDrawTimer(Handle:hTimer)
 		
 		CloseHandle(TankHud);
 	}
+	return Plugin_Continue;
 }
 public DummyTankHudHandler(Handle:hMenu, MenuAction:action, param1, param2) {}
 
@@ -133,7 +142,6 @@ public Action:FindAnyTank(Handle:timer, any:client)
 {
 	if(!IsTankInGame()){
 		g_bIsTankAlive = false;
-		KillTimer(timer_handle);
 		passCount = 1;
 	}
 }
@@ -153,7 +161,7 @@ bool:FillTankInfo(Handle:TankHud)
 	decl String:info[512];
 	decl String:name[MAX_NAME_LENGTH];
 
-	Format(info, sizeof(info), "L4D1 Versus Mod:: Tank HUD");
+	Format(info, sizeof(info), "Rotoblin-AZ :: Tank HUD");
 	DrawPanelText(TankHud, info);
 	DrawPanelText(TankHud, "___________________");
 

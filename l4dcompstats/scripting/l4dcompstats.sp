@@ -157,6 +157,8 @@ new				g_iDamageDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker
 new				g_iShotsDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker, count # of shots (not pellets)
 new 	bool:	isroundreallyend;
 
+//harry
+native IsInReady();
 new     Handle:         g_hTrieEntityCreated                                = INVALID_HANDLE;   // getting classname of entity created
 // trie values: OnEntityCreated classname
 enum strOEC
@@ -927,7 +929,7 @@ public Action:PlayerHook_OnTakeDamagePre(victim, &attacker, &inflictor, &Float:d
 
 public Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (g_bHasRoundEnded) return;
+	if (g_bHasRoundEnded||IsInReady()) return;
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 
 	if (victim == 0 ||
@@ -1431,8 +1433,8 @@ public Event_PlayerIncapacitated(Handle:event, const String:name[], bool:dontBro
 	new health = g_iWitchHealth - g_iAccumulatedWitchDamage;
 	if (health < 0) health = 0;
 
-	CPrintToChatAll("{default}[{olive}TS{default}]{red} Witch{default} had{green} %d{default} health remaining.", health);
-	CPrintToChatAll("{green}[SM]{green}Witch {default}crowned {blue}%N{default}.", victim);
+	CPrintToChatAll("{default}[{olive}TS{default}] {green}Witch {default}crowned {blue}%N{default}.", victim);
+	CPrintToChatAll("{default}[{olive}TS{default}] {red}Witch{default} had{green} %d{default} health remaining.", health);
 	/*
 	for (new i = 1; i <= MaxClients; i++)
 	{

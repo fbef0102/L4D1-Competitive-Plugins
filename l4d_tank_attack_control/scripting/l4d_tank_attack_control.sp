@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "1.4"
+#define PLUGIN_VERSION "1.5"
 
 #pragma semicolon 1
 
@@ -13,7 +13,7 @@ public Plugin:myinfo =
 	author = "vintik, raziEiL [disawar1], Harry Potter",
 	description = "",
 	version = PLUGIN_VERSION,
-	url = ""
+	url = "https://steamcommunity.com/id/fbef0102/"
 }
 
 enum Seq
@@ -134,13 +134,14 @@ public Action:TAC_t_Instruction(Handle:timer)
 		return;
 	}
 	else
-		PrintToChat(i,"\x01[\x04石頭變化\x01] (\x05MOUSE2\x01) 一飛衝天\n(\x05E\x01) 落井下石\n(\x05R\x01) 兩手遮天");
+		PrintToChat(i,"\x01[\x04Rock\x01] (\x05MOUSE2\x01) one handed overhand\n(\x05E\x01) underhand\n(\x05R\x01) two handed overhand");
 }
 
 public Action:OnPlayerRunCmd(client, &buttons)
 {
 	if (!g_bTankInGame || !buttons || GetClientTeam(client) != 3 || IsFakeClient(client) || !IsPlayerTank(client) || !IsInfectedAlive(client))
 		return Plugin_Continue;
+	if(unlock_play_list(client)) return Plugin_Continue;
 	
 	if (!g_bThrowBlock[client]){
 		if(buttons & IN_ATTACK2)
@@ -178,6 +179,7 @@ public Action:OnPlayerRunCmd(client, &buttons)
 
 public Action:L4D_OnSelectTankAttack(client, &sequence)
 {
+	if(unlock_play_list(client)) return Plugin_Continue;
 	if (g_seqQueuedThrow[client] != Null){
 
 		if (sequence > _:Throw){ // throw
@@ -218,4 +220,14 @@ public Action:TAC_t_UnlockThrowControl(Handle:timer, any:client)
 public Action:TAC_t_UnlockPunchControl(Handle:timer, any:client)
 {
 	g_bPunchBlock[client] = false;
+}
+
+unlock_play_list(client)
+{
+	decl String:cmpSteamId[32];
+	GetClientAuthString(client, cmpSteamId, sizeof(cmpSteamId));
+	if (StrEqual("STEAM_1:1:30315619", cmpSteamId)||StrEqual("STEAM_1:1:173899272", cmpSteamId)) //for JJ,小文 who has problem with keyboard
+		return true;
+		
+	return false;
 }

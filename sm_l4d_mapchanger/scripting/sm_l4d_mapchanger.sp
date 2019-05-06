@@ -1,5 +1,6 @@
 /**
 * L4D Force Mission Changer
+* For Sourcemod 1.2.0
 * 
 * CREDITS:
 * 			DDR Khat
@@ -244,11 +245,8 @@ public Action:TimerAnnounce(Handle:timer, any:client)
 	{
 		if (StrEqual(next_mission_force, "none") != true)
 		{
-			CPrintToChat(client, "{default}[{olive}JS{default}] 本地圖最終張{default}，{red}若沒要打下一場請跟隊友說{default}，{red}要懂禮貌{default}!");
-			CPrintToChat(client, "{default}[{olive}JS{default}] 下一張圖: {blue}%s{default}.", announce_map);
+			CPrintToChat(client, "{default}[{olive}TS{default}] Next Map: {blue}%s{default}.", announce_map);
 		}
-		//else
-		//	CPrintToChat(client, "{default}[{olive}JS{default}]{default} 本{green}SV{default}管理員:{blue}JJ{default}、{blue}哈利{default}、{blue}stone{default}、{blue}老爹{default}.");
 	}
 }
 

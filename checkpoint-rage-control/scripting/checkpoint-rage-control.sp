@@ -111,7 +111,7 @@ public Action:On_t_Instruction(Handle:timer)
 {
 	if (IsPatched())
 	{
-		PrintToChatAll("\x05倖存者 \x01處於安全區域, \x04Tank\x01 依然掉控制權!!!");
+		PrintToChatAll("\x05Survivors \x01are in saferoom, \x04Tank\x01 still loses rage!!!");
 	}
 }
 
