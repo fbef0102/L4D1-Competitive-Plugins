@@ -153,7 +153,7 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 			GetClientName(iTank, sName, 32);
 			if(g_bIsTankAlive&& IsClientAndInGame(iTank)&& GetClientTeam(iTank) == 3 && IsPlayerTank(iTank) ) 
 			{
-				CPrintToChatAll("{default}[{olive}TS{default}] Tank {default}({red}%s{default}) had {red}%d {default}health remaining", IsFakeClient(iTank) ? "AI" : sName, g_iLastTankHealth);
+				CPrintToChatAll("{green}[TS] Tank {default}({red}%s{default}) had {red}%d {default}health remaining", IsFakeClient(iTank) ? "AI" : sName, g_iLastTankHealth);
 				g_bIsTankAlive = false;
 			}
 		}
@@ -163,7 +163,7 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 
 		if (g_iTotalDamage[i][TANK]){
 			if( g_bIsTankAlive&& IsClientAndInGame(i)&& GetClientTeam(i) == 3 && IsPlayerTank(i) ){
-				CPrintToChatAll("{default}[{olive}TS{default}] Tank{default} had {red}%d {default}health remaining",  g_iLastTankHealth);
+				CPrintToChatAll("{green}[TS] Tank had {red}%d {default}health remaining",  g_iLastTankHealth);
 				
 				PrintDamage(i, true, false,0);
 				//g_bIsTankAlive = false;
@@ -173,7 +173,7 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 
 			if (g_bCvarRunAway && g_iWitchRef[i] != INVALID_ENT_REFERENCE && EntRefToEntIndex(g_iWitchRef[i]) == INVALID_ENT_REFERENCE) continue;
 
-			//CPrintToChatAll("{default}[{olive}TS{default}] {red}Witch{default} had {red}%d {default}health remaining", g_iCvarHealth[WITCH] - g_iTotalDamage[i][WITCH]);
+			//CPrintToChatAll("{green}[TS] Witch had {red}%d {default}health remaining", g_iCvarHealth[WITCH] - g_iTotalDamage[i][WITCH]);
 			PrintDamage(i, false, false,5);
 		}
 	}
@@ -358,8 +358,8 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 	decl client;
 	if (!bTempBlock && g_bTankInGame && g_iCvarFlags & (1 << _:TANK) && IsPlayerTank((client = GetEventInt(event, "entindex_killed"))))
 	{
+		/*
 		g_bTankInGame = false;
-
 		if (g_iTotalDamage[client][TANK])
 		{
 			if(g_bIsTankAlive){
@@ -375,17 +375,18 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 			g_bIsTankAlive = false;
 			g_TankOtherDamage = 0;
 		}
-		//CreateTimer(1.5, PD_t_FindAnyTank, client, TIMER_FLAG_NO_MAPCHANGE);
+		*/
+		CreateTimer(0.5, PD_t_FindAnyTank, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
-/*
+
 public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 {
 	#if debug
 		LogMessage("entity killed %d fired!", client);
 	#endif
 
-	if (!IsTankInGame()){
+	if (!IsTankInGame()&&IsClientInGame(client)){
 
 		g_bTankInGame = false;
 
@@ -410,7 +411,7 @@ public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 		LogMessage("tank in game");
 	#endif
 }
-*/
+
 IsTankInGame(exclude = 0)
 {
 	for (new i = 1; i <= MaxClients; i++)
@@ -478,8 +479,8 @@ public Action:CheckForAITank(Handle:timer,any:client)//passing to AI
 			{
 				g_bTankInGame = false;
 					
-				CPrintToChatAll("{default}[{olive}TS{default}] {green}Tank{default} ({red}%N{default}) got lost and lost control.", client);
-				CPrintToChatAll("{default}[{olive}TS{default}] {default}He had {red}%d {default}health remaining", g_iLastTankHealth);
+				CPrintToChatAll("{green}[TS] Tank ({red}%N{default}) got lost and lost control.", client);
+				CPrintToChatAll("{green}[TS] {default}He had {red}%d {default}health remaining", g_iLastTankHealth);
 	
 				if (g_iTotalDamage[client][TANK])//人類沒有造成任何傷害就不印
 					PrintDamage(client, true, false);
