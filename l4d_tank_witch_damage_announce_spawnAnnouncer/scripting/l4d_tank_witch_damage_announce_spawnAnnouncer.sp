@@ -358,7 +358,7 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 	decl client;
 	if (!bTempBlock && g_bTankInGame && g_iCvarFlags & (1 << _:TANK) && IsPlayerTank((client = GetEventInt(event, "entindex_killed"))))
 	{
-		/*
+		
 		g_bTankInGame = false;
 		if (g_iTotalDamage[client][TANK])
 		{
@@ -375,11 +375,11 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 			g_bIsTankAlive = false;
 			g_TankOtherDamage = 0;
 		}
-		*/
-		CreateTimer(0.5, PD_t_FindAnyTank, client, TIMER_FLAG_NO_MAPCHANGE);
+		
+		//CreateTimer(0.5, PD_t_FindAnyTank, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
-
+/*
 public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 {
 	#if debug
@@ -398,9 +398,9 @@ public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 				g_TankOtherDamage = 0;
 			}
 		}
-		else //else if (!g_bCvar1v1Mode)// wtf?
+		else
 		{
-			PrintToChatAll("\x01[\x05TS\x01] Tank \x01自爆了(也許卡住了).");
+			//PrintToChatAll("\x01[\x05TS\x01] Tank \x01自爆了(也許卡住了).");
 			//PrintDamage(client, true);
 			g_bIsTankAlive = false;
 			g_TankOtherDamage = 0;
@@ -411,7 +411,7 @@ public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 		LogMessage("tank in game");
 	#endif
 }
-
+*/
 IsTankInGame(exclude = 0)
 {
 	for (new i = 1; i <= MaxClients; i++)
