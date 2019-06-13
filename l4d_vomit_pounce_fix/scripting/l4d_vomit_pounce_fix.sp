@@ -24,10 +24,11 @@ Change Log:
 
 1.1 (13-6-2019)
     - fix error
-	- smoker too
+	- Fix player whom smoker fully drags back will not be biled by a boomer
 
 1.0 (13-6-2019)
     - Initial release.
+    - Fix player whom hunter pounces on will not be biled by a boomer
 
 // ====================================================================================================
 */
