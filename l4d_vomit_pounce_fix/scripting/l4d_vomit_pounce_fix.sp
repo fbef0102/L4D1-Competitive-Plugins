@@ -5,7 +5,7 @@
 #define CVAR_FLAGS FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_NOTIFY
 
 new Handle:hVomit_Range;
-new Float:gVomit_Range;
+new gVomit_Range;
 new Handle:hVomit_Duration;
 new Float:gVomit_Duration;
 new Handle:VomitTimer[MAXPLAYERS+1];
@@ -15,14 +15,30 @@ new propinfoghost = -1;
 #define S_OnVomitedUpon              "CTerrorPlayer_OnVomitedUpon"
 new Handle:g_hGameConf = INVALID_HANDLE;
 new Handle:sdkVomitSurvivor = INVALID_HANDLE;
-//static bool:IsPlayerBiled[MAXPLAYERS+1];
+static const FullyPullSurvivorSequences[] = {31};
+
+
+/*
+// ====================================================================================================
+Change Log:
+
+1.1 (13-6-2019)
+    - fix error
+	- smoker too
+
+1.0 (13-6-2019)
+    - Initial release.
+
+// ====================================================================================================
+*/
+
 
 public Plugin:myinfo =
 {
 	name = "[L4D] Vomit Pounce Fix",
 	author = "Harry Potter",
 	description = "Fixed that player whom hunter pounces on will not be biled by a boomer",
-	version = "1.0",
+	version = "1.1",
 	url = "https://steamcommunity.com/id/fbef0102/"
 }
 
@@ -33,7 +49,7 @@ public OnPluginStart()
 	hVomit_Duration = FindConVar("z_vomit_duration");
 	hVomit_Range = FindConVar("z_vomit_range");
 	gVomit_Duration = GetConVarFloat(hVomit_Duration);
-	gVomit_Range = GetConVarFloat(hVomit_Range);
+	gVomit_Range = GetConVarInt(hVomit_Range);
 	HookEvent("ability_use", Vomit_Event);
 	HookConVarChange(hVomit_Range, Vomit_RangeChanged);
 	HookConVarChange(hVomit_Duration, Vomit_DurationChanged);
@@ -68,7 +84,7 @@ LoadPluginSignatures()
 	
 public Vomit_RangeChanged(Handle:convar, const String:oldValue[], const String:newValue[])
 	{
-		gVomit_Range = GetConVarFloat(hVomit_Range);
+		gVomit_Range = GetConVarInt(hVomit_Range);
 	}			
 
 public Vomit_DurationChanged(Handle:convar, const String:oldValue[], const String:newValue[])
@@ -93,7 +109,7 @@ public Vomit_Event(Handle:event, const String:name[], bool:dontBroadcast)
 	GetClientModel(client, model, sizeof(model));
 	if (StrContains(model, "boomer", false)!=-1)
 	{
-		VomitTimer[client] = CreateTimer(0.1, VomitTimerFunction, any:client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
+		VomitTimer[client] = CreateTimer(0.1, VomitTimerFunction, client, TIMER_FLAG_NO_MAPCHANGE|TIMER_REPEAT);
 		CreateTimer(gVomit_Duration,KillingVomitTimer, client,TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
@@ -109,38 +125,37 @@ public Action:VomitTimerFunction(Handle:timer, any:client)
 	if (target == -1 || target == -2) return Plugin_Continue; //無目標
 	if (!IsValidClient(target)) return Plugin_Continue; //目標物非玩家
 	
-	if (IsSurvivorGetPounce(target))//人類被抓
+	
+	new Float:boomer_position[3];
+	new Float:target_position[3];
+	GetClientAbsOrigin(client,boomer_position);
+	GetClientAbsOrigin(target,target_position);
+	new distance = RoundToNearest(GetVectorDistance(boomer_position, target_position));
+	if (IsSurvivorGetPounceGetPull(target))//人類被hunter抓 被smoker拉
 	{
-		new Float:boomer_position[3];
-		new Float:target_position[3];
-		GetClientAbsOrigin(client,boomer_position);
-		GetClientAbsOrigin(target,target_position);
-		new distance = RoundToNearest(GetVectorDistance(boomer_position, target_position));
-		if (distance<gVomit_Range)
-		{
-			BoomerVomitPouncePayerFix(target);
-		}
+		if (distance<=gVomit_Range)
+			BoomerVomit(target);
 	}
-	new survivorclient = PlayerHunterAndPouncingSurvivor(target);
+	new survivorclient = PlayerHunterAndPouncingSurvivor(target); //hunter撲倒玩家
 	if (survivorclient!=-1)
 	{
-		new Float:boomer_position[3];
-		new Float:target_position[3];
-		GetClientAbsOrigin(client,boomer_position);
-		GetClientAbsOrigin(target,target_position);
-		new distance = RoundToNearest(GetVectorDistance(boomer_position, target_position));
-		if (distance<gVomit_Range)
-		{
-			BoomerVomitPouncePayerFix(survivorclient);
-		}
+		if (distance<=gVomit_Range)
+			BoomerVomit(survivorclient);
 	}
+	
+	survivorclient = PlayerSmokerAndFullyPullSurvivor(target); //smoker拉到玩家
+	if (survivorclient!=-1)
+	{
+		if(IsPlayingFullyPulledAnimation(target) && distance<=gVomit_Range)//smoker完全地拉到玩家
+			BoomerVomit(survivorclient);
+	}
+	
 	return Plugin_Continue;
 }
 
-public BoomerVomitPouncePayerFix(client)
+public BoomerVomit(client)
 {
 	 SDKCall(sdkVomitSurvivor, client, client, true);
-	 CreateTimer(20.0,KillingVomitTimer, any:client,TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action:KillingVomitTimer(Handle:timer, any:client)
@@ -152,12 +167,12 @@ public Action:KillingVomitTimer(Handle:timer, any:client)
 		}
 }
 
-stock bool:IsSurvivorGetPounce(client)
+stock bool:IsSurvivorGetPounceGetPull(client)
 {
 	if(GetClientTeam(client)!=2) return false; //不是人類
 	if(!IsPlayerAlive(client)) return false; //死掉
 	
-	return GetEntProp(client, Prop_Send, "m_pounceAttacker") > 0;//被撲到
+	return GetEntProp(client, Prop_Send, "m_tongueOwner") > 0 || GetEntProp(client, Prop_Send, "m_pounceAttacker") > 0;//被撲到或被拉到
 }
 
 PlayerHunterAndPouncingSurvivor(client)
@@ -167,11 +182,25 @@ PlayerHunterAndPouncingSurvivor(client)
 	if(GetZombieClass(client) != 3) return -1; //不是Hunter
 	if(IsGhost(client)) return -1; //鬼魂
 	
-	new hasvictim = GetEntPropEnt(client, Prop_Send, "m_pounceVictim");
+	new hasvictim = GetEntPropEnt(client, Prop_Send, "m_pounceVictim");//hunter 
 	if(IsValidClient(hasvictim) && GetClientTeam(hasvictim)==2 && IsPlayerAlive(hasvictim))
 		return hasvictim;
-	else 
-		return -1;
+		
+	return -1;
+}
+
+PlayerSmokerAndFullyPullSurvivor(client)
+{
+	if(GetClientTeam(client)!=3) return -1; //不是特感
+	if(!IsPlayerAlive(client)) return -1; //死掉
+	if(GetZombieClass(client) != 1) return -1; //不是smoker
+	if(IsGhost(client)) return -1; //鬼魂
+	
+	new hasvictim = GetEntPropEnt(client, Prop_Send, "m_tongueVictim");//hunter 
+	if(IsValidClient(hasvictim) && GetClientTeam(hasvictim)==2 && IsPlayerAlive(hasvictim))
+		return hasvictim;
+		
+	return -1;
 }
 
 bool:IsGhost(client)
@@ -205,3 +234,17 @@ stock bool:IsValidClient(client)
 }
 
 stock GetZombieClass(client) return GetEntProp(client, Prop_Send, "m_zombieClass");
+
+bool:IsPlayingFullyPulledAnimation(smoker)  
+{
+	new sequence = GetEntProp(smoker, Prop_Send, "m_nSequence");
+	
+	//PrintToChatAll("\x04%N\x01 playing sequence \x04%d\x01", smoker, sequence);
+	
+	for (new i = 0; i < sizeof(FullyPullSurvivorSequences); i++)
+	{
+		if (FullyPullSurvivorSequences[i] == sequence) return true;
+	}
+		
+	return false;
+}
