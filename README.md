@@ -90,6 +90,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_teamshuffle</b>: Allows teamshuffles by voting or admin-forced.
 * <b>l4d_Modo_mix_mm</b>: Left 4 Dead Mix
 * <b>l4d_tankswap</b>: Allows a primary Tank Player to surrender control to one of his teammates
+* <b>l4d_vomit_pounce_fix</b>: Fixed that player whom hunter pounces on will not be biled by a boomer
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
