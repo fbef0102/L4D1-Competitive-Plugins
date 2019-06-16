@@ -131,27 +131,87 @@ public Action:VomitTimerFunction(Handle:timer, any:client)
 	new Float:target_position[3];
 	GetClientAbsOrigin(client,boomer_position);
 	GetClientAbsOrigin(target,target_position);
-	new distance = RoundToNearest(GetVectorDistance(boomer_position, target_position));
+	new Float:temp1 = boomer_position[2];new Float:temp2 = target_position[2];
+	boomer_position[2] = target_position [2] = 0.0;
+	new distance = RoundToNearest(GetVectorDistance(boomer_position, target_position));//水平直線距離
+	boomer_position[2] = temp1;target_position[2] = temp2;
+	new bool:distanceallowedrange = CalculationDistanceAllowedRange(boomer_position[2],target_position[2],distance);//經過計算後的允許距離
+	//PrintToChatAll("%N,官方範圍:%d,水平直線距離:%d",target, gVomit_Range,distance);
 	if (IsSurvivorGetPounceGetPull(target))//人類被hunter抓 被smoker拉
 	{
-		if (distance<=gVomit_Range)
+		if (distanceallowedrange)
 			BoomerVomit(target);
 	}
 	new survivorclient = PlayerHunterAndPouncingSurvivor(target); //hunter撲倒玩家
 	if (survivorclient!=-1)
 	{
-		if (distance<=gVomit_Range)
+		if (distanceallowedrange)
 			BoomerVomit(survivorclient);
 	}
 	
-	survivorclient = PlayerSmokerAndFullyPullSurvivor(target); //smoker拉到玩家
+	survivorclient = PlayerSmokerAndPullSurvivor(target); //smoker拉到玩家
 	if (survivorclient!=-1)
 	{
-		if(IsPlayingFullyPulledAnimation(target) && distance<=gVomit_Range)//smoker完全地拉到玩家
+		if(distanceallowedrange&&IsPlayingFullyPulledAnimation(target))//smoker完全地拉到玩家
 			BoomerVomit(survivorclient);
 	}
 	
 	return Plugin_Continue;
+}
+
+stock bool:CalculationDistanceAllowedRange(Float:boomer_height,Float:target_height,verticaldistance)
+{
+	new heightdifference;
+	if(boomer_height>=target_height)
+	{
+		heightdifference = RoundToNearest(boomer_height - target_height);
+		//PrintToChatAll("boomer_height:%f,target_height:%f,高位差:%d", boomer_height,target_height,heightdifference);
+		
+		if(50>=heightdifference && verticaldistance<=gVomit_Range+150)
+			return true;
+		if(200>=heightdifference&&heightdifference>50 && verticaldistance<=gVomit_Range+180)
+			return true;		
+		if(250>=heightdifference&&heightdifference>200 && verticaldistance<=gVomit_Range+160)
+			return true;	
+		if(400>=heightdifference&&heightdifference>250 && verticaldistance<=gVomit_Range+150)
+			return true;	
+		if(550>=heightdifference&&heightdifference>400 && verticaldistance<=gVomit_Range+100)
+			return true;
+		if(600>=heightdifference&&heightdifference>550 && verticaldistance<=gVomit_Range+50)
+			return true;		
+		if(650>=heightdifference&&heightdifference>600 && verticaldistance<=gVomit_Range)
+			return true;	
+		if(680>=heightdifference&&heightdifference>650 && verticaldistance<=gVomit_Range-50)
+			return true;
+		if(700>=heightdifference&&heightdifference>680&& verticaldistance<=gVomit_Range-125)
+			return true;	
+		if(740>=heightdifference&&heightdifference>700 && verticaldistance<=gVomit_Range-150)
+			return true;
+			
+		if(heightdifference>740)
+			return false;	
+	}
+	else
+	{
+		heightdifference = RoundToNearest(target_height - boomer_height);
+		//PrintToChatAll("高位差:%d,boomer_height:%f,target_height:%f",heightdifference, boomer_height,target_height);
+		
+		if(50>=heightdifference && verticaldistance<=gVomit_Range+150)
+			return true;
+		if(200>=heightdifference&&heightdifference>50 && verticaldistance<=gVomit_Range)
+			return true;
+		if(300>=heightdifference&&heightdifference>200 && verticaldistance<=gVomit_Range-50)
+			return true;
+		if(350>=heightdifference&&heightdifference>300 && verticaldistance<=gVomit_Range-100)
+			return true;
+		if(380>=heightdifference&&heightdifference>350 && verticaldistance<=gVomit_Range-150)
+			return true;
+			
+		if(heightdifference>380)
+			return false;
+	}
+	
+	return false;
 }
 
 public BoomerVomit(client)
@@ -190,14 +250,14 @@ PlayerHunterAndPouncingSurvivor(client)
 	return -1;
 }
 
-PlayerSmokerAndFullyPullSurvivor(client)
+PlayerSmokerAndPullSurvivor(client)
 {
 	if(GetClientTeam(client)!=3) return -1; //不是特感
 	if(!IsPlayerAlive(client)) return -1; //死掉
 	if(GetZombieClass(client) != 1) return -1; //不是smoker
 	if(IsGhost(client)) return -1; //鬼魂
 	
-	new hasvictim = GetEntPropEnt(client, Prop_Send, "m_tongueVictim");//hunter 
+	new hasvictim = GetEntPropEnt(client, Prop_Send, "m_tongueVictim");//smoker
 	if(IsValidClient(hasvictim) && GetClientTeam(hasvictim)==2 && IsPlayerAlive(hasvictim))
 		return hasvictim;
 		
