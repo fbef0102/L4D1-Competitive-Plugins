@@ -7,6 +7,7 @@ static 		Handle:g_hEnableNoFinalFirstTank, bool:g_bEnableNoFinalFirstTank;
 
 static bool:resuce_start,bool:HasBlockFirstTank,bool:timercheck;
 static bool:g_bFixed,bool:Tank_firstround_spawn,Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
+static g_EnableNoFinalFirstTank_original;
 
 public Plugin:myinfo = 
 {
@@ -25,6 +26,7 @@ public OnPluginStart()
 	HookEvent("tank_spawn", PD_ev_TankSpawn, EventHookMode_PostNoCopy);
 	
 	g_bEnableNoFinalFirstTank = GetConVarBool(g_hEnableNoFinalFirstTank);
+	g_EnableNoFinalFirstTank_original = GetConVarInt(g_hEnableNoFinalFirstTank);
 	HookConVarChange(g_hEnableNoFinalFirstTank, Enable_CvarChange);
 	
 }
@@ -38,7 +40,14 @@ public OnMapStart()
 
 public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if(IsTankProhibit()) return;
+	if(IsTankProhibit()) 
+	{
+		SetConVarInt(g_hEnableNoFinalFirstTank, 0);
+		g_bEnableNoFinalFirstTank = GetConVarBool(g_hEnableNoFinalFirstTank);
+	}
+	else
+		SetConVarInt(g_hEnableNoFinalFirstTank, g_EnableNoFinalFirstTank_original);
+
 	if(!g_bEnableNoFinalFirstTank)  return;
 	
 	resuce_start = true;
@@ -47,7 +56,7 @@ public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBro
 
 public Action:On_t_Instruction(Handle:timer)
 {
-	PrintToChatAll("\x04Only One Tank \x01after \x05Final Rescue"); 
+	PrintToChatAll("\x05救援開始 \x01後只有 \x04一隻Tank!"); 
 }
 
 public Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
