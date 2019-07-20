@@ -268,9 +268,9 @@ public Action:PD_ev_PlayerHurt(Handle:event, const String:name[], bool:dontBroad
 	if (IsClientAndInGame(victim) && IsClientAndInGame(attacker) && GetClientTeam(attacker) == 2  && GetClientTeam(victim) == 3){
 
 		if (!IsPlayerTank(victim) || g_iTotalDamage[victim][TANK] == g_iCvarHealth[TANK]) return;
-
-		if (g_iLastKnownTank)
-			CloneStats(victim);
+		
+		g_iLastKnownTank = victim;
+		CloneStats(victim);
 			
 		new iDamage = GetEventInt(event, "dmg_health");
 		
@@ -358,60 +358,34 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 	decl client;
 	if (!bTempBlock && g_bTankInGame && g_iCvarFlags & (1 << _:TANK) && IsPlayerTank((client = GetEventInt(event, "entindex_killed"))))
 	{
-		
-		g_bTankInGame = false;
 		if (g_iTotalDamage[client][TANK])
 		{
 			if(g_bIsTankAlive){
 				PrintDamage(client, true);
 				g_bIsTankAlive = false;
 				g_TankOtherDamage = 0;
+				g_bTankInGame = false;
 			}
 		}
 		else //
 		{
-			//PrintToChatAll("\x01[\x05TS\x01] Tank \x01自爆了(也許卡住了).");
+			//PrintToChatAll("\x04[提示] Tank \x01自爆了(也許卡住了).");
 			//PrintDamage(client, true);
-			g_bIsTankAlive = false;
-			g_TankOtherDamage = 0;
+			CreateTimer(0.5, PD_t_FindAnyTank, _, TIMER_FLAG_NO_MAPCHANGE);
 		}
-		
-		//CreateTimer(0.5, PD_t_FindAnyTank, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
-/*
+
 public Action:PD_t_FindAnyTank(Handle:timer, any:client)
 {
-	#if debug
-		LogMessage("entity killed %d fired!", client);
-	#endif
-
-	if (!IsTankInGame()&&IsClientInGame(client)){
-
+	if(!IsTankInGame())
+	{
+		g_bIsTankAlive = false;
+		g_TankOtherDamage = 0;
 		g_bTankInGame = false;
-
-		if (g_iTotalDamage[client][TANK])
-		{
-			if(g_bIsTankAlive){
-				PrintDamage(client, true);
-				g_bIsTankAlive = false;
-				g_TankOtherDamage = 0;
-			}
-		}
-		else
-		{
-			//PrintToChatAll("\x01[\x05TS\x01] Tank \x01自爆了(也許卡住了).");
-			//PrintDamage(client, true);
-			g_bIsTankAlive = false;
-			g_TankOtherDamage = 0;
-		}
 	}
-	#if debug
-	else
-		LogMessage("tank in game");
-	#endif
 }
-*/
+
 IsTankInGame(exclude = 0)
 {
 	for (new i = 1; i <= MaxClients; i++)
