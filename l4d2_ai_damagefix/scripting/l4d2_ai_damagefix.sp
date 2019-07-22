@@ -10,6 +10,7 @@
 #define ZC_SMOKER               1
 #define ZC_BOOMER               2
 #define ZC_HUNTER               3
+#define ZC_TANK   				5
 
 #define POUNCE_TIMER            0.1
 
@@ -53,17 +54,20 @@ new CvarHunterStaggerDamageDisable;
     -----------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #define MAX_STAGGER_DURATION 2.5
+#define GAMEDATA_FILE "staggersolver"
 new Handle:g_hGameMode;
 new String:CvarGameMode[20];
 static			bool:	g_bProhibitMelee[MAXPLAYERS+1]			= {false};
 static			Handle:	g_hProhibitMelee_Timer[MAXPLAYERS+1]	= {INVALID_HANDLE};
+new Handle:g_hGameConf;
+new Handle:g_hIsStaggering;
 
 public Plugin:myinfo =
 {
     name = "Bot SI skeet damage fix",
     author = "Tabun,L4D1 modify by Harry",
     description = "Makes AI SI take (and do) damage like human SI.",
-    version = "1.3",
+    version = "1.4",
     url = "nope"
 }
 
@@ -95,11 +99,26 @@ public OnPluginStart()
         }
     }
 	
-	CvarHunterStaggerDamageDisable = GetConVarInt(hCvarHunterStaggerDamageDisable);
-	HookConVarChange(hCvarHunterStaggerDamageDisable, ConVarChange_hHunterStaggerDamageDisable);
+    CvarHunterStaggerDamageDisable = GetConVarInt(hCvarHunterStaggerDamageDisable);
+    HookConVarChange(hCvarHunterStaggerDamageDisable, ConVarChange_hHunterStaggerDamageDisable);
 	
-	g_hGameMode = FindConVar("mp_gamemode");
-	GetConVarString(g_hGameMode,CvarGameMode,sizeof(CvarGameMode));
+    g_hGameMode = FindConVar("mp_gamemode");
+    GetConVarString(g_hGameMode,CvarGameMode,sizeof(CvarGameMode));
+	
+    g_hGameConf = LoadGameConfigFile(GAMEDATA_FILE);
+    if (g_hGameConf == INVALID_HANDLE)
+        SetFailState("[Stagger Solver] Could not load game config file.");
+
+    StartPrepSDKCall(SDKCall_Player);
+
+    if (!PrepSDKCall_SetFromConf(g_hGameConf, SDKConf_Signature, "IsStaggering"))
+        SetFailState("[Stagger Solver] Could not find signature IsStaggering.");
+    PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+    g_hIsStaggering = EndPrepSDKCall();
+    if (g_hIsStaggering == INVALID_HANDLE)
+        SetFailState("[Stagger Solver] Failed to load signature IsStaggering");
+
+    CloseHandle(g_hGameConf);
 }
 
 public OnClientPostAdminCheck(client)
@@ -116,14 +135,12 @@ public OnClientDisconnect(client)
 public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damagetype)
 {
     if (!IsClientAndInGame(victim) || !IsClientAndInGame(attacker) || damage == 0.0) { return Plugin_Continue; }
-    
+	
     // AI taking damage
     if (GetClientTeam(victim) == TEAM_INFECTED && IsFakeClient(victim))
     {
         // check if AI is hit while in lunge/charge
-        
         new zombieClass = GetEntProp(victim, Prop_Send, "m_zombieClass");
-        
         switch (zombieClass) {
             
             case ZC_HUNTER: {
@@ -146,30 +163,31 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
             
         }
     }
-    
+
     // AI doing damage
-    if (CvarHunterStaggerDamageDisable == 1 && GetClientTeam(attacker) == TEAM_INFECTED && IsFakeClient(attacker))
+    new attackerzombieClass = GetEntProp(attacker, Prop_Send, "m_zombieClass");
+    if (CvarHunterStaggerDamageDisable == 1 && GetClientTeam(attacker) == TEAM_INFECTED && IsFakeClient(attacker) && attackerzombieClass!= ZC_TANK)
     {
-		if(StrEqual(CvarGameMode,"coop")||StrEqual(CvarGameMode,"survival"))//coop no damage fix
-		{
-			if(IsInfectedBussy(attacker))
-				return Plugin_Continue;
+        if(StrEqual(CvarGameMode,"coop")||StrEqual(CvarGameMode,"survival"))//coop no damage fix
+        {
+            if(IsInfectedBussy(attacker))
+                return Plugin_Continue;
 				
-			if(IsInfectedBashed(attacker))
-			{
-				damage = 0.0;
-				return Plugin_Changed;
-			}
-		}
-		else if(StrEqual(CvarGameMode,"versus"))
-		{
-			// check if AI is stumbling, set to 0.0
-			if (GetEntPropFloat(attacker, Prop_Send, "m_staggerDist") > 0.0)
-			{
-				damage = 0.0;
-				return Plugin_Changed;
-			}
-		}
+            if(IsInfectedBashed(attacker))
+            {
+                damage = 0.0;
+                return Plugin_Changed;
+            }
+        }
+        else if(StrEqual(CvarGameMode,"versus"))
+        {
+            // check if AI is stumbling, set to 0.0
+            if( SDKCall(g_hIsStaggering, attacker) )
+            {
+                damage = 0.0;
+                return Plugin_Changed;
+            }
+        }
     }
     
     return Plugin_Continue;
@@ -182,7 +200,7 @@ public Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
     {
         iHunterSkeetDamage[i] = 0;
         bIsPouncing[i] = false;
-		g_bProhibitMelee[i] = false;
+        g_bProhibitMelee[i] = false;
     }
 }
 
@@ -193,7 +211,7 @@ public Event_PlayerDeath(Handle:event, const String:name[], bool:dontBroadcast)
     if (!IsClientAndInGame(victim)|| !IsFakeClient(victim)) { return; }
     
     bIsPouncing[victim] = false;
-	g_bProhibitMelee[victim] = false;
+    g_bProhibitMelee[victim] = false;
 }
 
 public Event_PlayerShoved(Handle:event, const String:name[], bool:dontBroadcast)
@@ -204,15 +222,15 @@ public Event_PlayerShoved(Handle:event, const String:name[], bool:dontBroadcast)
     
     bIsPouncing[victim] = false;
 	
-	if(!g_bProhibitMelee[victim])
+    if(!g_bProhibitMelee[victim])
 	{
-		g_bProhibitMelee[victim] = true;
-	}
-	else
-	{
-		KillTimer(g_hProhibitMelee_Timer[victim]);
-	}
-	g_hProhibitMelee_Timer[victim] = CreateTimer(MAX_STAGGER_DURATION, PlayerShoved_Timer, victim);
+        g_bProhibitMelee[victim] = true;
+    }
+    else
+    {
+        KillTimer(g_hProhibitMelee_Timer[victim]);
+    }
+    g_hProhibitMelee_Timer[victim] = CreateTimer(MAX_STAGGER_DURATION, PlayerShoved_Timer, victim);
 }
 public Action:PlayerShoved_Timer(Handle:timer, any:client)
 {
