@@ -57,7 +57,7 @@ Control survivors godframes + Allows for customisation of hittable damage values
 "gfc_ff_min_time", "0.8",
 	"Additional godframe time before FF damage is allowed."
 					
-"gfc_common_extra_time", "0.6",
+"gfc_common_extra_time", "1.8",
 	"Additional godframe time before common damage is allowed."
 
 "gfc_hunter_duration", "1.8",
@@ -69,8 +69,8 @@ Control survivors godframes + Allows for customisation of hittable damage values
 "gfc_revive_duration", "0.0",
 	"How long should godframes after received from incap(not from ledge)?"
 
-"gfc_common_zc_flags", "3",
+"gfc_common_zc_flags", "2",
 	"Which classes will be affected by extra common protection time. 1 - Hunter. 2 - Smoker. 4 - Receive."
                   
-"gfc_FF_zc_flags", "3",
+"gfc_FF_zc_flags", "2",
 	"Which classes will be affected by extra FF protection time. 1 - Hunter. 2 - Smoker. 4 - Receive."
