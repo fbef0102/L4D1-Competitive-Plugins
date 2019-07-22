@@ -865,7 +865,7 @@ public Action:Console_Ht(client, args)
 			SetConVarInt(FindConVar("l4d_infectedbots_hunter_limit"), newlimit);
 			if(MaxPlayerZombies < newlimit)
 				SetConVarInt(FindConVar("l4d_infectedbots_max_specials"), newlimit);
-			CPrintToChatAll("[{olive}TS{default}] Hunter Bot Limit has been changed to {green}%d",newlimit);	
+			CPrintToChatAll("[{olive}TS{default}] {blue}%N{default}: Hunter Bot Limit has been changed to {green}%d",client,newlimit);	
 		}
 		else
 		{
@@ -930,7 +930,7 @@ public Action:Console_Timer(client, args)
 				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), DD);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), DD);
-				CPrintToChatAll("[{olive}TS{default}] Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",DD,DD);	
+				CPrintToChatAll("[{olive}TS{default}] {blue}%N{default}: Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",client,DD,DD);	
 			}
 			return Plugin_Handled;
 		}
@@ -966,7 +966,7 @@ public Action:Console_Timer(client, args)
 				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), Max);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), Min);
-				CPrintToChatAll("[{olive}TS{default}] Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",Max,Min);	
+				CPrintToChatAll("[{olive}TS{default}] {blue}%N{default}: Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",client,Max,Min);		
 			}
 			return Plugin_Handled;
 		}
