@@ -63,6 +63,7 @@ new Handle: hBaggageStandingDamage		= INVALID_HANDLE;
 new Handle: hStandardIncapDamage		= INVALID_HANDLE;
 new Handle: hTankSelfDamage				= INVALID_HANDLE;
 new Handle: hOverHitInterval			= INVALID_HANDLE;
+native IsInReady();
 
 public Plugin:myinfo =
 {
@@ -144,12 +145,12 @@ public OnPluginStart()
 									"Allow witches to always ignore godframes.",
 									FCVAR_PLUGIN, true, 0.0, true, 1.0 );
 	
-	//zone:0.8
+
 	hFF = CreateConVar( 		"gfc_ff_min_time", "0.8",
 									"Additional godframe time before FF damage is allowed.",
 									FCVAR_PLUGIN, true, 0.0, true, 5.0 );
-	//zone:0.6 for hunter:1.8								
-	hCommon = CreateConVar( 	"gfc_common_extra_time", "0.6",
+								
+	hCommon = CreateConVar( 	"gfc_common_extra_time", "1.8",
 									"Additional godframe time before common damage is allowed.",
 									FCVAR_PLUGIN, true, 0.0, true, 3.0 );
 	//官方預設2秒
@@ -165,10 +166,10 @@ public OnPluginStart()
 									"How long should godframes after received from incap(not from ledge)?",
 									FCVAR_PLUGIN, true, 0.0, true, 3.0 );
 	//zone:charger+hunter only
-	hCommonFlags= CreateConVar( "gfc_common_zc_flags", "3",
+	hCommonFlags= CreateConVar( "gfc_common_zc_flags", "2",
 									"Which classes will be affected by extra common protection time. 1 - Hunter. 2 - Smoker. 4 - Receive.",
 									FCVAR_PLUGIN, true, 0.0, true, 7.0 );
-	hFFFlags= CreateConVar( "gfc_FF_zc_flags", "3",
+	hFFFlags= CreateConVar( "gfc_FF_zc_flags", "2",
 									"Which classes will be affected by extra FF protection time. 1 - Hunter. 2 - Smoker. 4 - Receive.",
 									FCVAR_PLUGIN, true, 0.0, true, 7.0 );								
 
@@ -218,6 +219,7 @@ public event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast) 
 {
+	if(IsInReady()) return Plugin_Continue;
 	
 	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
 	new player = GetClientOfUserId(GetEventInt(event, "player"));
@@ -244,6 +246,7 @@ public Action:OnBotSwap(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	if(IsInReady()) return;
 	
 	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被治療的那位
 	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
@@ -253,6 +256,7 @@ public Event_heal_success(Handle:event, const String:name[], bool:dontBroadcast)
 
 public Event_revive_success(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	if(IsInReady()) return;
 	
 	new subject = GetClientOfUserId(GetEventInt(event, "subject"));//被救的那位
 	if (subject<=0||!IsClientAndInGame(subject)) { return; } //just in case
@@ -419,6 +423,9 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 			bIgnoreOverkill[victim] = true;	//standardise them bitchin over-hits
 			CreateTimer(interval, Timed_ClearInvulnerability, victim);
 		}
+		
+		if(IsClientAndInGame(attacker) && GetClientTeam(attacker) == 3 && GetEntProp(attacker, Prop_Send, "m_zombieClass") == 5)
+			SetTankFrustration(attacker, 100);
 	}
 	new hardhealth = GetHardHealth(victim);
 	if(hardhealth>1) client_lastlife[victim] = false;
