@@ -3,7 +3,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>L4D1-competitive-framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) I provide L4D1 version
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I modify better version
 * <b>fun</b>: I write some new plugins which are just for fun
-> last edited:2019/7/22
+> last edited:2019/7/23
 # Require
 * Clean Servers:
   * [Sourcemod 1.8](https://www.sourcemod.net/downloads.php?branch=1.8-dev) (or newer), [Metamod](https://www.metamodsource.net/downloads.php?branch=stable)
@@ -91,6 +91,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_Modo_mix_mm</b>: Left 4 Dead Mix
 * <b>l4d_tankswap</b>: Allows a primary Tank Player to surrender control to one of his teammates
 * <b>l4d_vomit_pounce_fix</b>: Fixed that player whom hunter pounces on will not be biled by a boomer
+* <b>AntiBreach</b>: No spawn near safe room door.
 # Scripting Compiler
 using sourcemod 1.8 Compiler if you want to edit code and recomplie
 * <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
