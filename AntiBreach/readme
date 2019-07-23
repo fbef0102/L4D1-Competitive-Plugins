@@ -1,6 +1,11 @@
 Disallows special infected from breaching into safe room by preventing them from spawning nearby the safe room door.
-
 fix this idiot glitch: https://www.youtube.com/watch?v=-w1iWOx72LU&t=400s
-
 -command-
 "l4d2_anti_breach", "1","The cvar to enable the plugin. 0 = Disabled. Other values = Enabled."
+
+-version-
+v1.4
+optimize code by Harry Potter
+
+v1.3
+Original Code From Eyal282 ( FuckTheSchool ): https://forums.alliedmods.net/showthread.php?t=297508
