@@ -115,7 +115,7 @@ public Action:OnPlayerRunCmd(SInfected, &buttons, &impulse, Float:vel[3], Float:
 			
 			// Player has too much speed vs distance from door.
 			
-			if(Distance < Speed / 1.5) // Tested and the 1.5 division will not assist the use of the bug.
+			if(Distance < Speed / 1.5 && Distance < 100.0) // Tested and the 1.5 division will not assist the use of the bug.
 			{
 				if(!NoSpam[SInfected])
 				{
