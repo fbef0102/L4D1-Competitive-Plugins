@@ -12,7 +12,7 @@ new iTankClient = -1;
 new Handle:cvar_tankProps;
 new Handle:cvar_tankPropsGlow;
 new Handle:cvar_tankPropsGlowSpec;
-new Handle:cvar_tankPropsGlowinterval;
+//new Handle:cvar_tankPropsGlowinterval;
 new Handle:g_hCvarColor;
 
 new Handle:hTankProps       = INVALID_HANDLE;
@@ -24,7 +24,7 @@ new g_iCvarColor[3];
 public Plugin:myinfo = {
 name        = "L4D2 Tank Props,l4d1 modify by Harry",
 	author      = "Jahze & Harry Potter",
-	version     = "1.4",
+	version     = "1.5",
 	description = "Stop tank props from fading whilst the tank is alive + add Hittable Glow",
 	url = "https://steamcommunity.com/id/fbef0102/"
 };
@@ -33,7 +33,7 @@ public OnPluginStart() {
 	cvar_tankProps = CreateConVar("l4d_tank_props", "1", "Prevent tank props from fading whilst the tank is alive", FCVAR_PLUGIN);
 	cvar_tankPropsGlow = CreateConVar("l4d_tank_props_glow", "1", "Show Hittable Glow for inf team whilst the tank is alive", FCVAR_PLUGIN);
 	cvar_tankPropsGlowSpec = CreateConVar( "l4d2_tank_prop_glow_spectators", "1", "Spectators can see the glow too", FCVAR_PLUGIN);
-	cvar_tankPropsGlowinterval = CreateConVar( "l4d_tank_props_glow_Refresh_interval", "0.01", "Props Glow Refresh time interval",FCVAR_PLUGIN);
+	//cvar_tankPropsGlowinterval = CreateConVar( "l4d_tank_props_glow_Refresh_interval", "0.01", "Props Glow Refresh time interval",FCVAR_PLUGIN);
 	g_hCvarColor =	CreateConVar(	"l4d2_tank_prop_glow_color",		"255 0 0",			"Three values between 0-255 separated by spaces. RGB Color255 - Red Green Blue.", FCVAR_NOTIFY);
 	
 	HookConVarChange(cvar_tankProps, TankPropsChange);
@@ -259,9 +259,38 @@ CreateTankPropGlow(entity)
 	
 	//SetVariantString("!activator");
 	//AcceptEntityInput(i_Ent[entity], "SetParent", entity);
-
-	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlow, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	
+	//CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlow, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	
+	SDKHook(entity, SDKHook_VPhysicsUpdatePost, TankThink);
 }
+
+public TankThink(entity)
+{
+	if (!IsValidEntity(entity) || !tankSpawned)
+	{
+		if (IsValidEdict(i_Ent[entity]))
+		{
+			RemoveEdict(i_Ent[entity]);
+		}
+		SDKUnhook(entity, SDKHook_VPhysicsUpdatePost, TankThink);
+		return;
+	}
+	
+	if (IsValidEntity(entity))
+	{
+		if (IsValidEdict(i_Ent[entity]))
+		{
+			new Float:vPos[3];
+			new Float:vAng[3];
+			GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vPos);
+			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
+			TeleportEntity(i_Ent[entity], vPos, vAng, NULL_VECTOR);
+		}
+		
+	}
+}
+/*
 public Action:KeepTankPropsGlow(Handle:timer, any:entity)
 {
 	if (!IsValidEntity(entity) || !tankSpawned)
@@ -284,14 +313,11 @@ public Action:KeepTankPropsGlow(Handle:timer, any:entity)
 			TeleportEntity(i_Ent[entity], vPos, vAng, NULL_VECTOR);
 		}
 		
-	}else
-	{
-		return Plugin_Stop;
 	}
 	
 	return Plugin_Continue;
 }
-
+*/
 CreateTankPropGlowSpectator(entity)
 {
 	decl String:sModelName[64];
@@ -327,9 +353,35 @@ CreateTankPropGlowSpectator(entity)
 	//SetVariantString("!activator");
 	//AcceptEntityInput(i_EntSpec[entity], "SetParent", entity);
 	
-	CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlowSpectator, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	//CreateTimer(GetConVarFloat(cvar_tankPropsGlowinterval), KeepTankPropsGlowSpectator, entity, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	SDKHook(entity, SDKHook_VPhysicsUpdatePost, SpecTankThink);
 }
 
+public SpecTankThink(entity)
+{
+	if (!IsValidEntity(entity) || !tankSpawned)
+	{
+		if (IsValidEdict(i_EntSpec[entity]))
+		{
+			RemoveEdict(i_EntSpec[entity]);
+		}
+		SDKUnhook(entity, SDKHook_VPhysicsUpdatePost, SpecTankThink);
+		return;
+	}
+	
+	if (IsValidEntity(entity))
+	{
+		if (IsValidEdict(i_EntSpec[entity]))
+		{
+			new Float:vPos[3];
+			new Float:vAng[3];
+			GetEntPropVector(entity, Prop_Data, "m_vecOrigin", vPos);
+			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
+			TeleportEntity(i_EntSpec[entity], vPos, vAng, NULL_VECTOR);
+		}
+	}
+}
+/*
 public Action:KeepTankPropsGlowSpectator(Handle:timer, any:entity)
 {
 	if (!IsValidEntity(entity) || !tankSpawned)
@@ -351,18 +403,23 @@ public Action:KeepTankPropsGlowSpectator(Handle:timer, any:entity)
 			GetEntPropVector(entity, Prop_Send, "m_angRotation", vAng);
 			TeleportEntity(i_EntSpec[entity], vPos, vAng, NULL_VECTOR);
 		}
-	}else
-	{
-		return Plugin_Stop;
 	}
 	
 	return Plugin_Continue;
 }
-
+*/
 public Action:FadeTankProps( Handle:timer ) {
+    new entity;
     for ( new i = 0; i < GetArraySize(hTankPropsHit); i++ ) {
-        if ( IsValidEdict(GetArrayCell(hTankPropsHit, i)) ) {
-            RemoveEdict(GetArrayCell(hTankPropsHit, i));
+		entity = GetArrayCell(hTankPropsHit, i);
+		if(IsValidEdict(entity))
+		{
+            RemoveEdict(entity);
+            if (IsValidEdict(i_Ent[entity]))
+				RemoveEdict(i_Ent[entity]);
+				
+            if (IsValidEdict(i_EntSpec[entity]))
+				RemoveEdict(i_EntSpec[entity]);
         }
     }
     
