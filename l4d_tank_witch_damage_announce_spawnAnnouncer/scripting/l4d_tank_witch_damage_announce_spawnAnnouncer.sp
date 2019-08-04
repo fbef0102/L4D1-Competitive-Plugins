@@ -373,7 +373,7 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 		{
 			//PrintToChatAll("\x04[提示] Tank \x01自爆了(也許卡住了).");
 			//PrintDamage(client, true);
-			CreateTimer(0.5, PD_t_FindAnyTank, _, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(1.5, PD_t_FindAnyTank, _, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 }
