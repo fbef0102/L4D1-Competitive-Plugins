@@ -3,14 +3,17 @@
 #include <colors>
 
 #pragma semicolon 1
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.2"
 
 #define AS_TAG				"[Unscramble]"
 
 #define MAX_UNSRAMBLE_TIME 40.0
 #define UNSCRABBLE_MAX_FAILURE		3
 static	Handle:g_hTrine,Handle:g_hCvarEnable, Handle:g_fwdOnUnscrambleEnd, bool:g_bCvarASEnable, bool:g_bCheked[MAXPLAYERS+1], bool:g_bJoinTeamUsed[MAXPLAYERS+1],
-		g_iFailureCount[MAXPLAYERS+1], bool:g_bMapTranslition, bool:g_bTeamLock, g_isOldTeamFlipped, g_isNewTeamFlipped, g_iTrineSize, Handle:g_hCvarNoVotes;
+		g_iFailureCount[MAXPLAYERS+1], bool:g_bTeamLock, g_isOldTeamFlipped, g_isNewTeamFlipped, g_iTrineSize, Handle:g_hCvarNoVotes;
+static String:previousmap[128];
+static bool:previoussecondround;
+static bool:b_needswapteam;
 
 public Plugin:myinfo = 
 {
@@ -49,6 +52,8 @@ public OnPluginStart()
 
 	HookEvent("round_end", AS_ev_RoundEnd, EventHookMode_PostNoCopy);
 	HookEvent("vote_passed", AS_ev_VotePassed);
+	
+	strcopy(previousmap, sizeof(previousmap), "");
 }
 
 public Action:AS_cmdh_Vote(client, const String:command[], argc)
@@ -69,57 +74,6 @@ public Action:Command_KeepTeams(client, args)
 
 	return Plugin_Handled;
 }
-/*
-public Action:AS_cmdh_JoinTeam(client, const String:command[], argc)
-{
-	if (g_bTeamLock && !g_bJoinTeamUsed[client]){
-		return Plugin_Handled;
-	}
-
-	if (g_bCvarUnlocker && DeadSurvivorCount){
-
-		decl String:sAgr[32];
-		GetCmdArg(1, sAgr, 32);
-		
-		//only chooseteam menu!
-		if (StrEqual(sAgr, "survivor", false) && GetClientTeam(client) != 2){
-
-			for (new i; i < SurvivorCount; i++){
-
-				if (IsFakeClient(SurvivorIndex[i]) && IsPlayerAlive(SurvivorIndex[i]))
-					return Plugin_Continue;
-			}
-
-			decl String:sSurvivor[16];
-			new bool:bAnyBot;
-
-			for (new i; i < DeadSurvivorCount; i++){
-
-				if (!IsFakeClient(DeadSurvivorIndex[i])) continue;
-
-				bAnyBot = true;
-
-				if (!GetCharacterName(DeadSurvivorIndex[i], sSurvivor, 16))
-					return Plugin_Continue;
-
-				break;
-			}
-
-			if (!bAnyBot) return Plugin_Continue;
-
-			CheatCommandEx(client, "sb_takecontrol", sSurvivor);
-
-			#if UNSCRABBLE_LOG
-				LogToFile(g_sLogPatch, "[chooseteam] %N trying to join survivor (%s) (%s)", client, sSurvivor, GetClientTeam(client) == 2 ? "Okay" : "Fail");
-			#endif
-
-			return Plugin_Handled;
-		}
-	}
-
-	return Plugin_Continue;
-}
-*/
 
 public AS_ev_VotePassed(Handle:event, const String:sName[], bool:DontBroadCast)
 {
@@ -130,34 +84,24 @@ public AS_ev_VotePassed(Handle:event, const String:sName[], bool:DontBroadCast)
 		AS_KeepTeams();
 }
 
-/*
- * ---------------------------
- *		R2 Compmod forwards
- * ---------------------------
-*/
-/*
-public R2comp_OnServerEmpty()
-{
-#if UNSCRABBLE_LOG
-	LogToFile(g_sLogPatch, "--------- ServerEmpty ---------");
-#endif
-	ClearTrie(g_hTrine);
-	g_bTeamLock = false;
-}
-public Event_LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
-{
-	g_bTeamLock = false;
-}
-// ---- ;
-*/
 public OnMapStart()
 {
+	b_needswapteam = false;
+	
 	PrecacheModel("models/survivors/survivor_manager.mdl", true);
 	PrecacheModel("models/survivors/survivor_biker.mdl", true);
 	PrecacheModel("models/survivors/survivor_teenangst.mdl", true);
 	PrecacheModel("models/survivors/survivor_namvet.mdl", true);
-
-	g_bMapTranslition = false;
+	
+	decl String:currentmap[128];
+	GetCurrentMap(currentmap, sizeof(currentmap));
+	if(StrEqual(currentmap, previousmap) && previoussecondround)
+	{
+		b_needswapteam = true;
+	}
+	strcopy(previousmap, sizeof(previousmap),currentmap);
+	previoussecondround = false;
+	
 	CreateTimer(0.5, AS_t_TeamsFlipped);
 
 	if (!g_iTrineSize) return;
@@ -175,16 +119,22 @@ public Action:AS_t_TeamsFlipped(Handle:timer)
 
 public AS_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (GameRules_GetProp("m_bInSecondHalfOfRound") && !g_bMapTranslition)
+	if (GameRules_GetProp("m_bInSecondHalfOfRound"))
+	{
 		AS_KeepTeams();
+	}
 }
 
 static AS_KeepTeams()
 {
 	if (!g_bCvarASEnable) return;
-
+	
+	if(InSecondHalfOfRound())
+	{
+		previoussecondround = true;
+	}
+	
 	g_bTeamLock = false;
-	g_bMapTranslition = true;
 	g_isOldTeamFlipped = GameRules_GetProp("m_bAreTeamsFlipped");
 	ClearTrie(g_hTrine);
 
@@ -249,7 +199,7 @@ public Action:AS_t_UnscrabbleMe(Handle:timer, any:client)
 
 		new iNTeam = iLTeam;
 
-		if (IsTeamSwapped()){
+		if (IsTeamSwapped() || b_needswapteam){
 
 			switch (iLTeam){
 
@@ -270,7 +220,16 @@ public Action:AS_t_UnscrabbleMe(Handle:timer, any:client)
 			FakeClientCommand(client, "jointeam %d", iNTeam);
 			g_bJoinTeamUsed[client] = false;
 		}
+		if (GetClientTeam(client) != iNTeam && g_iFailureCount[client] == 0){
+			switch (iNTeam){
 
+				case 2:
+					FakeClientCommand(client, "sm_sur");
+				case 3:
+					FakeClientCommand(client, "sm_inf");
+			}
+		}
+		
 		if (GetClientTeam(client) != iNTeam){
 
 			if (++g_iFailureCount[client] >= UNSCRABBLE_MAX_FAILURE){
@@ -321,7 +280,7 @@ static ForceToUnlockTeams()
 
 	if(g_bCvarASEnable)
 	{
-		CPrintToChatAll("{default}[{olive}TS{default}] Unscramble completed.");
+		//CPrintToChatAll("{default}[{olive}TS{default}] Unscramble completed.");
 	}
 
 	Call_StartForward(g_fwdOnUnscrambleEnd);
@@ -355,4 +314,9 @@ public Native_UnScramble_KeepTeams(Handle:plugin, numParams)
 	AS_KeepTeams();
 	
 	return;
+}
+
+bool:InSecondHalfOfRound()
+{
+	return GameRules_GetProp("m_bInSecondHalfOfRound");
 }

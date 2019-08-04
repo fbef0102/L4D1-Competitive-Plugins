@@ -22,7 +22,7 @@ static bool:HasRoundEndedPrinted;
 #define ZC_SMOKER               1
 #define ZC_BOOMER               2
 #define ZC_HUNTER               3
-native IsInReady();
+
 public Plugin:myinfo = 
 {
 	name = "杀特殊感染者统计",
@@ -72,8 +72,6 @@ public event_PlayerHurt(Handle:event, String:name[], bool:dontBroadcast)
 	
 	if (attackerId && victimId && IsClientInGame(attackersid) && GetClientTeam(attackersid) == L4D_TEAM_SURVIVOR && GetClientTeam(victim) == L4D_TEAM_SURVIVOR)
     {
-       	if(IsInReady())
-			return;
         damageff[attackersid] += damageDone;
     }
     
@@ -164,6 +162,9 @@ displaykillinfected(team)
 	{
 		if (!IsClientInGame(client) || GetClientTeam(client) != L4D_TEAM_SURVIVOR) continue;
 		players++;
+		if(players>4) //有6位以上玩家在人類隊伍
+			return;
+			
 		players_clients[players] = client;
 		killss = killif[client];
 		killsss = killifs[client];
