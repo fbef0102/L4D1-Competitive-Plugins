@@ -27,7 +27,7 @@
 
 new tankCount;
 
-new Float:nextTankPunchAllowed[19];
+new Float:nextTankPunchAllowed[MAXPLAYERS + 1];
 
 new tankClassIndex;
 
