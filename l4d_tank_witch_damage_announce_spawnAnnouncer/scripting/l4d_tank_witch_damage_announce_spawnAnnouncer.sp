@@ -36,8 +36,6 @@ public Plugin:myinfo =
 	url = "http://steamcommunity.com/id/raziEiL"
 }
 
-forward TP_OnTankPass(old_tank, new_tank);
-
 static		Handle:g_hTankHealth, Handle:g_hVsBonusHealth, Handle:g_hDifficulty, Handle:g_hGameMode, bool:g_bCvarSkipBots, g_iCvarHealth[BOSSES],
 			g_iDamage[MAXPLAYERS+1][MAXPLAYERS+1][BOSSES], g_iWitchIndex[MAXPLAYERS+1], g_iTotalDamage[MAXPLAYERS+1][BOSSES],
 			bool:bTempBlock, g_iLastKnownTank, bool:g_bTankInGame, Handle:g_hTrine, g_iCvarFlags, g_iCvarPrivateFlags,
@@ -269,8 +267,8 @@ public Action:PD_ev_PlayerHurt(Handle:event, const String:name[], bool:dontBroad
 
 		if (!IsPlayerTank(victim) || g_iTotalDamage[victim][TANK] == g_iCvarHealth[TANK]) return;
 		
-		if (g_iLastKnownTank)
-			CloneStats(victim);
+		if (g_iLastKnownTank != victim)
+			CloneStats(victim,g_iLastKnownTank);
 			
 		new iDamage = GetEventInt(event, "dmg_health");
 		
@@ -325,29 +323,29 @@ public Action:PD_ev_PlayerHurt(Handle:event, const String:name[], bool:dontBroad
 	}
 }
 
-CloneStats(client)
+CloneStats(client,previoustankclient)
 {
-	if (client && client != g_iLastKnownTank){
+	if (client && client != previoustankclient){
 
 		#if debug
-			LogMessage("clone tank stats %N -> %N", g_iLastKnownTank, client);
+			LogMessage("clone tank stats %N -> %N", previoustankclient, client);
 		#endif
 
 		for (new i; i <= MaxClients; i++){
 
-			if (g_iDamage[i][g_iLastKnownTank][TANK]){
+			if (g_iDamage[i][previoustankclient][TANK]){
 
-				g_iDamage[i][client][TANK] = g_iDamage[i][g_iLastKnownTank][TANK];
-				g_iDamage[i][g_iLastKnownTank][TANK] = 0;
+				g_iDamage[i][client][TANK] = g_iDamage[i][previoustankclient][TANK];
+				g_iDamage[i][previoustankclient][TANK] = 0;
 			}
 		}
 
-		g_iTotalDamage[client][TANK] = g_iTotalDamage[g_iLastKnownTank][TANK];
-		g_iTotalDamage[g_iLastKnownTank][TANK] = 0;
+		g_iTotalDamage[client][TANK] = g_iTotalDamage[previoustankclient][TANK];
+		g_iTotalDamage[previoustankclient][TANK] = 0;
 	}
 	#if debug
 	else
-		LogMessage("don't clone tank stats %N -> %N", g_iLastKnownTank, client);
+		LogMessage("don't clone tank stats %N -> %N", previoustankclient, client);
 	#endif
 
 	g_iLastKnownTank = 0;
@@ -400,18 +398,18 @@ public Action:PD_ev_PlayerBotReplace(Handle:event, const String:name[], bool:don
 	if (bTempBlock || g_bCvarSurvLimit==1 || !(g_iCvarFlags & (1 << _:TANK))) return;
 
 	// tank leave?
-	new client = GetClientOfUserId(GetEventInt(event, "player"));
-
-	if (!g_iLastKnownTank && g_iTotalDamage[client][TANK]){
-
-		#if debug
-			LogMessage("tank %N leave inf team!", client);
-		#endif
-
-		g_iLastKnownTank = client;
-		CloneStats(GetClientOfUserId(GetEventInt(event, "bot")));
+	new bot = GetClientOfUserId(GetEventInt(event, "bot"));
+	new player = GetClientOfUserId(GetEventInt(event, "player"));
+	
+	if (StrEqual(name, "player_bot_replace")) // fake client takes over bot
+	{
+		if(IsClientInGame(bot) && IsFakeClient(bot) && GetClientTeam(bot) == 3 && IsPlayerTank(bot) && g_iTotalDamage[player][TANK])
+		{
+			CloneStats(bot,player);
+		}
 	}
 }
+
 
 public Action:PD_ev_TankFrustrated(Handle:event, const String:name[], bool:dontBroadcast)
 {
@@ -465,13 +463,6 @@ public Action:CheckForAITank(Handle:timer,any:client)//passing to AI
 		}
 	}
 	return Plugin_Handled;
-}
-
-public TP_OnTankPass(old_tank, new_tank)
-{
-	if (bTempBlock || !(g_iCvarFlags & (1 << _:TANK)) || g_bCvarSurvLimit==1) return;
-
-	g_iLastKnownTank = old_tank;
 }
 
 // Witch
