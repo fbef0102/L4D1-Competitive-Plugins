@@ -1352,36 +1352,36 @@ public Action:Timer_BoomerKilledCheck(Handle:timer, any:client)
 
 	// In the following code even if it was an AI boomer that was shutdown, we're going to consider the AI boomer
 	// the responsibility of the person who spawned it, aka g_iBoomerClient
-	if (g_iBoomerShover && IsClientInGame(g_iBoomerShover))
+	if (g_iBoomerShover && IsClientInGame(g_iBoomerShover) && GetClientTeam(g_iBoomerShover) == 2)
 	{
-		if (IsClientInGame(g_iBoomerClient))
+		if (IsClientInGame(client) && GetClientTeam(client) == 3 && GetEntProp(client, Prop_Send, "m_zombieClass") == 2)
 		{
-			if (IsFakeClient(g_iBoomerClient))
+			if (IsFakeClient(client))
 			{
 				CPrintToChat(g_iBoomerShover, "{default}[{olive}TS{default}] You shut down an{red} AI{default} boomer.");
 			}
 			else
 			{
-				CPrintToChat(g_iBoomerShover, "{default}[{olive}TS{default}] You shut down{red} %N{default}'s boomer.", g_iBoomerClient);
-				CPrintToChat(g_iBoomerClient, "{default}[{olive}TS{default}]{blue} %N{default} shut down your boomer.", g_iBoomerShover);
-				// g_iMapStats[g_iBoomerClient][BoomFailures]++;
+				CPrintToChat(g_iBoomerShover, "{default}[{olive}TS{default}] You shut down{red} %N{default}'s boomer.", client);
+				CPrintToChat(client, "{default}[{olive}TS{default}]{blue} %N{default} shut down your boomer.", g_iBoomerShover);
+				// g_iMapStats[client][BoomFailures]++;
 			}
 		}
 		g_iMapStats[g_iBoomerShover][BoomerShutdowns]++;
 	}
-	else if (IsClientInGame(g_iBoomerKiller))
+	else if (IsClientInGame(g_iBoomerKiller) && IsClientInGame(g_iBoomerKiller) && GetClientTeam(g_iBoomerKiller) == 2 )
 	{
-		if (IsClientInGame(g_iBoomerClient))
+		if (IsClientInGame(client) && GetClientTeam(client) == 3 && GetEntProp(client, Prop_Send, "m_zombieClass") == 2)
 		{
-			if (IsFakeClient(g_iBoomerClient))
+			if (IsFakeClient(client))
 			{
 				CPrintToChat(g_iBoomerKiller, "{default}[{olive}TS{default}] You shut down an{red} AI{default} boomer.");
 			}
 			else
 			{
-				CPrintToChat(g_iBoomerKiller, "{default}[{olive}TS{default}] You shut down{red} %N{default}'s boomer.", g_iBoomerClient);
-				CPrintToChat(g_iBoomerClient, "{default}[{olive}TS{default}]{blue} %N{default} shut down your boomer.", g_iBoomerKiller);
-				// g_iMapStats[g_iBoomerClient][BoomFailures]++;
+				CPrintToChat(g_iBoomerKiller, "{default}[{olive}TS{default}] You shut down{red} %N{default}'s boomer.", client);
+				CPrintToChat(client, "{default}[{olive}TS{default}]{blue} %N{default} shut down your boomer.", g_iBoomerKiller);
+				// g_iMapStats[client][BoomFailures]++;
 			}
 		}
 		g_iMapStats[g_iBoomerKiller][BoomerShutdowns]++;
