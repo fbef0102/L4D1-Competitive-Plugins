@@ -267,8 +267,11 @@ public Action:PD_ev_PlayerHurt(Handle:event, const String:name[], bool:dontBroad
 
 		if (!IsPlayerTank(victim) || g_iTotalDamage[victim][TANK] == g_iCvarHealth[TANK]) return;
 		
-		if (g_iLastKnownTank != victim)
+		if (g_iLastKnownTank)
+		{
+			PrintToChatAll("heygey");
 			CloneStats(victim,g_iLastKnownTank);
+		}
 			
 		new iDamage = GetEventInt(event, "dmg_health");
 		
