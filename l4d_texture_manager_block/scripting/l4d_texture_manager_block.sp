@@ -14,7 +14,7 @@ public Plugin myinfo =
 	name = "Mathack Block",
 	author = "Sir, Visor, NightTime & extrav3rt, Harry Potter",
 	description = "Kicks out clients who are potentially attempting to enable mathack",
-	version = "1.2",
+	version = "1.3",
 	url = "http://execlub.biz"
 };
 
@@ -39,6 +39,8 @@ public Action CheckClients(Handle timer)
 			QueryClientConVar(client, "mat_hdr_level", ClientQueryCallback_HDRLevel);
 			QueryClientConVar(client, "mat_postprocess_enable", ClientQueryCallback_PostPrecess);
 			QueryClientConVar(client, "r_drawothermodels", ClientQueryCallback_DrawModels);
+			QueryClientConVar(client, "l4d_bhop", ClientQueryCallback_l4d_bhop); //ban auto bhop from dll
+			QueryClientConVar(client, "l4d_bhop_autostrafe", ClientQueryCallback_l4d_bhop_autostrafe); //ban auto bhop from dll
         }
     }	
 }
@@ -97,7 +99,7 @@ public void ClientQueryCallback_DrawModels(QueryCookie cookie, int client, ConVa
 
 		if (g_iPenalty == 1)
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: r_drawothermodels\x01!", client);
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: r_drawothermodels\x01!", client);
 			KickClient(client, "ConVar r_drawothermodels violation");
 		}
 	}
@@ -116,7 +118,7 @@ public void ClientQueryCallback_PostPrecess(QueryCookie cookie, int client, ConV
 
 		if (g_iPenalty == 1)
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: mat_postprocess_enable\x01!", client);
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_postprocess_enable\x01!", client);
 			KickClient(client, "ConVar mat_postprocess_enable violation");
 		}
 	}
@@ -135,7 +137,7 @@ public void ClientQueryCallback_AntiVomit(QueryCookie cookie, int client, ConVar
 
 		if (g_iPenalty == 1)
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: mat_queue_mode\x01!", client);
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_queue_mode\x01!", client);
 			KickClient(client, "ConVar mat_queue_mode violation");
 		}
 	}
@@ -154,8 +156,46 @@ public void ClientQueryCallback_HDRLevel(QueryCookie cookie, int client, ConVarQ
 
 		if (g_iPenalty == 1)
 		{
-			PrintToChatAll("\x01[\x05TS\x01] \x03%s \x01has been kicked for using \x04mathack: mat_hdr_level\x01!", client);
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04mathack: mat_hdr_level\x01!", client);
 			KickClient(client, "ConVar mat_hdr_level violation");
+		}
+	}
+}
+
+public void ClientQueryCallback_l4d_bhop(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
+{	
+	int clientCvarValue = StringToInt(cvarValue);
+
+	if (clientCvarValue > 0)
+	{
+		char SteamID[32];
+		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
+	
+		LogToFile(path, ".:[Name: %N | STEAMID: %s | l4d_bhop: %d]:.", client, SteamID, clientCvarValue);
+
+		if (g_iPenalty == 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop\x01!", client);
+			KickClient(client, "ConVar l4d_bhop violation");
+		}
+	}
+}
+
+public void ClientQueryCallback_l4d_bhop_autostrafe(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
+{	
+	int clientCvarValue = StringToInt(cvarValue);
+
+	if (clientCvarValue > 0)
+	{
+		char SteamID[32];
+		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
+	
+		LogToFile(path, ".:[Name: %N | STEAMID: %s | l4d_bhop: %d]:.", client, SteamID, clientCvarValue);
+
+		if (g_iPenalty == 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop_autostrafe\x01!", client);
+			KickClient(client, "ConVar l4d_bhop_autostrafe violation");
 		}
 	}
 }
