@@ -28,9 +28,17 @@ public Plugin:myinfo =
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
+	CreateNative("IsClientListenMode", Native_IsClientListenMode);
 	CreateNative("OpenSpectatorsListenMode", Native_OpenSpectatorsListenMode);
 	return APLRes_Success;
 }
+
+public Native_IsClientListenMode(Handle:plugin, numParams)
+{
+   new num1 = GetNativeCell(1);
+   return bListionActive[num1];
+}
+
 
 public Native_OpenSpectatorsListenMode(Handle:plugin, numParams) {
   

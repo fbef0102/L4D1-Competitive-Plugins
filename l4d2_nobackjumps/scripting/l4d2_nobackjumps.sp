@@ -40,9 +40,9 @@ public OnPluginStart()
     HookEvent("round_start", OnRoundStart, EventHookMode_PostNoCopy);
     HookEvent("player_jump", OnPlayerJump);
 	
-	hCvarPluginState = CreateConVar("stop_wallkicking_enable", "1", "If set, stops hunters from wallkicking", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	CvarPluginState = GetConVarBool(hCvarPluginState);
-	HookConVarChange(hCvarPluginState, OnConvarChange_PluginState);
+    hCvarPluginState = CreateConVar("stop_wallkicking_enable", "1", "If set, stops hunters from wallkicking", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 1.0);
+    CvarPluginState = GetConVarBool(hCvarPluginState);
+    HookConVarChange(hCvarPluginState, OnConvarChange_PluginState);
 }
 
 public OnEntityCreated(entity, const String:classname[])
@@ -69,14 +69,14 @@ public MRESReturn:CLunge_ActivateAbility(ability, Handle:hParams)
 {
 	if(!CvarPluginState) return MRES_Ignored;
 	
-    new client = GetEntPropEnt(ability, Prop_Send, "m_owner");
-    if (fSuspectedBackjump[client] + 1.5 > GetGameTime())
-    {
-        PrintToChat(client, "\x01[\x05TS\x01] No \x03backjumps\x01, sorry");
-        return MRES_Supercede;
-    }
+	new client = GetEntPropEnt(ability, Prop_Send, "m_owner");
+	if (fSuspectedBackjump[client] + 1.5 > GetGameTime())
+	{
+		PrintToChat(client, "\x01[\x05TS\x01] No \x03backjumps\x01, sorry");
+		return MRES_Supercede;
+	}
     
-    return MRES_Ignored;
+	return MRES_Ignored;
 }
 
 bool:IsOutwardJump(client) {
