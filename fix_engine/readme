@@ -1,4 +1,5 @@
 Blocking ladder speed glitch, no fall damage bug, health boost glitch.
+see example here: https://forums.alliedmods.net/showthread.php?p=1682064
 
 -command-
 "engine_warning", "0", "Display a warning message saying that player using expolit: 1=enable, 0=disable."
