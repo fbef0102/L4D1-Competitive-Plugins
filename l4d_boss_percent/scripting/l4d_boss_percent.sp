@@ -4,7 +4,6 @@
 #include <l4d_direct>
 #include <colors>
 #undef REQUIRE_PLUGIN
-native Is_Ready_Plugin_On();
 
 public Plugin:myinfo =
 {
@@ -32,6 +31,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 	CreateNative("GetWitchPercent",Native_GetWitchPercent);
 	CreateNative("GetWitchPercentFloat",Native_GetWitchPercentFloat);
 	CreateNative("PrintBossPercents",Native_PrintBossPercents);
+	CreateNative("SaveBossPercents",Native_SaveBossPercents);
 	RegPluginLibrary("l4d_boss_percent");
 	return APLRes_Success;
 }
@@ -65,10 +65,9 @@ public OnPluginStart()
 }
 public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	if(!Is_Ready_Plugin_On())
-		for (new client = 1; client <= MaxClients; client++)
-			if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client))
-				PrintBossPercents(client);
+	for (new client = 1; client <= MaxClients; client++)
+		if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client))
+			PrintBossPercents(client);
 }
 public OnMapStart()
 {
@@ -82,6 +81,10 @@ public Native_PrintBossPercents(Handle:plugin, numParams)
 		if (IsClientConnected(client) && IsClientInGame(client)&& !IsFakeClient(client))
 			PrintBossPercents(client);
 }
+public Native_SaveBossPercents(Handle:plugin, numParams)
+{
+	CreateTimer(1.0, SaveBossFlows);
+}
 
 public RoundStartEvent(Handle:event, const String:name[], bool:dontBroadcast)
 {
@@ -93,13 +96,7 @@ public Action:PD_ev_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 	if(!InSecondHalfOfRound)//第一回合結束
 		InSecondHalfOfRound = true;
 }
-/*
-public Native_UpdateBossPercents(Handle:plugin, numParams)
-{
-	CreateTimer(0.1, SaveBossFlows);
-	return true;
-}
-*/
+
 public Action:SaveBossFlows(Handle:timer)
 {
 	if (!InSecondHalfOfRound)
@@ -151,11 +148,11 @@ stock PrintBossPercents(client)
 	if(GetConVarBool(hCvarWitchPercent))
 	{
 		if (iWitchPercent > 0)
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} %d%%", iWitchPercent);
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} %d%%", iWitchPercent);
 		else if (iWitchPercent == -2)
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} Witch Party");
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} Witch Party");
 		else
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} None");
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} None");
 			
 	}
 }

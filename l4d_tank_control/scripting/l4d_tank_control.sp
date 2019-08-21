@@ -10,6 +10,7 @@
 
 #define CVAR_FLAGS			FCVAR_PLUGIN|FCVAR_NOTIFY
 
+
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
 static		bool:IsSecondTank,bool:IsFinal;	
@@ -77,7 +78,7 @@ public OnPluginStart()
 	RegConsoleCmd("sm_tank", Command_FindNexTank);
 	RegConsoleCmd("sm_t", Command_FindNexTank);
 	RegConsoleCmd("sm_boss", Command_FindNexTank);
-	RegAdminCmd("sm_settank", Command_SetTank, ADMFLAG_BAN, "sm_settank <player> - force this player will become the tank");
+	RegAdminCmd("sm_settankplayer", Command_SetTank, ADMFLAG_BAN, "sm_settank <player> - force this player will become the tank");
 	RegAdminCmd("sm_clearteam", ClearTeam_Cmd, ADMFLAG_BAN, "clear who_has_been_tank_arraylist for both team, useful when map change.");
 	
 	hTeamTanks = CreateArray(64);
@@ -101,7 +102,7 @@ stock Require_L4D()
 
 public TC_ev_LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	
+
 	ChoseTankAndPrintWhoBecome();
 }
 
@@ -139,19 +140,19 @@ public Action:Command_FindNexTank(client, args)
 	if (client<=0 || IsPluginDisabled()) return Plugin_Handled;
 
 	new iTeam = GetClientTeam(client);
-	if(iTeam != 2){
-		if(queuedTank== -2)
-			ChooseTank();
-		if(queuedTank== -1){
-			for (new i = 1; i < MaxClients+1; i++)
-				if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && GetClientTeam(i) == iTeam)
-					CPrintToChat(i, "{green}[IamTank] {default}Everyone has been{green} tank{default} at once，{olive}random now{default}!"); 
-		}
-		else if (queuedTank>0)
-			for (new i = 1; i < MaxClients+1; i++)
-				if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && GetClientTeam(i) == iTeam)
-					CPrintToChat(i, "{green}[IamTank]{red} %N {default}will become the {green}tank{default}!", queuedTank); 
+
+	if(queuedTank== -2)
+		ChooseTank();
+	if(queuedTank== -1 && iTeam !=2){
+		for (new i = 1; i < MaxClients+1; i++)
+			if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && GetClientTeam(i) == iTeam)
+				CPrintToChat(i, "{green}[IamTank] {default}Everyone has been{green} tank{default} at once，{olive}random now{default}!"); 
 	}
+	else if (queuedTank>0)
+		for (new i = 1; i < MaxClients+1; i++)
+			if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && GetClientTeam(i) == iTeam)
+				CPrintToChat(i, "{green}[IamTank]{red} %N {default}will become the {green}tank{default}!", queuedTank); 
+	
 	
 	PrintTankOwners(client);
 	return Plugin_Handled;

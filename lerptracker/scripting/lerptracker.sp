@@ -8,9 +8,9 @@
 public Plugin:myinfo = 
 {
 	name = "LerpTracker",
-	author = "ProdigySim (archer edit),l4d1 modify by Harry",
+	author = "ProdigySim (archer edit), Die Teetasse, vintik, Harry Potter",
 	description = "Keep track of players' lerp settings",
-	version = "1.0",
+	version = "1.2",
 	url = "https://bitbucket.org/ProdigySim/misc-sourcemod-plugins"
 };
 
@@ -31,6 +31,10 @@ new Handle:hMaxInterpRatio;
 //what even?
 new Handle:hPrintLerpStyle;
 
+static Handle:arrayLerps;
+static Handle:cVarReadyUpLerpChanges;
+static Handle:cVarAllowedLerpChanges;
+static Handle:cVarLerpChangeSpec;
 static Handle:cVarMinLerp;
 static Handle:cVarMaxLerp;
 
@@ -52,11 +56,18 @@ static Handle:cVarMaxLerp;
 
 #define GetCurrentLerp(%0) (g_fCurrentLerps[(%0)])
 #define SetCurrentLerp(%0,%1) (g_fCurrentLerps[(%0)] = (%1))
-native Is_Ready_Plugin_On();
+#define COLDDOWN_DELAY 6.0
+#define STEAMID_SIZE 		32
+static const ARRAY_LERP = 1;
+static const ARRAY_CHANGES = 2;
+static const ARRAY_COUNT = 3;
+
 static bool:blerpdetect[MAXPLAYERS + 1];
 static ClientTeam[MAXPLAYERS + 1];
 static bool:roundstart;
-#define COLDDOWN_DELAY 6.0
+static bool:isFirstHalf = true;
+native Is_Ready_Plugin_On();
+native IsInReady();
 
 public OnPluginStart()
 {
@@ -64,13 +75,18 @@ public OnPluginStart()
 	hMaxUpdateRate = FindConVar("sv_maxupdaterate");
 	hMinInterpRatio = FindConVar("sv_client_min_interp_ratio");
 	hMaxInterpRatio= FindConVar("sv_client_max_interp_ratio");
+	
+	cVarAllowedLerpChanges = CreateConVar("sm_allowed_lerp_changes", "3", "Allowed number of lerp changes for a half", FCVAR_PLUGIN);
+	cVarLerpChangeSpec = CreateConVar("sm_lerp_change_spec", "1", "Move to spectators on exceeding lerp changes count?", FCVAR_PLUGIN);
+	cVarReadyUpLerpChanges = CreateConVar("sm_readyup_lerp_changes", "1", "Allow lerp changes during ready-up", FCVAR_PLUGIN);
+	
 	hLogLerp = CreateConVar("sm_log_lerp", "1", "Log changes to client lerp. 1=Log initial lerp and changes 2=Log changes only", FCVAR_PLUGIN);
 	hAnnounceLerp = CreateConVar("sm_announce_lerp", "1", "Announce changes to client lerp. 1=Announce initial lerp and changes 2=Announce changes only", FCVAR_PLUGIN);
 	hFixLerpValue = CreateConVar("sm_fixlerp", "1", "Fix Lerp values clamping incorrectly when interp_ratio 0 is allowed", FCVAR_PLUGIN);
 	hMaxLerpValue = CreateConVar("sm_max_interp", "0.1", "Kick players whose settings breach this Hard upper-limit for player lerps.", FCVAR_PLUGIN);
 	hPrintLerpStyle = CreateConVar("sm_lerpstyle", "1", "Display Style, 0 = default, 1 = team based", FCVAR_PLUGIN);
 	cVarMinLerp = CreateConVar("sm_min_lerp", "0.000", "Minimum allowed lerp value", FCVAR_PLUGIN);
-	cVarMaxLerp = CreateConVar("sm_max_lerp", "0.067", "Maximum allowed lerp value, 超過踢到旁觀", FCVAR_PLUGIN);
+	cVarMaxLerp = CreateConVar("sm_max_lerp", "0.067", "Maximum allowed lerp value, moved to spec if exceed", FCVAR_PLUGIN);
 	
 	RegConsoleCmd("sm_lerps", Lerps_Cmd, "List the Lerps of inf/sur players in game", FCVAR_PLUGIN);
 	RegConsoleCmd("sm_lerpss", Lerpss_Cmd, "List the Lerps of spec players in game", FCVAR_PLUGIN);
@@ -79,11 +95,25 @@ public OnPluginStart()
 	HookEvent("round_start", Event_RoundStart);
 	HookEvent("round_end", Event_RoundEnd);
 	
+	// create array
+	arrayLerps = CreateArray(ByteCountToCells(STEAMID_SIZE));
 	ScanAllPlayersLerp();
+}
+
+
+public OnMapEnd() {
+	isFirstHalf = true;
+	ClearArray(arrayLerps);
 }
 
 public Event_RoundStart(Handle:event, const String:name[], bool:dontBroadcast) {
 	CreateTimer(3.0, roundstart_true,_, _);
+	
+	if (!IsFirstHalf()) {
+		for (new i = 0; i < (GetArraySize(arrayLerps) / ARRAY_COUNT); i++) {
+			SetArrayCell(arrayLerps, (i * ARRAY_COUNT) + ARRAY_CHANGES, 0);
+		}
+	}
 }
 public Action:roundstart_true(Handle:timer, any:client)
 {
@@ -92,6 +122,12 @@ public Action:roundstart_true(Handle:timer, any:client)
 
 public Event_RoundEnd(Handle:event, const String:name[], bool:dontBroadcast) {
 	roundstart = false;
+	
+	CreateTimer(0.5, Timer_RoundEndDelay);
+}
+
+public Action:Timer_RoundEndDelay(Handle:timer) {
+	isFirstHalf = false;
 }
 
 public OnClientDisconnect_Post(client)
@@ -110,17 +146,14 @@ public OnClientSettingsChanged(client)
 
 public OnTeamChange(Handle:event, String:name[], bool:dontBroadcast)
 {
-	//if (GetEventInt(event, "team") != 1)
-	//{
-		new client = GetClientOfUserId(GetEventInt(event, "userid"));
-		if (client > 0 && client < MaxClients+1)
+	new client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if (client > 0 && client < MaxClients+1)
+	{
+		if (IsClientInGame(client) && !IsFakeClient(client))
 		{
-			if (IsClientInGame(client) && !IsFakeClient(client))
-			{
-				CreateTimer(1.0, OnTeamChangeDelay, client, TIMER_FLAG_NO_MAPCHANGE);
-			}
+			CreateTimer(1.0, OnTeamChangeDelay, client, TIMER_FLAG_NO_MAPCHANGE);
 		}
-    //}
+	}
 }
 
 public OnClientPutInServer(client)
@@ -279,62 +312,118 @@ ScanAllPlayersLerp()
 
 ProcessPlayerLerp(client,bool:teamchange = false)
 {	
-	new Float:m_fLerpTime = GetEntPropFloat(client, Prop_Data, "m_fLerpTime");
+	new Float:newLerpTime = GetEntPropFloat(client, Prop_Data, "m_fLerpTime");
 	new iTeam = GetClientTeam(client);
+	if (iTeam == 1) return;
+
 	if(ShouldFixLerp())
 	{
-		m_fLerpTime = GetLerpTime(client);
-		SetEntPropFloat(client, Prop_Data, "m_fLerpTime", m_fLerpTime);
+		newLerpTime = GetLerpTime(client);
+		SetEntPropFloat(client, Prop_Data, "m_fLerpTime", newLerpTime);
 	}
 	
-	if(IsCurrentLerpValid(client))
+	new Float:MaxLerpValue=GetConVarFloat(hMaxLerpValue);
+	if(newLerpTime > MaxLerpValue)
 	{
-		if(m_fLerpTime != GetCurrentLerp(client))
-		{
-			if(ShouldAnnounceLerpChanges())
-			{
-				if (iTeam == 2)
-					CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, m_fLerpTime*1000);
-				else if (iTeam == 3)
-					CPrintToChatAll("<{olive}Lerp{default}> {red}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, m_fLerpTime*1000);
-			}
-		}
-	}
-	
-	new Float:max=GetConVarFloat(hMaxLerpValue);
-	if(m_fLerpTime > max)
-	{
-		if (iTeam != 1)
-		{
-			KickClient(client, "Lerp %.01f exceeds server max of %.01f", m_fLerpTime*1000, max*1000);
-			CPrintToChatAll("<{olive}Lerp{default}> %N kicked for lerp too high. %.01f > %.01f", client, m_fLerpTime*1000, max*1000);
-		}
+		KickClient(client, "Lerp %.01f exceeds server max of %.01f", newLerpTime*1000, MaxLerpValue*1000);
+		CPrintToChatAll("<{olive}Lerp{default}> %N kicked for lerp too high. %.01f > %.01f", client, newLerpTime*1000, MaxLerpValue*1000);
 		if(ShouldLogLerpChanges())
-		{
-			LogMessage("Kicked %L for having lerp %.01f (max: %.01f)", client, m_fLerpTime*1000, max*1000);
-		}
-	}
-	else
-	{
-		SetCurrentLerp(client, m_fLerpTime);
+			LogMessage("Kicked %L for having lerp %.01f (max: %.01f)", client, newLerpTime*1000, MaxLerpValue*1000);
+		return;
 	}
 	
-	if ( ((FloatCompare(m_fLerpTime, GetConVarFloat(cVarMinLerp)) == -1) || (FloatCompare(m_fLerpTime, GetConVarFloat(cVarMaxLerp)) == 1)) && Is_Ready_Plugin_On() && GetClientTeam(client) != 1) {
+	if ( ((FloatCompare(newLerpTime, GetConVarFloat(cVarMinLerp)) == -1) || (FloatCompare(newLerpTime, GetConVarFloat(cVarMaxLerp)) == 1)) && IsMatchLife()) {
 		
-		//PrintToChatAll("<{olive}Lerp{default}> %N's lerp changed to %.01f", client, m_fLerpTime*1000);
-		CPrintToChatAll("<{olive}Lerp{default}> {lightgreen}%N{default} was moved to spectators for lerp {olive}%.01f{default}", client, m_fLerpTime*1000);
+		if (iTeam == 2)
+			CPrintToChatAll("<{olive}Lerp{default}> <blue>%N{default} was moved to spectators for lerp {olive}%.01f{default}", client, newLerpTime*1000);
+		else if (iTeam == 3)
+			CPrintToChatAll("<{olive}Lerp{default}> <red>%N{default} was moved to spectators for lerp {olive}%.01f{default}", client, newLerpTime*1000);
+			
 		ChangeClientTeam(client, 1);
-		CPrintToChat(client, "{blue}{default}[{green}lerp{default}] Illegal lerp value (min: {olive}%.01f{default}, max: {olive}%.01f{default})",
+		CPrintToChat(client, "{blue}{default}[{green}提示{default}] Illegal lerp value (min: {olive}%.01f{default}, max: {olive}%.01f{default})",
 					GetConVarFloat(cVarMinLerp)*1000, GetConVarFloat(cVarMaxLerp)*1000);
 		// nothing else to do
 		return;
 	}
+	
+	if(IsCurrentLerpValid(client))
+	{
+		decl String:steamID[STEAMID_SIZE];
+		GetClientAuthString(client, steamID, STEAMID_SIZE);
+		new index = FindStringInArray(arrayLerps, steamID);
+		if (index != -1) {
+			new Float:currentLerpTime = GetArrayCell(arrayLerps, index + ARRAY_LERP);
+		
+			// no change?
+			if (currentLerpTime != newLerpTime)
+			{
+				// Midgame?
+				if ( (IsMatchLife() && !IsInReady()) || (!GetConVarBool(cVarReadyUpLerpChanges) && IsInReady()) ) {
+					new count = GetArrayCell(arrayLerps, index + ARRAY_CHANGES)+1;
+					new max = GetConVarInt(cVarAllowedLerpChanges);
+					if(ShouldAnnounceLerpChanges())
+					{
+						if (iTeam == 2)
+							CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f{default} [%s%d\x01/%d changes]", client, GetCurrentLerp(client)*1000, newLerpTime*1000,((count > max)?"{green}":""), count, max);
+						else if (iTeam == 3)
+							CPrintToChatAll("<{olive}Lerp{default}> {red}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f{default} [%s%d\x01/%d changes]", client, GetCurrentLerp(client)*1000, newLerpTime*1000,((count > max)?"{green}":""), count, max);
+					}
+				
+					if (GetConVarBool(cVarLerpChangeSpec) && (count > max)) {
+						
+						if (iTeam == 2)
+							CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{default} was moved to spectators (illegal lerp change)!", client);
+						else if (iTeam == 3)
+							CPrintToChatAll("<{olive}Lerp{default}> {red}%N{default} was moved to spectators (illegal lerp change)!", client);
+						ChangeClientTeam(client, 1);
+						CPrintToChat(client, "{olive}{blue}{olive}{default}Illegal change of the lerp midgame! Change it back to {olive}%.01f", currentLerpTime*1000);
+						if(ShouldLogLerpChanges())
+							LogMessage("%N was moved to spectators (exceeds lerp change limit)!", client);
+						// no lerp update
+						return;
+					}
+					
+					// update changes
+					SetArrayCell(arrayLerps, index + ARRAY_CHANGES, count);
+				}
+				else {
+					if(ShouldAnnounceLerpChanges())
+					{
+						if (iTeam == 2)
+							CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, newLerpTime*1000);
+						else if (iTeam == 3)
+							CPrintToChatAll("<{olive}Lerp{default}> {red}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, newLerpTime*1000);
+					}
+				}
+			}
+			
+			// update lerp
+			SetArrayCell(arrayLerps, index + ARRAY_LERP, newLerpTime);
+		}
+		else {
+			if(ShouldAnnounceLerpChanges())
+			{
+				if (iTeam == 2)
+					CPrintToChatAll("<{olive}Lerp{default}> {blue}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, newLerpTime*1000);
+				else if (iTeam == 3)
+					CPrintToChatAll("<{olive}Lerp{default}> {red}%N{green}'s lerp changed from {olive}%.01f {green}to {olive}%.01f", client, GetCurrentLerp(client)*1000, newLerpTime*1000);
+			}
+			
+			// add to array
+			PushArrayString(arrayLerps, steamID);
+			PushArrayCell(arrayLerps, newLerpTime);
+			PushArrayCell(arrayLerps, 0);
+		}
+	}
+	
+	SetCurrentLerp(client, newLerpTime);
+	
 	if(teamchange&&roundstart)
 	{
 		if(iTeam == 2)
-			CPrintToChatAll("<{olive}Lerp{default}> {blue}%N {default}@{blue} %.01f",client,m_fLerpTime*1000);
+			CPrintToChatAll("<{olive}Lerp{default}> {blue}%N {default}@{blue} %.01f",client,newLerpTime*1000);
 		else if (iTeam == 3)
-			CPrintToChatAll("<{olive}Lerp{default}> {red}%N {default}@{red} %.01f",client,m_fLerpTime*1000);
+			CPrintToChatAll("<{olive}Lerp{default}> {red}%N {default}@{red} %.01f",client,newLerpTime*1000);
 	}
 }
 
@@ -349,12 +438,8 @@ stock Float:GetLerpTime(client)
 	new updateRate = StringToInt( QUICKGETCVARVALUE("cl_updaterate") );
 	updateRate = RoundFloat(clamp(float(updateRate), GetConVarFloat(hMinUpdateRate), GetConVarFloat(hMaxUpdateRate)));
 	
-	/*new bool:useInterpolation = StringToInt( QUICKGETCVARVALUE("cl_interpolate") ) != 0;
-	if ( useInterpolation )
-	{*/
+
 	new Float:flLerpRatio = StringToFloat( QUICKGETCVARVALUE("cl_interp_ratio") );
-	/*if ( flLerpRatio == 0 )
-		flLerpRatio = 1.0;*/
 	new Float:flLerpAmount = StringToFloat( QUICKGETCVARVALUE("cl_interp") );
 
 	
@@ -362,17 +447,8 @@ stock Float:GetLerpTime(client)
 	{
 		flLerpRatio = clamp( flLerpRatio, GetConVarFloat(hMinInterpRatio), GetConVarFloat(hMaxInterpRatio) );
 	}
-	else
-	{
-		/*if ( flLerpRatio == 0 )
-			flLerpRatio = 1.0;*/
-	}
+
 	lerpTime = MAX( flLerpAmount, flLerpRatio / updateRate );
-	/*}
-	else
-	{
-		lerpTime = 0.0;
-	}*/
 	
 #undef QUICKGETCVARVALUE
 	return lerpTime;
@@ -381,4 +457,15 @@ stock Float:GetLerpTime(client)
 stock Float:clamp(Float:yes, Float:low, Float:high)
 {
 	return yes > high ? high : (yes < low ? low : yes);
+}
+
+stock bool:IsMatchLife() {
+	if(Is_Ready_Plugin_On())
+		return true;
+	else
+		return false;
+}
+
+stock bool:IsFirstHalf() {
+	return isFirstHalf;
 }

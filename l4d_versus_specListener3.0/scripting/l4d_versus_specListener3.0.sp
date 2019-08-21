@@ -39,7 +39,6 @@ public Native_IsClientListenMode(Handle:plugin, numParams)
    return bListionActive[num1];
 }
 
-
 public Native_OpenSpectatorsListenMode(Handle:plugin, numParams) {
   
 	if(!specListener_enable) return;
@@ -51,7 +50,7 @@ public Native_OpenSpectatorsListenMode(Handle:plugin, numParams) {
 			{
 				SetClientListeningFlags(client, VOICE_LISTENALL);
 				//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05On.");
-				//PrintToChat(client,"\x05(You can see what\x04 Survivor\x05 and\x04 Infected\x05 type via chat box, and what they say via mic)" );
+				//PrintToChat(client,"\x05(你可以看到\x04 倖存者\x05 與\x04 特感\x05 的teamchat, 亦可聽到他們的MIC對話)" );
 				PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05Off \x03Listen Mode\x05." );
 			}
 			else
@@ -120,7 +119,7 @@ public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 				{
 					SetClientListeningFlags(client, VOICE_LISTENALL);
 					//PrintToChat(client,"\x01[\x04Spectators\x01] \x03Listen Mode \x05On.");
-					//PrintToChat(client,"\x05(You can see what\x04 Survivor\x05 and\x04 Infected\x05 type via chat box, and what they say via mic)" );
+					//PrintToChat(client,"\x05(你可以看到\x04 倖存者\x05 與\x04 特感\x05 的MIC對話)" );
 					PrintToChat(client,"\x01[\x04Spectators\x01] \x05type \x04!hear \x05Off \x03Listen Mode\x05." );
 				}
 				else
@@ -144,7 +143,7 @@ public Action:Panel_hear(client,args)
 	if(bListionActive[client])
 	{
 		SetClientListeningFlags(client, VOICE_LISTENALL);
-		PrintToChat(client,"\x05(You can see what\x04 Survivor\x05 and\x04 Infected\x05 type via chat box, and what they say via mic)" );
+		PrintToChat(client,"\x05(你可以看到\x04 倖存者\x05 與\x04 特感\x05 的MIC對話" );
 	}
 	else
 	{
@@ -267,21 +266,6 @@ public Action:PlayerChangeTeamCheck(Handle:timer,any:client)
 			//PrintToChat(client,"\x04[listen]\x03disable" )
 		}
 }
-/*
-public OnAlltalkChange(Handle:convar, const String:oldValue[], const String:newValue[])
-{
-	if (StringToInt(newValue) == 0)
-	{
-		for (new i = 1; i <= MaxClients; i++)
-		{
-			if (IsValidClient(i) && GetClientTeam(i) == TEAM_SPEC)
-			{
-				SetClientListeningFlags(i, VOICE_LISTENALL);
-				PrintToChat(i,"\x01[\x04Spectators\x01] \x03Listen Mode\x05Reset because of All-Talk.");
-			}
-		}
-	}
-}*/
 
 public IsValidClient (client)
 {
