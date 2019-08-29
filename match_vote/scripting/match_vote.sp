@@ -51,8 +51,7 @@ public Action:MatchRequest(client, args)
 			if (StartMatchVote(client, sBuffer))
 			{
 				strcopy(g_sCfg, sizeof(g_sCfg), sCfg);
-				//caller is voting for
-				FakeClientCommand(client, "Vote Yes");
+				PrintToChatAll("[matchvote] \x03%N \x01starts a vote to change mode: %s",client,g_sCfg);
 			}
 			return Plugin_Handled;
 		}
@@ -141,6 +140,8 @@ public ConfigsMenuHandler(Handle:menu, MenuAction:action, param1, param2)
 		if (StartMatchVote(param1, sBuffer))
 		{
 			strcopy(g_sCfg, sizeof(g_sCfg), sInfo);
+			PrintToChatAll("[matchvote] \x03%N \x01starts a vote to change mode: %s",param1,g_sCfg);
+			
 		}
 		else
 		{
