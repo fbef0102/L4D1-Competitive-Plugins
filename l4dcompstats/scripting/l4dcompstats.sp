@@ -157,8 +157,6 @@ new				g_iDamageDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker
 new				g_iShotsDealt[MAXPLAYERS + 1][MAXPLAYERS + 1];			// Victim - Attacker, count # of shots (not pellets)
 new 	bool:	isroundreallyend;
 
-//harry
-native IsInReady();
 new     Handle:         g_hTrieEntityCreated                                = INVALID_HANDLE;   // getting classname of entity created
 // trie values: OnEntityCreated classname
 enum strOEC
@@ -929,7 +927,7 @@ public Action:PlayerHook_OnTakeDamagePre(victim, &attacker, &inflictor, &Float:d
 
 public Event_PlayerHurt(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (g_bHasRoundEnded||IsInReady()) return;
+	if (g_bHasRoundEnded) return;
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 
 	if (victim == 0 ||
@@ -1565,6 +1563,7 @@ public Event_LungePounce(Handle:event, const String:name[], bool:dontBroadcast)
 		CPrintToChat(victim,"[{olive}TS{default}] {red}%N{default} had {green}%d{default} health remaining!", attacker, remaining_health);
 		if (remaining_health == 1)
 			CPrintToChat(victim, "[{olive}TS{default}] You don't have to be mad...");
+		CPrintToChat(attacker,"[{olive}TS{default}] You had {green}%d{default} health remaining!", remaining_health);
 	}
 }
 
