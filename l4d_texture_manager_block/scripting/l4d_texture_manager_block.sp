@@ -14,7 +14,7 @@ public Plugin myinfo =
 	name = "Mathack Block",
 	author = "Sir, Visor, NightTime & extrav3rt, Harry Potter",
 	description = "Kicks out clients who are potentially attempting to enable mathack",
-	version = "1.3",
+	version = "1.4",
 	url = "http://execlub.biz"
 };
 
@@ -41,6 +41,7 @@ public Action CheckClients(Handle timer)
 			QueryClientConVar(client, "r_drawothermodels", ClientQueryCallback_DrawModels);
 			QueryClientConVar(client, "l4d_bhop", ClientQueryCallback_l4d_bhop); //ban auto bhop from dll
 			QueryClientConVar(client, "l4d_bhop_autostrafe", ClientQueryCallback_l4d_bhop_autostrafe); //ban auto bhop from dll
+			QueryClientConVar(client, "cl_fov", ClientQueryCallback_cl_fov); //kick cl_fov not 90 default
         }
     }	
 }
@@ -196,6 +197,25 @@ public void ClientQueryCallback_l4d_bhop_autostrafe(QueryCookie cookie, int clie
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04l4dbhop.dll: l4d_bhop_autostrafe\x01!", client);
 			KickClient(client, "ConVar l4d_bhop_autostrafe violation");
+		}
+	}
+}
+
+public void ClientQueryCallback_cl_fov(QueryCookie cookie, int client, ConVarQueryResult result, const char[] cvarName, const char[] cvarValue)
+{
+	int clientCvarValue = StringToInt(cvarValue);
+
+	if (clientCvarValue != 90)
+	{
+		char SteamID[32];
+		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
+	
+		LogToFile(path, ".:[Name: %N | STEAMID: %s | l4d_bhop: %d]:.", client, SteamID, clientCvarValue);
+
+		if (g_iPenalty == 1)
+		{
+			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04FOV-Cheating: cl_fov(fov_override)\x01!", client);
+			KickClient(client, "ConVar cl_fov(fov_override) violation, please change back it back to default: 90");
 		}
 	}
 }
