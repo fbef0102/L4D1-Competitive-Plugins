@@ -148,11 +148,11 @@ stock PrintBossPercents(client)
 	if(GetConVarBool(hCvarWitchPercent))
 	{
 		if (iWitchPercent > 0)
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} %d%%", iWitchPercent);
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} %d%%", iWitchPercent);
 		else if (iWitchPercent == -2)
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} Witch Party");
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} Witch Party");
 		else
-			CPrintToChat(client, "{default}[{olive}TS{default}] {red}妹子{default}:{green} None");
+			CPrintToChat(client, "{default}[{olive}TS{default}] {red}Witch{default}:{green} None");
 			
 	}
 }
