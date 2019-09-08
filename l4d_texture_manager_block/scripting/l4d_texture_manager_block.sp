@@ -215,7 +215,7 @@ public void ClientQueryCallback_cl_fov(QueryCookie cookie, int client, ConVarQue
 		if (g_iPenalty == 1)
 		{
 			PrintToChatAll("\x01[\x05TS\x01] \x03%N \x01has been kicked for using \x04FOV-Cheating: cl_fov(fov_override)\x01!", client);
-			KickClient(client, "ConVar cl_fov(fov_override) violation, please change back it back to default: 90");
+			KickClient(client, "ConVar cl_fov(fov_override) violation, must be default: 90");
 		}
 	}
 }
