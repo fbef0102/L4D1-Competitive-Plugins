@@ -210,7 +210,7 @@ public void ClientQueryCallback_cl_fov(QueryCookie cookie, int client, ConVarQue
 		char SteamID[32];
 		GetClientAuthId(client, AuthId_Steam2, SteamID, sizeof(SteamID));
 	
-		LogToFile(path, ".:[Name: %N | STEAMID: %s | l4d_bhop: %d]:.", client, SteamID, clientCvarValue);
+		LogToFile(path, ".:[Name: %N | STEAMID: %s | FOV-Cheating: cl_fov(fov_override) %d]:.", client, SteamID, clientCvarValue);
 
 		if (g_iPenalty == 1)
 		{
