@@ -1,0 +1,4 @@
+Reduces the SI spawning range on finales to normal spawning range
+
+-command-
+"finalspawn_range",	"1", "Reduces the SI spawning range on finales to normal spawning range"

@@ -93,6 +93,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_vomit_pounce_fix</b>: Fixed that player whom hunter pounces on will not be biled by a boomer
 * <b>AntiBreach</b>: Disallows special infected from breaching into safe room by preventing them from spawning nearby the safe room door.
 * <b>l4d1_witch_allow_in_safezone</b>: Allows witches to chase victims into safezones.
+* <b>l4d_finalspawndistance</b>: Reduces the SI spawning range on finales to normal spawning range
 # Scripting Compiler
 most of source codes using [sourcemod 1.63](http://sourcemod.otstrel.ru) Compiler, some source codes need [sourcemod 1.9](https://www.sourcemod.net/downloads.php?branch=1.9-dev) if you want to edit code and recomplie
 * <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
