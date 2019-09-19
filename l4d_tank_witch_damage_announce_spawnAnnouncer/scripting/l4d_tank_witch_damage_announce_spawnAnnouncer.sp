@@ -358,18 +358,26 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 	{
 		if (g_iTotalDamage[client][TANK])
 		{
-			if(g_bIsTankAlive){
-				PrintDamage(client, true);
-				g_bIsTankAlive = false;
-				g_TankOtherDamage = 0;
-				g_bTankInGame = false;
-			}
+			CreateTimer(0.5, PD_t_FindAnyTank2, client, TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else //
 		{
 			//PrintToChatAll("\x04[提示] Tank \x01自爆了(也許卡住了).");
 			//PrintDamage(client, true);
 			CreateTimer(1.5, PD_t_FindAnyTank, _, TIMER_FLAG_NO_MAPCHANGE);
+		}
+	}
+}
+
+public Action:PD_t_FindAnyTank2(Handle:timer, any:client)
+{
+	if(!IsTankInGame())
+	{
+		if(g_bIsTankAlive){
+			PrintDamage(client, true);
+			g_bIsTankAlive = false;
+			g_TankOtherDamage = 0;
+			g_bTankInGame = false;
 		}
 	}
 }

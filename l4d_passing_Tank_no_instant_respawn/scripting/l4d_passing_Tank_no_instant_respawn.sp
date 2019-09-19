@@ -21,12 +21,11 @@ public OnPluginStart()
 
 public OnTankFrustrated(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	new tank = GetClientOfUserId(GetEventInt(event, "userid"));//正在控制tank的玩家 並不是正在傳給的那個人
+	new tank = GetClientOfUserId(GetEventInt(event, "userid"));
 	if (!IsFakeClient(tank))
 	{
 		lastHumanTank = tank;
 		CreateTimer(0.1, CheckForAITank, _, TIMER_FLAG_NO_MAPCHANGE);
-		//CreateTimer(5.1, CheckForOtherPlayerTank,lastHumanTank, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 
@@ -43,31 +42,13 @@ public Action:CheckForAITank(Handle:timer)
 				NULL_VECTOR, 
 				NULL_VECTOR);
 				ForcePlayerSuicide(lastHumanTank);
-				//PrintToChat(lastHumanTank,"No Instant Spawn!!");
+				PrintToChat(lastHumanTank,"\x04[TS] \x01Passing \x04Tank \x01to AI, \x03No Instant Spawn\x01!!");
 			}
 			return Plugin_Handled;
 		}
 	}
 	return Plugin_Handled;
 }
-/*
-public Action:CheckForOtherPlayerTank(Handle:timer,any:client)
-{
-	for (new i = 1; i <= MaxClients; i++)
-	{
-		if (IsTank(i))
-		{
-			if (IsInfected(lastHumanTank)&&!IsFakeClient(i)&& i!=client )//Tank is another player
-			{
-				ForcePlayerSuicide(client);
-				//PrintToChat(client,"No Instant Spawn!!");
-			}
-			return Plugin_Handled;
-		}
-	}
-	return Plugin_Handled;
-}
-*/
 
 bool:IsTank(client)
 {

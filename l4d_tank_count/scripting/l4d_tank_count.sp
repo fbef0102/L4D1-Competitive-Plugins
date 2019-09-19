@@ -107,7 +107,7 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
 				g_isTank[FirstTankClient] = false;
 				GetClientName(client,SecondTankClientName, 32);
 			}
-			else if (ThirdTankClient == -1)
+			else if (ThirdTankClient == -1 && SecondTankClient != client)
 			{
 				ThirdTankClient = client;
 				g_isTank[SecondTankClient] = false;

@@ -10,7 +10,6 @@
 
 #define CVAR_FLAGS			FCVAR_PLUGIN|FCVAR_NOTIFY
 
-
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
 static		bool:IsSecondTank,bool:IsFinal;	
@@ -102,7 +101,6 @@ stock Require_L4D()
 
 public TC_ev_LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-
 	ChoseTankAndPrintWhoBecome();
 }
 
@@ -110,7 +108,7 @@ public Action:Command_SetTank(client, args)
 {
 	if (args < 1 || args > 1)
 	{
-		ReplyToCommand(client, "[SM] Usage: sm_settank <player> - force this player will become the tank");
+		ReplyToCommand(client, "[SM] Usage: sm_settankplayer <player> - force this player will become the tank");
 		return Plugin_Handled;
 	}
 	
