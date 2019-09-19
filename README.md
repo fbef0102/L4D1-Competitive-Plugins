@@ -99,3 +99,7 @@ most of source codes using [sourcemod 1.63](http://sourcemod.otstrel.ru) Compile
 * <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
 * <b>[colors](https://forums.alliedmods.net/showthread.php?t=96831)</b>
 * <b>[l4d2util](https://github.com/ConfoglTeam/l4d2util/tree/master/scripting/include)</b>
+# Others
+* <b>[Rotoblin-AZMod](https://github.com/fbef0102/Rotoblin-AZMod)</b>: A Competitive L4D1 Versus Configuration
+* <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
+* <b>[L4D1-Server4Dead](https://github.com/fbef0102/L4D1-Server4Dead)</b>: Setup your own L4D1 Servers.
