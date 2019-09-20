@@ -29,6 +29,7 @@ static	bool:Tank_firstround_spawn,bool:Witch_firstround_spawn;
 static bool:b_IsSecondWitch;
 new Float:fWitchFlow;
 
+
 public Plugin:myinfo = 
 {
 	name = "l4d_versus_same_UnprohibitBosses",
@@ -92,10 +93,9 @@ public OnMapStart()
 	new iCampaign = (IsFinalMap()||Is_Final_Stage())? FINAL : (IsNewMission()||Is_First_Stage())? INTRO : REGULAR;
 	new Float:fTankFlow =  GetRandomBossFlow(iCampaign);
 	if (!IsTankProhibit()){
-		if(IsDeadAirFinal())
-		{
-			fTankFlow =  GetRandomFloat(0.50,0.55);
-		}
+		
+		fTankFlow = SpecialMapTankFlow(fTankFlow,iCampaign);
+		
 		L4DDirect_SetVSTankToSpawnThisRound(0, true);
 		L4DDirect_SetVSTankToSpawnThisRound(1, true);
 		L4DDirect_SetVSTankFlowPercent(0, fTankFlow);
@@ -110,10 +110,9 @@ public OnMapStart()
 	else
 	{
 		fWitchFlow = GetRandomBossFlow(iCampaign);
-		if(IsDeadAirFinal())
-		{
-			fWitchFlow =  GetRandomFloat(0.50,0.65);
-		}
+		
+		fWitchFlow = SpecialMapWitchFlow(fWitchFlow);
+		
 		L4DDirect_SetVSWitchToSpawnThisRound(0, true);
 		L4DDirect_SetVSWitchToSpawnThisRound(1, true);
 		L4DDirect_SetVWitchFlowPercent(0, fWitchFlow);
@@ -141,11 +140,45 @@ static bool:IsTankProhibit()//犧牲第一關與最後一關不要生Tank
 	return StrEqual(sMap, "l4d_river01_docks") || StrEqual(sMap, "l4d_river03_port")|| StrEqual(sMap, "l4d_forest03_dam");
 }
 
-static bool:IsDeadAirFinal()//tank will not spawn when after 70% in this map
+static Float:SpecialMapTankFlow(const Float:fFlow,iCampaign)
 {
+	new Float:newfFlow = fFlow;
 	decl String:sMap[64];
 	GetCurrentMap(sMap, 64);
-	return StrEqual(sMap, "l4d_vs_airport05_runway");
+	if(StrEqual(sMap, "l4d_vs_airport05_runway"))
+	{
+		newfFlow = GetRandomFloat(0.50,0.55);//tank will not spawn when after 55% in this map
+	}
+	else if(StrEqual(sMap, "l4d_vs_city17_02"))
+	{
+		new suerte = GetRandomInt(1, 2);
+		switch(suerte)//tank will not spawn during infinite horde event in this map	
+		{
+			case 1: // if is 1
+			{
+				newfFlow = GetRandomFloat(g_fCvarVsBossFlow[iCampaign][MIN],0.17);
+			}
+			case 2: // if is 2
+			{
+				newfFlow = GetRandomFloat(0.53,g_fCvarVsBossFlow[iCampaign][MAX]);
+			}
+		}
+	}
+	
+	return newfFlow;
+}
+
+static Float:SpecialMapWitchFlow(const Float:fFlow)
+{
+	new Float:newfFlow = fFlow;
+	decl String:sMap[64];
+	GetCurrentMap(sMap, 64);
+	if(StrEqual(sMap, "l4d_vs_airport05_runway"))
+	{
+		newfFlow = GetRandomFloat(0.50,0.65);//tank will not spawn when after 55% in this map
+	}
+	
+	return newfFlow;
 }
 
 public _UB_Common_CvarChange(Handle:convar, const String:oldValue[], const String:newValue[])
@@ -173,7 +206,7 @@ public Action:L4D_OnSpawnWitch(const Float:vector[3], const Float:qangle[3])
 	GetCurrentMap(sMap, 64);
 	if(StrEqual(sMap, "l4d_vs_city17_01")){//issue with city17 map1, two witches spawn in this stage, block second witch spawn
 		if(b_IsSecondWitch){
-			//PrintToChatAll("Blocking witch spawn...");
+			//PrintToChatAll("Blocking witch spawn (l4d_versus_same_UnprohibitBosses)...");
 			return Plugin_Handled;	
 		}
 		else
