@@ -4,7 +4,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2019/9/20
+> last edited:2019/9/21
 # Require
   * Clean Servers:
       * A clean [L4D1 Dedicated Server](https://github.com/fbef0102/L4D1-Server4Dead/blob/master/README.md#how-to-download-l4d1-dedicated-server-files)
@@ -94,6 +94,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>AntiBreach</b>: Disallows special infected from breaching into safe room by preventing them from spawning nearby the safe room door.
 * <b>l4d1_witch_allow_in_safezone</b>: Allows witches to chase victims into safezones.
 * <b>l4d_finalspawndistance</b>: Reduces the SI spawning range on finales to normal spawning range
+* <b>top</b>: Skeet Announce Edition (Database)
 # Scripting Compiler
 most of source codes using [sourcemod 1.63](http://sourcemod.otstrel.ru) Compiler, some source codes need [sourcemod 1.9](https://www.sourcemod.net/downloads.php?branch=1.9-dev) if you want to edit code and recomplie
 * <b>[l4d_lib](https://github.com/raziEiL/rotoblin2/blob/master/left4dead/addons/sourcemod/scripting/include/l4d_lib.inc)</b> 
