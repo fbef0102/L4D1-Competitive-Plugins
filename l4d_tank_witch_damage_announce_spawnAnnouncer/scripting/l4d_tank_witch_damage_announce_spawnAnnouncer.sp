@@ -358,7 +358,7 @@ public Action:PD_ev_EntityKilled(Handle:event, const String:name[], bool:dontBro
 	{
 		if (g_iTotalDamage[client][TANK])
 		{
-			CreateTimer(0.5, PD_t_FindAnyTank2, client, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.1, PD_t_FindAnyTank2, client, TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else //
 		{
