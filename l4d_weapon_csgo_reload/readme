@@ -1,0 +1,13 @@
+Quickswitch Reloading like CS:GO in L4D
+
+idea from csgo: https://www.youtube.com/watch?v=VfdfbWhVP-8
+videoshowcase: https://youtu.be/Ur0uNQTZhbU
+
+-convar-
+"l4d_enable_reload_clip", 			"1", 	"enable this plugin?[1-Enable,0-Disable]"
+"l4d_enable_clip_recover", 			"1", 	"enable previous clip recover?"			
+"l4d_smg_reload_clip_time", 		"1.65", "reload time for smg clip"				
+"l4d_rifle_reload_clip_time", 		"1.2",  "reload time for rifle clip"			 
+"l4d_huntingrifle_reload_clip_time","2.6",  "reload time for hunting rifle clip"	
+"l4d_pistol_reload_clip_time", 		"1.5",  "reload time for pistol clip"		   
+"l4d_dualpistol_reload_clip_time", 	"2.1",  "reload time for dual pistol clip"       
