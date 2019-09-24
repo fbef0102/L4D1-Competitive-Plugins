@@ -77,10 +77,19 @@ public void OnPluginStart()
 	HookConVarChange(hDualPistolTimeCvar, ConVarChange_hDualPistolTimeCvar);
 	
 	HookEvent("weapon_reload", OnWeaponReload_Event, EventHookMode_Post);
+	HookEvent("round_start", RoundStart_Event);
 	
 	ammoOffset = FindSendPropInfo("CCSPlayer", "m_iAmmo");
 	
 	SetWeapon();
+}
+
+public Action:RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
+{
+	for(new i = 1; i <= MaxClients; i++)
+	{
+		g_hClientReload_Timer[i] = INVALID_HANDLE;
+	}
 }
 
 public void SetWeapon()
