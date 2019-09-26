@@ -36,7 +36,7 @@ float g_PistolTimeCvar;
 float g_DualPistolTimeCvar;
 
 //value
-static	Handle g_hClientReload_Timer[MAXPLAYERS+1]	= {INVALID_HANDLE};	
+float g_hClientReload_Time[MAXPLAYERS+1]	= {0.0};	
 
 //offest
 int ammoOffset;	
@@ -46,7 +46,7 @@ public Plugin:myinfo =
 	name = "weapon csgo reload",
 	author = "Harry Potter",
 	description = "reload like csgo weapon",
-	version = "1.0",
+	version = "1.2",
 	url = "Harry Potter myself,you bitch shit"
 };
 
@@ -88,7 +88,7 @@ public Action:RoundStart_Event(Handle:event, const String:name[], bool:dontBroad
 {
 	for(new i = 1; i <= MaxClients; i++)
 	{
-		g_hClientReload_Timer[i] = INVALID_HANDLE;
+		g_hClientReload_Time[i] = 0.0;
 	}
 }
 
@@ -221,6 +221,9 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 	{
 		return Plugin_Continue;
 	}
+	
+	g_hClientReload_Time[client] = GetEngineTime();
+	
 	char sWeaponName[32];
 	GetClientWeapon(client, sWeaponName, sizeof(sWeaponName));
 	WeaponID weaponid = GetWeaponID(iCurrentWeapon,sWeaponName);
@@ -233,26 +236,21 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 		} 
 	#endif
 	
-	
-	if (g_hClientReload_Timer[client] != INVALID_HANDLE)
-	{
-		KillTimer(g_hClientReload_Timer[client]);
-	}
-	
 	Handle pack;
 	switch(weaponid)
 	{
-		case (WeaponID:ID_SMG): g_hClientReload_Timer[client] = CreateDataTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_RIFLE): g_hClientReload_Timer[client] = CreateDataTimer(g_RifleTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_HUNTING_RIFLE): g_hClientReload_Timer[client] = CreateDataTimer(g_HuntingRifleTimeCvar, WeaponReloadClip, pack,TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_PISTOL): g_hClientReload_Timer[client] = CreateDataTimer(g_PistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_DUAL_PISTOL): g_hClientReload_Timer[client] = CreateDataTimer(g_DualPistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+		case (WeaponID:ID_SMG): CreateDataTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+		case (WeaponID:ID_RIFLE): CreateDataTimer(g_RifleTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+		case (WeaponID:ID_HUNTING_RIFLE): CreateDataTimer(g_HuntingRifleTimeCvar, WeaponReloadClip, pack,TIMER_FLAG_NO_MAPCHANGE);
+		case (WeaponID:ID_PISTOL): CreateDataTimer(g_PistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+		case (WeaponID:ID_DUAL_PISTOL): CreateDataTimer(g_DualPistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
 		default: return Plugin_Continue;
 	}
 	WritePackCell(pack, client);
 	WritePackCell(pack, iCurrentWeapon);
 	WritePackCell(pack, ammo);
 	WritePackCell(pack, weaponid);
+	WritePackCell(pack, g_hClientReload_Time[client]);
 	
 	
 	return Plugin_Continue;
@@ -264,10 +262,12 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	int client = ReadPackCell(pack);
 	int CurrentWeapon = ReadPackCell(pack);
 	int ammo = ReadPackCell(pack);
-	int weaponid = ReadPackCell(pack);
+	WeaponID weaponid = ReadPackCell(pack);
+	float reloadtime = ReadPackCell(pack);
 	int nowsmgclip;
 	
-	if (CurrentWeapon == -1 || //CurrentWeapon drop
+	if ( reloadtime != g_hClientReload_Time[client] || //裝彈時間被刷新
+	CurrentWeapon == -1 || //CurrentWeapon drop
 	!IsValidEntity(CurrentWeapon) || 
 	client == 0 || //client disconnected
 	!IsClientInGame(client) ||
@@ -277,7 +277,6 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	(nowsmgclip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] //CurrentWeapon complete reload finished
 	)
 	{
-		g_hClientReload_Timer[client] = INVALID_HANDLE;
 		return Plugin_Handled;
 	}
 	
@@ -285,7 +284,7 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	{
 		switch(weaponid)
 		{
-			case ID_SMG,ID_RIFLE,ID_HUNTING_RIFLE:
+			case (WeaponID:ID_SMG),(WeaponID:ID_RIFLE),(WeaponID:ID_HUNTING_RIFLE):
 			{
 				ammo -= WeaponMaxClip[weaponid];
 				#if DEBUG
@@ -303,12 +302,10 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 			}
 			default:
 			{
-				g_hClientReload_Timer[client] = INVALID_HANDLE;
 				return Plugin_Handled;
 			}
 		}
 	}
-	g_hClientReload_Timer[client] = INVALID_HANDLE;
 	return Plugin_Handled;
 }
 
