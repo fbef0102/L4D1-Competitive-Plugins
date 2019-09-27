@@ -228,7 +228,7 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 	GetClientWeapon(client, sWeaponName, sizeof(sWeaponName));
 	WeaponID weaponid = GetWeaponID(iCurrentWeapon,sWeaponName);
 	#if DEBUG
-		PrintToChatAll("%N - %s ammo:%d",client,sWeaponName,ammo);
+		PrintToChatAll("%N - %s - weaponid: %d",client,sWeaponName,weaponid);
 		for (int i = 0; i < 32; i++)
 		{
 			PrintToConsole(client, "Offset: %i - Count: %i", i, GetEntData(client, ammoOffset+(i*4)));
