@@ -12,11 +12,11 @@
 
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
-static		bool:IsSecondTank,bool:IsFinal;	
-static bool:g_bIsTankAlive;
+static		bool:IsSecondTank,bool:IsFinal,bool:LinuxIsSecondTank,bool:LinuxIsfirstTank;	
 static Handle:sdkReplaceWithBot = INVALID_HANDLE;
 static const String:GAMEDATA_FILENAME[]             = "l4daddresses";
 static Handle:hPreviousMapTeamTanks;
+static Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
 
 public Plugin:myinfo = {
 	name = "L4D Tank Control",
@@ -68,7 +68,6 @@ public OnPluginStart()
 	if(IsWindowsOrLinux() == 2)
 	{
 		HookEvent("tank_spawn", TC_ev_TankSpawn, EventHookMode_PostNoCopy);
-		HookEvent("entity_killed",		TC_ev_EntityKilled);
 		PrepSDKCalls();
 	}
 	
@@ -229,10 +228,11 @@ public OnMapStart()//每個地圖的第一關載入時清除所有has been tank 
 
 public Action:TC_ev_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	g_bIsTankAlive = false;
 	queuedTank = 0;
 	resuce_start = false;
 	IsSecondTank = false;
+	LinuxIsSecondTank = false;
+	LinuxIsfirstTank = true;
 }
 
 bool:Is_First_Stage()//非官方圖第一關
@@ -366,30 +366,54 @@ public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
 	IsSecondTank = true;//已經第一隻Tank了
 	return Plugin_Continue;
 }
+
 public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (IsPluginDisabled() || resuce_start || IsSecondTank || g_bIsTankAlive) 
+	if (IsPluginDisabled() || resuce_start || LinuxIsSecondTank) 
 		return;
 	
 	new tankclient = GetClientOfUserId(GetEventInt(event, "userid"));
-	new Float:PlayerControlDelay = GetConVarFloat(FindConVar("director_tank_lottery_selection_time"));
+	//new Float:PlayerControlDelay = GetConVarFloat(FindConVar("director_tank_lottery_selection_time"));
 	if(IsFakeClient(tankclient))
 	{
-		g_bIsTankAlive = true;
+		//if (queuedTank == -2)//本來特感沒有人 現在克復活再選一次人
+		//{
+		//	ChooseTank();
+		//}
+		//else if (queuedTank == -1)//自由搶第一隻克
+		//{
+		//	CreateTimer(5.0, CheckForAITank, _, TIMER_FLAG_NO_MAPCHANGE);
+		//}
+		if(LinuxIsfirstTank)
+		{
+			LinuxIsfirstTank = false;
+			GetEntPropVector(tankclient, Prop_Send, "m_angRotation", g_fTankData_angel);
+			GetEntPropVector(tankclient, Prop_Send, "m_vecOrigin", g_fTankData_origin);
+			KickClient(tankclient);
+			CreateTimer(0.1,AutoSpawnTank);
+		}
+		else
+		{
+			TeleportEntity(tankclient, g_fTankData_origin, g_fTankData_angel, NULL_VECTOR);
+			LinuxIsSecondTank = true;
 		
-		if (queuedTank == -2)//本來特感沒有人 現在克復活再選一次人
-		{
-			ChooseTank();
+			for (new index; index < 3; index++){
+				g_fTankData_origin[index] = 0.0;
+				g_fTankData_angel[index] = 0.0;
+			}
 		}
-		else if (queuedTank == -1)//自由搶第一隻克
-		{
-			CreateTimer(5.0, CheckForAITank, _, TIMER_FLAG_NO_MAPCHANGE);
-		}
-		IsSecondTank = true;//已經第一隻Tank了
 	}
-	CreateTimer(PlayerControlDelay-0.1, ForcePlayerBecomeTank, tankclient, TIMER_FLAG_NO_MAPCHANGE);
+	//CreateTimer(PlayerControlDelay-0.1, ForcePlayerBecomeTank, tankclient, TIMER_FLAG_NO_MAPCHANGE);
+	
 }
-
+public Action:kickbot(Handle:timer, any:client)
+{
+	if (IsClientInGame(client) && IsFakeClient(client))
+	{
+		KickClient(client);
+	}
+}
+/*
 public Action:ForcePlayerBecomeTank(Handle:timer,any:tankclient)
 {
 	if(queuedTank<=0 || !IsClientInGame(queuedTank) || IsFakeClient(queuedTank) || GetClientTeam(queuedTank)!=3) return;
@@ -417,22 +441,7 @@ public Action:SLAYAITANK(Handle:timer,any:tankclient)
 	
 	KickClient(tankclient, "Kicked AI Tank Bug");
 }
-
-public Action:TC_ev_EntityKilled(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	decl client;
-	if (g_bIsTankAlive && IsPlayerTank((client = GetEventInt(event, "entindex_killed"))))
-	{
-		CreateTimer(1.5, FindAnyTank, client, TIMER_FLAG_NO_MAPCHANGE);
-	}
-}
-
-public Action:FindAnyTank(Handle:timer, any:client)
-{
-	if(!IsTankInGame()){
-		g_bIsTankAlive = false;
-	}
-}
+*/
 
 public Action:CheckForAITank(Handle:timer)
 {
@@ -660,16 +669,6 @@ stock IsWindowsOrLinux()
      return WindowsOrLinux; //1 for windows; 2 for linux
 }
 
-IsTankInGame(exclude = 0)
-{
-	for (new i = 1; i <= MaxClients; i++)
-		if (exclude != i && IsClientInGame(i) && GetClientTeam(i) == 3 && IsPlayerTank(i) && IsInfectedAlive(i) && !IsIncapacitated(i))
-			return i;
-
-	return 0;
-}
-
-
 public Action:Event_Finale_Start(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	resuce_start = true;
@@ -705,4 +704,93 @@ stock L4DD_ReplaceWithBot(client, boolean)
 stock L4DD_ReplaceTank(client, target)
 {
     L4DDirect_ReplaceTank(client,target);
+}
+
+public Action:AutoSpawnTank(Handle:timer)
+{
+	new bool:resetGhost[MAXPLAYERS+1];
+	new bool:resetLife[MAXPLAYERS+1];
+	
+	for (new i=1;i<=MaxClients;i++)
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i)) // player is connected and is not fake and it's in game ...
+		{
+			// If player is on infected's team and is dead ..
+			if (GetClientTeam(i) == 3)
+			{
+				// If player is a ghost ....
+				if (IsPlayerGhost(i))
+				{
+					resetGhost[i] = true;
+					SetGhostStatus(i, false);
+				}
+				else if (!IsInfectedAlive(i)) // if player is just dead
+				{
+					resetLife[i] = true;
+					SetLifeState(i, false);
+				}
+			}
+		}
+	}
+	new anyclient = GetAnyClient();
+	new bool:temp = false;
+	if (anyclient == -1)
+	{
+		// we create a fake client
+		anyclient = CreateFakeClient("Bot");
+		if (!anyclient)
+		{
+			LogError("[L4D] Infected Bots: CreateFakeClient returned 0 -- Infected bot was not spawned");
+			return;	
+		}
+		temp = true;
+	}
+	CheatCommand(anyclient, "z_spawn", "tank auto");
+	// We restore the player's status
+	for (new i=1;i<=MaxClients;i++)
+	{
+		if (resetGhost[i] == true)
+			SetGhostStatus(i, true);
+		if (resetLife[i] == true)
+			SetLifeState(i, true);
+	}
+	
+	// If client was temp, we setup a timer to kick the fake player
+	if (temp) CreateTimer(0.1,kickbot,anyclient);
+}
+
+stock GetAnyClient() 
+{ 
+	for (new target = 1; target <= MaxClients; target++) 
+	{ 
+		if (IsClientInGame(target)&&GetClientTeam(target)==2) return target; 
+	} 
+	return -1; 
+} 
+
+stock CheatCommand(client, String:command[], String:arguments[] = "")
+{
+	new userFlags = GetUserFlagBits(client);
+	SetUserFlagBits(client, ADMFLAG_ROOT);
+	new flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s", command, arguments);
+	SetCommandFlags(command, flags);
+	SetUserFlagBits(client, userFlags);
+}
+
+SetGhostStatus (client, bool:ghost)
+{
+	if (ghost)
+		SetEntProp(client, Prop_Send, "m_isGhost", 1);
+	else
+	SetEntProp(client, Prop_Send, "m_isGhost", 0);
+}
+
+SetLifeState (client, bool:ready)
+{
+	if (ready)
+		SetEntProp(client, Prop_Send,  "m_lifeState", 1);
+	else
+	SetEntProp(client, Prop_Send, "m_lifeState", 0);
 }
