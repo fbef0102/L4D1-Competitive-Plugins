@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4DVSAutoSpectateOnAFK
-* Version	: 1.4
+* Version	: 1.4.1
 * Game		: Left 4 Dead 
 * Author	: djromero (SkyDavid, David) & Harry
 * Testers	: Myself
@@ -42,10 +42,12 @@ new afkPlayerTimeLeftAction[MAXPLAYERS + 1];
 new afkPlayerTrapped[MAXPLAYERS + 1];
 new Float:afkPlayerLastPos[MAXPLAYERS + 1][3];
 new Float:afkPlayerLastEyes[MAXPLAYERS + 1][3];
-new Handle:afkTimer;
 new bool:IsMapVS;
 new bool:LeavedSafeRoom;
 new bool:PlayerJustConnected[MAXPLAYERS + 1];
+native IsInReady();
+native IsInPause();
+native Is_Ready_Plugin_On();
 
 public Plugin:myinfo = 
 {
@@ -509,14 +511,16 @@ afkManager_Start()
 	}
 	
 	// we start the check thread ....
-	afkTimer = CreateTimer(float(afkCheckInterval), afkCheckThread, _, TIMER_REPEAT);
+	CreateTimer(float(afkCheckInterval), afkCheckThread, _, TIMER_REPEAT);
 }
 
 public Action:afkCheckThread(Handle:timer)
 {
 	// if afkmanager is not active ...
-	if (!afkManager_Active)
+	if (!afkManager_Active || Is_Ready_Plugin_On())
 		return Plugin_Stop;
+	if(IsInReady() || IsInPause() )
+		return Plugin_Continue;
 		
 	new count = GetMaxClients();
 	decl i;
@@ -755,13 +759,7 @@ afkManager_Stop()
 	
 	// We unregister the events
 	afkUnRegisterEvents();
-	
-	// we kill the timer
-	if (afkTimer != INVALID_HANDLE)
-	{
-		KillTimer(afkTimer, false);
-		afkTimer = INVALID_HANDLE;
-	}
+
 }
 
 /////////////////
