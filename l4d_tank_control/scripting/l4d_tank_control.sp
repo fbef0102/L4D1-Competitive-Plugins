@@ -10,6 +10,8 @@
 
 #define CVAR_FLAGS			FCVAR_PLUGIN|FCVAR_NOTIFY
 
+native Is_Ready_Plugin_On();
+
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
 static		bool:IsSecondTank,bool:IsFinal,bool:LinuxIsSecondTank,bool:LinuxIsfirstTank;	
@@ -100,7 +102,8 @@ stock Require_L4D()
 
 public TC_ev_LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	ChoseTankAndPrintWhoBecome();
+	if(!Is_Ready_Plugin_On())
+		ChoseTankAndPrintWhoBecome();
 }
 
 public Action:Command_SetTank(client, args)
@@ -715,7 +718,7 @@ public Action:AutoSpawnTank(Handle:timer)
 	{
 		if (IsClientInGame(i) && !IsFakeClient(i)) // player is connected and is not fake and it's in game ...
 		{
-			// If player is on infected's team and is dead ..
+			// If player is on infected's team and ...
 			if (GetClientTeam(i) == 3)
 			{
 				// If player is a ghost ....
@@ -724,7 +727,7 @@ public Action:AutoSpawnTank(Handle:timer)
 					resetGhost[i] = true;
 					SetGhostStatus(i, false);
 				}
-				else if (!IsInfectedAlive(i)) // if player is just dead
+				else if (!PlayerIsAlive(i)) // if player is just dead
 				{
 					resetLife[i] = true;
 					SetLifeState(i, false);
@@ -757,6 +760,64 @@ public Action:AutoSpawnTank(Handle:timer)
 	
 	// If client was temp, we setup a timer to kick the fake player
 	if (temp) CreateTimer(0.1,kickbot,anyclient);
+	
+	CreateTimer(0.5, TankRespawner, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action:TankRespawner(Handle:timer)
+{
+	if(IsTankInGame()) return;
+	
+	
+	new bool:resetGhost[MAXPLAYERS+1];
+	new bool:resetLife[MAXPLAYERS+1];
+	
+	
+	for (new i=1;i<=MaxClients;i++)
+	{
+		if (IsClientInGame(i) && !IsFakeClient(i)) 
+		{
+			if (GetClientTeam(i) == 3)
+			{
+				if (IsPlayerGhost(i))
+				{
+					resetGhost[i] = true;
+					SetGhostStatus(i, false);
+				}
+				else if (!PlayerIsAlive(i))
+				{
+					resetLife[i] = true;
+					SetLifeState(i, false);
+				}
+			}
+		}
+	}
+	
+	new anyclient = GetAnyClient();
+	new bool:temp = false;
+	if (anyclient == -1)
+	{
+		anyclient = CreateFakeClient("Bot");
+		if (!anyclient)
+		{
+			LogError("[L4D] Infected Bots: CreateFakeClient returned 0 -- Infected Tank was not spawned");
+		}
+		temp = true;
+	}
+	
+	StripAndExecuteClientCommand(anyclient, "z_spawn", "tank auto");
+
+	for (new i=1;i<=MaxClients;i++)
+	{
+		if (resetGhost[i] == true)
+			SetGhostStatus(i, true);
+		if (resetLife[i] == true)
+			SetLifeState(i, true);
+	}
+	
+	if (temp) CreateTimer(0.1,kickbot,anyclient);
+	
+	CreateTimer(0.5, TankRespawner, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 stock GetAnyClient() 
@@ -768,7 +829,7 @@ stock GetAnyClient()
 	return -1; 
 } 
 
-stock CheatCommand(client, String:command[], String:arguments[] = "")
+CheatCommand(client, String:command[], String:arguments[] = "")
 {
 	new userFlags = GetUserFlagBits(client);
 	SetUserFlagBits(client, ADMFLAG_ROOT);
@@ -777,6 +838,13 @@ stock CheatCommand(client, String:command[], String:arguments[] = "")
 	FakeClientCommand(client, "%s %s", command, arguments);
 	SetCommandFlags(command, flags);
 	SetUserFlagBits(client, userFlags);
+}
+
+StripAndExecuteClientCommand(client, const String:command[], const String:arguments[]) {
+	new flags = GetCommandFlags(command);
+	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+	FakeClientCommand(client, "%s %s", command, arguments);
+	SetCommandFlags(command, flags);
 }
 
 SetGhostStatus (client, bool:ghost)
@@ -794,3 +862,20 @@ SetLifeState (client, bool:ready)
 	else
 	SetEntProp(client, Prop_Send, "m_lifeState", 0);
 }
+
+bool:PlayerIsAlive (client)
+{
+	if (!GetEntProp(client,Prop_Send, "m_lifeState"))
+		return true;
+	return false;
+}
+
+IsTankInGame()
+{
+	for (new i = 1; i <= MaxClients; i++)
+		if (IsClientInGame(i) && GetClientTeam(i) == 3 && IsPlayerTank(i) && IsInfectedAlive(i) && !IsIncapacitated(i))
+			return i;
+
+	return 0;
+}
+
