@@ -12,10 +12,6 @@ static passCount = 1;
 static tankclient ;
 static bool:bTankHudActive[MAXPLAYERS + 1];
 
-native bool:IsClientSpecHud(client);//From l4d_versus_spechud
-native bool:IsClientVoteMenu(client);//From Votes2
-native bool:IsClientInfoMenu(client);//From l4d_Harry_Roto2-AZ_mod_info
-
 public Plugin:myinfo = 
 {
 	name = "L4D tank hud",
@@ -104,10 +100,10 @@ public Action:HudDrawTimer(Handle:hTimer)
 		for (new i = 1; i <= MaxClients; i++) 
 		{
 
-			if (!bTankHudActive[i] || !IsClientConnected(i) || IsFakeClient(i) || IsSurvivor(i) || IsClientVoteMenu(i) || IsClientInfoMenu(i) )
+			if (!bTankHudActive[i] || !IsClientConnected(i) || IsFakeClient(i) || IsSurvivor(i))
 				continue;
 			
-			if(IsSpectator(i) && IsClientSpecHud(i))
+			if(IsSpectator(i))
 				continue;
 
 			//if( IsInfected(i) && GetEntProp(i, Prop_Send, "m_zombieClass") == 5)//Tank自己不顯示
