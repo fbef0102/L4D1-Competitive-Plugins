@@ -3,11 +3,11 @@ Hides all weapons and iteams from the infected team or dead survivor until they 
 original plugin from djromero: https://forums.alliedmods.net/showthread.php?p=761203
 
 -convars-
-"l4d_specafk_warnspectime", "15", "Warn time before spec"
+"l4d_specafk_warnspectime", "20", "Warn time before spec"
 "l4d_specafk_spectime", "15", "time before spec (after warn)"
-"l4d_specafk_warnkicktime", "30", "Warn time before kick (while already on spec)"
+"l4d_specafk_warnkicktime", "60", "Warn time before kick (while already on spec)"
 "l4d_specafk_kicktime", "30", "time before kick (while already on spec after warn)"
 "l4d_specafk_checkinteral", "5", "Check/warn interval"
-"l4d_specafk_kickenabled", "1", "If kick enabled on afk while on spec"
+"l4d_specafk_kickenabled", "0", "If kick enabled on afk while on spec"
 "l4d_specafk_speconconnect", "0", "If player will be forced to spectate on connect"
 "l4d_specafk_showteampanel", "0", "If team panel will be showed to connecting players"
