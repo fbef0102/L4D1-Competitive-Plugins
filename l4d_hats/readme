@@ -1,0 +1,37 @@
+Attaches specified models to players above their head.
+
+-convars-
+"l4d_hats_allow",		"1",			"0=Plugin off, 1=Plugin on."
+"l4d_hats_change",		"0",			"0=Off. Other value puts the player into thirdperson for this many seconds when selecting a hat."
+"l4d_hats_modes",		"",				"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all)."
+"l4d_hats_modes_off",	"",				"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none)."
+"l4d_hats_modes_tog",	"",				"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together."
+"l4d_hats_menu",		"",				"Specify admin flags or blank to allow all players access to the hats menu."
+"l4d_hats_opaque",		"255", 			"How transparent or solid should the hats appear. 0=Translucent, 255=Opaque."
+"l4d_hats_random",		"0", 			"Attach a random hat when survivors spawn. 0=Never. 1=On round start. 2=Only first spawn (keeps the same hat next round)."
+"l4d_hats_save",		"0", 			"0=Off, 1=Save the players selected hats and attach when they spawn or rejoin the server."
+"l4d_hats_third",		"1", 			"0=Off, 1=When a player is in third person view, display their hat. Hide when in first person view."
+"l4d_hats_view",		"0",			"0=Off, 1=Make a players hat visible by default when they join."
+"l4d_hats_version",	"Hats plugin version."
+
+-command-
+"sm_hat", 			"Displays a menu of hats allowing players to change what they are wearing."
+"sm_hatoff",		"Toggle to turn on or off the ability of wearing hats."
+"sm_hatshow",		"Toggle to see or hide your own hat." );
+"sm_hatview",		"Toggle to see or hide your own hat." );
+"sm_chapeu",		"Displays a menu of hats allowing players to change what they are wearing."
+"sm_chapeuoff",		"Toggle to turn on or off the ability of wearing hats."
+"sm_chapeuon",		"Toggle to turn on or off the ability of wearing hats."
+"sm_verchapeu",		"Toggle to see or hide your own hat."
+"sm_chapeuoffpara",	"Toggle the ability of wearing hats on specific players."
+"sm_chapeupara",	"Displays a menu listing players, select one to change their hat."
+"sm_chapeurandom",	"Randomizes all players hats."
+"sm_chapeurand",	"Randomizes all players hats."
+"sm_hatadd",		"Adds specified model to the config (must be the full model path)."
+"sm_hatdel",		"Removes a model from the config (either by index or partial name matching)."
+"sm_hatlist",		"Displays a list of all the hat models (for use with sm_hatdel)."
+"sm_hatsave",		"Saves the hat position and angels to the hat config."
+"sm_hatload",		"Changes all players hats to the one you have."
+"sm_hatang",		"Shows a menu allowing you to adjust the hat angles (affects all hats/players)."
+"sm_hatpos",		"Shows a menu allowing you to adjust the hat position (affects all hats/players)."
+"sm_hatsize",		"Shows a menu allowing you to adjust the hat size (affects all hats/players)."

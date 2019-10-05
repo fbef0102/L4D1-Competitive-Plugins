@@ -1,0 +1,89 @@
+"Phrases"
+{
+	"Hat_Wearing"
+	{
+		"#format"		"{1:s}"
+		"en"			"You are now wearing the {green}[{1}] {lightgreen}hat."
+		"chi"			"你正在戴 {green}[{1}] {lightgreen}帽子."
+		"zho"			"你正在戴 {green}[{1}] {lightgreen}帽子."
+	}
+	"Hat_Changed"
+	{
+		"#format"		"{1:s}"
+		"en"			"Changed hat on {green}{1}{lightgreen}."
+		"chi"			"改变帽子 {green}{1}{lightgreen}."
+		"zho"			"改變帽子 {green}{1}{lightgreen}."
+	}
+	"Hat_No_Index"
+	{
+		"#format"		"{1:d}{2:d}"
+		"en"			"Cannot find the hat index {green}{1}{lightgreen}, values between {green}1{lightgreen} and {green}{2}{lightgreen}."
+		"chi"			"无法找到帽子编号 {green}{1}{lightgreen}, 值必须是 {green}1{lightgreen} 到 {green}{2}{lightgreen}之间."
+		"zho"			"無法找到帽子編號 {green}{1}{lightgreen}, 值必須是 {green}1{lightgreen} 到 {green}{2}{lightgreen}之間."
+	}
+	"Hat_Not_Found"
+	{
+		"#format"		"{1:s}"
+		"en"			"Cannot find the hat {green}{1}{lightgreen}."
+		"chi"			"无法找到帽子 {green}{1}{lightgreen}."
+		"zho"			"無法找到帽子 {green}{1}{lightgreen}."
+	}
+	"Hat_Invalid"
+	{
+		"en"			"Invalid player selected."
+		"chi"			"非法的玩家."
+		"zho"			"非法的玩家."
+	}
+	"Hat_Unblocked"
+	{
+		"#format"		"{1:s}"
+		"en"			"Unblocked hats for {green}{1}{lightgreen}."
+		"chi"			"解除锁定帽子 {green}{1}{lightgreen}."
+		"zho"			"解除鎖定帽子 {green}{1}{lightgreen}."
+	}
+	"Hat_Blocked"
+	{
+		"#format"		"{1:s}"
+		"en"			"Blocked hats for {green}{1}{lightgreen}."
+		"chi"			"锁定帽子 {green}{1}{lightgreen}."
+		"zho"			"鎖定帽子 {green}{1}{lightgreen}."
+	}
+	"Hat_View"
+	{
+		"#format"		"{1:s}"
+		"en"			"{lightgreen}Personal hat view has been turned {green}{1}{lightgreen}."
+		"chi"			"{lightgreen}私人观看模式已 {green}{1}{lightgreen}."
+		"zho"			"{lightgreen}私人觀看模式已 {green}{1}{lightgreen}."
+	}
+	"Hat_Ability"
+	{
+		"#format"		"{1:s}"
+		"en"			"{lightgreen}You have turned {green}{1}{lightgreen} the ability to wear hats."
+		"chi"			"{lightgreen}你已 {green}{1}{lightgreen}戴帽子的能力."
+		"zho"			"{lightgreen}你已 {green}{1}{lightgreen}戴帽子的能力."
+	}
+	"Hat_On"
+	{
+		"en"			"on"
+		"chi"			"开启"
+		"zho"			"開啟"
+	}
+	"Hat_Off"
+	{
+		"en"			"off"
+		"chi"			"关闭"
+		"zho"			"關閉"
+	}
+	"Hat_Menu_Title"
+	{
+		"en"			"Select your hat."
+		"chi"			"选择你的帽子."
+		"zho"			"選擇你的帽子."
+	}
+	"Hat_Missing"
+	{
+		"en"			"You're not wearing a hat!"
+		"chi"			"你没在戴帽子!"
+		"zho"			"你沒在戴帽子!"
+	}
+}

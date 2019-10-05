@@ -1,0 +1,154 @@
+"Phrases"
+{
+
+	"Hat 1"
+	{
+		"en"		"gibs"
+		"chi"		"夹条"
+		"zho"		"夾條"
+	}
+
+	"Hat 2"
+	{
+		"en"		"exploded_boomer_head"
+		"chi"		"Boomer头"
+		"zho"		"Boomer頭"
+	}
+	"Hat 3"
+	{
+		"en"		"limb_male_head"
+		"chi"		"僵尸头"
+		"zho"		"殭屍頭"
+	}
+
+	"Hat 4"
+	{
+		"en"		"circularsaw"
+		"chi"		"圆锯"
+		"zho"		"圓鋸"
+	}
+
+	"Hat 5"
+	{
+		"en"		"emergency_lighta"
+		"chi"		"警报灯"
+		"zho"		"警報燈"
+	}
+
+	"Hat 6"
+	{
+		"en"		"teddy_bear"
+		"chi"		"泰迪熊"
+		"zho"		"泰迪熊"
+	}
+	"Hat 7"
+	{
+		"en"		"toilet_b_breakable01_part"
+		"chi"		"马桶圈"
+		"zho"		"馬桶圈"
+	}
+
+	"Hat 8"
+	{
+		"en"		"waterbottle"
+		"chi"		"水瓶"
+		"zho"		"水瓶"
+	}
+	"Hat 9"
+	{
+		"en"		"light_construction"
+		"chi"		"电灯泡"
+		"zho"		"電燈泡"
+	}
+
+	"Hat 10"
+	{
+		"en"		"info_speech"
+		"chi"		"点点点"
+		"zho"		"點點點"
+	}
+
+	"Hat 11"
+	{
+		"en"		"smoker_tongue_attach"
+		"chi"		"舌头"
+		"zho"		"舌頭"
+	}
+
+	"Hat 12"
+	{
+		"en"		"ceiling_fan_blade"
+		"chi"		"天花板风扇"
+		"zho"		"天花板風扇"
+	}
+
+	"Hat 13"
+	{
+		"en"		"dead_male_civilian_radio"
+		"chi"		"对讲机"
+		"zho"		"對講機"
+	}
+
+	"Hat 14"
+	{
+		"en"		"styrofoam_cups"
+		"chi"		"对讲机"
+		"zho"		"對講機"
+	}
+
+	"Hat 15"
+	{
+		"en"		"grill_campground"
+		"chi"		"露营烧烤架"
+		"zho"		"露營燒烤架"
+	}
+
+	"Hat 16"
+	{
+		"en"		"luggagecart"
+		"chi"		"行李车"
+		"zho"		"行李車"
+	}
+
+	"Hat 17"
+	{
+		"en"		"lantern"
+		"chi"		"灯笼"
+		"zho"		"燈籠"
+	}
+
+	"Hat 18"
+	{
+		"en"		"toaster"
+		"chi"		"烤面包机"
+		"zho"		"烤麵包機"
+	}
+
+	"Hat 19"
+	{
+		"en"		"doll"
+		"chi"		"娃娃"
+		"zho"		"娃娃"
+	}
+
+	"Hat 20"
+	{
+		"en"		"garbage_hubcap"
+		"chi"		"垃圾盖"
+		"zho"		"垃圾蓋"
+	}
+
+	"Hat 21"
+	{
+		"en"		"desklamp"
+		"chi"		"台灯"
+		"zho"		"檯燈"
+	}
+
+	"Hat 22"
+	{
+		"en"		"tv"
+		"chi"		"电视"
+		"zho"		"電視"
+	}
+}
