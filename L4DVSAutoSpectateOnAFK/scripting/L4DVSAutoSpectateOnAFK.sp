@@ -72,9 +72,9 @@ public OnPluginStart()
 	HookEvent("finale_vehicle_leaving", afkEventFinaleLeaving, EventHookMode_Pre);
 	
 	// Afk manager time limits
-	h_AfkWarnSpecTime = CreateConVar("l4d_specafk_warnspectime", "15", "Warn time before spec", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
+	h_AfkWarnSpecTime = CreateConVar("l4d_specafk_warnspectime", "25", "Warn time before spec", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkSpecTime = CreateConVar("l4d_specafk_spectime", "15", "time before spec (after warn)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
-	h_AfkWarnKickTime = CreateConVar("l4d_specafk_warnkicktime", "30", "Warn time before kick (while already on spec)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
+	h_AfkWarnKickTime = CreateConVar("l4d_specafk_warnkicktime", "60", "Warn time before kick (while already on spec)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkKickTime = CreateConVar("l4d_specafk_kicktime", "30", "time before kick (while already on spec after warn)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkCheckInterval = CreateConVar("l4d_specafk_checkinteral", "5", "Check/warn interval", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkKickEnabled = CreateConVar("l4d_specafk_kickenabled", "1", "If kick enabled on afk while on spec", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
@@ -442,7 +442,7 @@ public Action:afkChangedTeam (Handle:event, const String:name[], bool:dontBroadc
 public Action:afkJoinHint (Handle:Timer, any:client)
 {
 	// If player is valid
-	if ((client > 0) && IsClientConnected(client) && IsClientInGame(client))
+	if ((client > 0) && IsClientConnected(client) && IsClientInGame(client) && !Is_Ready_Plugin_On())
 	{
 		// If player is still on spectators ...
 		if (GetClientTeam(client) == 1)
@@ -661,7 +661,7 @@ public Action:afkCheckThread(Handle:timer)
 
 afkForceSpectate (client, bool:advertise, bool:self)
 {
-	if ((!IsClientConnected(client))||IsFakeClient(client))
+	if ((!IsClientConnected(client))||IsFakeClient(client)||Is_Ready_Plugin_On())
 	{
 		return;
 	}
