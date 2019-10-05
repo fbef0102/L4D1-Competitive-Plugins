@@ -1,6 +1,6 @@
 /********************************************************************************************
 * Plugin	: L4DVSAutoSpectateOnAFK
-* Version	: 1.4.1
+* Version	: 1.5
 * Game		: Left 4 Dead 
 * Author	: djromero (SkyDavid, David) & Harry
 * Testers	: Myself
@@ -13,7 +13,7 @@
 #include <sourcemod>
 #include <sdktools>
 #include <sdktools_functions>
-#define PLUGIN_VERSION "1.3.1"
+#define PLUGIN_VERSION "1.5"
 
 
 // For cvars
@@ -25,6 +25,7 @@ new Handle:h_AfkCheckInterval;
 new Handle:h_AfkKickEnabled;
 new Handle:h_AfkSpecOnConnect;
 new Handle:h_AfkShowTeamPanel;
+new Handle:h_GameMode;
 new afkWarnSpecTime;
 new afkSpecTime;
 new afkWarnKickTime;
@@ -45,9 +46,6 @@ new Float:afkPlayerLastEyes[MAXPLAYERS + 1][3];
 new bool:IsMapVS;
 new bool:LeavedSafeRoom;
 new bool:PlayerJustConnected[MAXPLAYERS + 1];
-native IsInReady();
-native IsInPause();
-native Is_Ready_Plugin_On();
 
 public Plugin:myinfo = 
 {
@@ -61,7 +59,7 @@ public Plugin:myinfo =
 public OnPluginStart()
 {
 	// We register the spectate command
-	RegConsoleCmd("spectate", cmd_spectate);
+	//RegConsoleCmd("spectate", cmd_spectate);
 	RegConsoleCmd("say", Command_Say);
 	RegConsoleCmd("say_team", Command_Say);
 	
@@ -72,7 +70,7 @@ public OnPluginStart()
 	HookEvent("finale_vehicle_leaving", afkEventFinaleLeaving, EventHookMode_Pre);
 	
 	// Afk manager time limits
-	h_AfkWarnSpecTime = CreateConVar("l4d_specafk_warnspectime", "25", "Warn time before spec", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
+	h_AfkWarnSpecTime = CreateConVar("l4d_specafk_warnspectime", "20", "Warn time before spec", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkSpecTime = CreateConVar("l4d_specafk_spectime", "15", "time before spec (after warn)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkWarnKickTime = CreateConVar("l4d_specafk_warnkicktime", "60", "Warn time before kick (while already on spec)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
 	h_AfkKickTime = CreateConVar("l4d_specafk_kicktime", "30", "time before kick (while already on spec after warn)", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY, false, 0.0, false, 0.0);
@@ -99,7 +97,20 @@ public OnPluginStart()
 	
 	// We read the cvars
 	ReadCvars();
-}
+	
+	h_GameMode = FindConVar("mp_gamemode");
+	HookConVarChange(h_GameMode, ConVarGameMode);
+}
+public ConVarGameMode(Handle:convar, const String:oldValue[], const String:newValue[])
+{
+	decl String:GameName[16];
+	GetConVarString(h_GameMode, GameName, sizeof(GameName));
+	if (StrEqual(GameName, "versus", false))
+		IsMapVS = true;
+	else
+		IsMapVS = false;
+}
+
 public ReadCvars()
 {
 	// first we read all the variables ...
@@ -118,7 +129,7 @@ public ConVarChanged(Handle:convar, const String:oldValue[], const String:newVal
 	ReadCvars();
 }
 
-
+/*
 public Action:cmd_spectate(client, args)
 {
 	// If game is vs 
@@ -130,7 +141,7 @@ public Action:cmd_spectate(client, args)
 	
 	return Plugin_Continue;
 }
-
+*/
 
 public OnMapStart()
 {
@@ -204,13 +215,6 @@ public Action:Command_Say(client, args)
 
 public Action:Event_RoundStart (Handle:event, const String:name[], bool:dontBroadcast)
 {
-	// We determine if map is vs ...
-	new String:MapName[80];
-	GetCurrentMap(MapName, sizeof(MapName));
-	if (StrContains(MapName, "_vs_", false) != -1)
-		IsMapVS = true;
-	else
-	IsMapVS = false;
 	
 	// reset some variables
 	LeavedSafeRoom = false;
@@ -224,15 +228,7 @@ public Action:Event_RoundStart (Handle:event, const String:name[], bool:dontBroa
 
 public Action:PlayerLeftStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	// We check is map is VS ....
-	if (IsMapVS)
-	{
-		// We don't care who left, just that at least one did
-		if (!LeavedSafeRoom)
-		{
-			LeavedSafeRoom = true;
-		}
-	}
+	LeavedSafeRoom = true;
 	return Plugin_Continue;
 }
 
@@ -410,6 +406,7 @@ public Action:afkPlayerAction (Handle:event, const String:name[], bool:dontBroad
 
 public Action:afkChangedTeam (Handle:event, const String:name[], bool:dontBroadcast)
 {
+
 	// we get the victim
 	new victim = GetClientOfUserId(GetEventInt(event, "userid"));
 	if (victim > 0)
@@ -442,7 +439,7 @@ public Action:afkChangedTeam (Handle:event, const String:name[], bool:dontBroadc
 public Action:afkJoinHint (Handle:Timer, any:client)
 {
 	// If player is valid
-	if ((client > 0) && IsClientConnected(client) && IsClientInGame(client) && !Is_Ready_Plugin_On())
+	if ((client > 0) && IsClientConnected(client) && IsClientInGame(client))
 	{
 		// If player is still on spectators ...
 		if (GetClientTeam(client) == 1)
@@ -517,10 +514,8 @@ afkManager_Start()
 public Action:afkCheckThread(Handle:timer)
 {
 	// if afkmanager is not active ...
-	if (!afkManager_Active || Is_Ready_Plugin_On())
+	if (!afkManager_Active)
 		return Plugin_Stop;
-	if(IsInReady() || IsInPause() )
-		return Plugin_Continue;
 		
 	new count = GetMaxClients();
 	decl i;
@@ -661,7 +656,7 @@ public Action:afkCheckThread(Handle:timer)
 
 afkForceSpectate (client, bool:advertise, bool:self)
 {
-	if ((!IsClientConnected(client))||IsFakeClient(client)||Is_Ready_Plugin_On())
+	if (!IsClientConnected(client)||IsFakeClient(client))
 	{
 		return;
 	}
