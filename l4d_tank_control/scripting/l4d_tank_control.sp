@@ -10,8 +10,6 @@
 
 #define CVAR_FLAGS			FCVAR_PLUGIN|FCVAR_NOTIFY
 
-native Is_Ready_Plugin_On();
-
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
 static		bool:IsSecondTank,bool:IsFinal,bool:LinuxIsSecondTank,bool:LinuxIsfirstTank;	
@@ -19,7 +17,6 @@ static Handle:sdkReplaceWithBot = INVALID_HANDLE;
 static const String:GAMEDATA_FILENAME[]             = "l4daddresses";
 static Handle:hPreviousMapTeamTanks;
 static Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
-
 public Plugin:myinfo = {
 	name = "L4D Tank Control",
 	author = "Jahze, vintik, raziEiL [disawar1], Harry Potter",
@@ -30,6 +27,7 @@ public Plugin:myinfo = {
 static bool:g_bCvartankcontroldisable,Handle:hCvarFlags;
 static bool:resuce_start = false;
 static String:previousmap[128];
+new g_iMaxzombieplayer;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -88,6 +86,8 @@ public OnPluginStart()
 	
 	hPreviousMapTeamTanks = CreateArray(8);
 	strcopy(previousmap, sizeof(previousmap), "");
+	
+	LoadTranslations("common.phrases");
 }
 
 stock Require_L4D()
@@ -102,8 +102,7 @@ stock Require_L4D()
 
 public TC_ev_LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 {
-	if(!Is_Ready_Plugin_On())
-		ChoseTankAndPrintWhoBecome();
+	ChoseTankAndPrintWhoBecome();
 }
 
 public Action:Command_SetTank(client, args)
@@ -113,7 +112,11 @@ public Action:Command_SetTank(client, args)
 		ReplyToCommand(client, "[SM] Usage: sm_settankplayer <player> - force this player will become the tank");
 		return Plugin_Handled;
 	}
-	
+	if(IsPluginDisabled())
+	{
+		ReplyToCommand(client, "[SM] plugin is disabled, set convar \"tank_control_disable 1\" first!");
+		return Plugin_Handled;
+	}
 	new player_id;
 	new String:player[64];
 	GetCmdArg(1, player, sizeof(player));
@@ -372,7 +375,7 @@ public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
 
 public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (IsPluginDisabled() || resuce_start || LinuxIsSecondTank) 
+	if (IsPluginDisabled() || resuce_start || LinuxIsSecondTank || ThereAreNoInfectedPlayers()) 
 		return;
 	
 	new tankclient = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -393,7 +396,12 @@ public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 			GetEntPropVector(tankclient, Prop_Send, "m_angRotation", g_fTankData_angel);
 			GetEntPropVector(tankclient, Prop_Send, "m_vecOrigin", g_fTankData_origin);
 			KickClient(tankclient);
-			CreateTimer(0.1,AutoSpawnTank);
+			
+			g_iMaxzombieplayer = GetConVarInt(g_hCvarInfLimit);
+			SetConVarBounds(g_hCvarInfLimit, ConVarBound_Upper, false);
+			new flags = GetConVarFlags(g_hCvarInfLimit);
+			SetConVarFlags(g_hCvarInfLimit, flags & ~FCVAR_NOTIFY);
+			CreateTimer(0.1,AutoSpawnTank,TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
 		{
@@ -598,28 +606,6 @@ static GetInfectedPlayerBySteamId(const String:SteamId[]) {
 
 	return 0;
 }
-/*
-static GetSurvivorPlayerBySteamId(const String:SteamId[]) {
-	decl String:cmpSteamId[32];
-
-	for (new i = 1; i < MaxClients+1; i++) {
-		if (!IsClientConnected(i)) {
-			continue;
-		}
-
-		if (!IsSurvivor(i)) {
-			continue;
-		}
-
-		GetClientAuthString(i, cmpSteamId, sizeof(cmpSteamId));
-
-		if (StrEqual(SteamId, cmpSteamId)) {
-			return i;
-		}
-	}
-
-	return 0;
-}*/
 
 static GetPlayerBySteamId(const String:SteamId[]) {
 	decl String:cmpSteamId[32];
@@ -709,15 +695,24 @@ stock L4DD_ReplaceTank(client, target)
     L4DDirect_ReplaceTank(client,target);
 }
 
+public Action:ColdDown(Handle:timer)
+{
+	SetConVarInt(g_hCvarInfLimit, g_iMaxzombieplayer);
+}
+
 public Action:AutoSpawnTank(Handle:timer)
 {
-	if(IsTankInGame()) return;
+	if(IsTankInGame()) 
+	{
+		//PrintToChatAll("there is a tank already");
+		new Float:PlayerControlDelay = GetConVarFloat(FindConVar("director_tank_lottery_selection_time"));
+		CreateTimer(PlayerControlDelay+1.0,ColdDown,TIMER_FLAG_NO_MAPCHANGE);
+		return;
+	}
 	
-	new maxzombieplayer = GetConVarInt(g_hCvarInfLimit);
-	new flags = GetConVarFlags(g_hCvarInfLimit);
-	SetConVarBounds(g_hCvarInfLimit, ConVarBound_Upper, false);
-	SetConVarFlags(g_hCvarInfLimit, flags & ~FCVAR_NOTIFY);
-	SetConVarInt(g_hCvarInfLimit, maxzombieplayer+1);
+	SetConVarInt(g_hCvarInfLimit, GetConVarInt(g_hCvarInfLimit)+1);
+
+	//PrintToChatAll("AutoSpawnTank timer event, 特感空位: %d",GetConVarInt(g_hCvarInfLimit));
 	
 	new bool:resetGhost[MAXPLAYERS+1];
 	new bool:resetLife[MAXPLAYERS+1];
@@ -768,8 +763,6 @@ public Action:AutoSpawnTank(Handle:timer)
 	}
 	// If client was temp, we setup a timer to kick the fake player
 	if (temp) CreateTimer(0.1,kickbot,anyclient);
-	
-	SetConVarInt(g_hCvarInfLimit, maxzombieplayer);
 	CreateTimer(0.5, AutoSpawnTank, TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -784,15 +777,11 @@ stock GetAnyClient()
 
 CheatCommand(client, String:command[], String:arguments[] = "")
 {
-	new userFlags = GetUserFlagBits(client);
-	SetUserFlagBits(client, ADMFLAG_ROOT);
 	new flags = GetCommandFlags(command);
 	SetCommandFlags(command, flags & ~FCVAR_CHEAT);
 	FakeClientCommand(client, "%s %s", command, arguments);
 	SetCommandFlags(command, flags);
-	SetUserFlagBits(client, userFlags);
 }
-
 SetGhostStatus (client, bool:ghost)
 {
 	if (ghost)
@@ -823,5 +812,13 @@ IsTankInGame()
 			return i;
 
 	return 0;
+}
+
+bool:ThereAreNoInfectedPlayers()
+{
+	for (new i = 1; i < MaxClients+1; i++)
+		if(IsClientInGame(i)&&!IsFakeClient(i)&&GetClientTeam(i)==3)
+			return false;
+	return true;
 }
 

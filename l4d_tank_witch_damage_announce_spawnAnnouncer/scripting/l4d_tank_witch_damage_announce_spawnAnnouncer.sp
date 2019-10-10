@@ -597,42 +597,39 @@ PrintDamage(iIndex, bool:bTankBoss, bool:bLoose = false, iCrownTech = 0)
 	if (!iSurvivors) return;
 
 	if (iSurvivors == 1 && !bLoose){
+	
+		decl String:sName[48];
+		new client = iClient[0][INDEX],bool:bInGame;
+		if ((bInGame = IsSurvivor(client)))
+			GetClientName(client, sName, 48);
+		else {
+
+			IntToString(client, sName, 48);
+
+			if (GetTrieString(g_hTrine, sName, sName, 48))
+				Format(sName, 48, "%s (left the team)", sName);
+			else
+				sName = "unknown";
+		}
 
 		if (bTankBoss){
-			/*
-			if(istankAI)
-				CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}dealt {olive}%d {default}damage to {green}Tank{default} ({red}AI{default}).",iClient[0][INDEX],iClient[0][DMG]);
-			else
-				CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}dealt {olive}%d {default}damage to {green}Tank{default} ({red}%s{default}).",iClient[0][INDEX],iClient[0][DMG],tankplayerName);
-			*/
 			CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}dealt {olive}%d {default}damage to{green} Tank", iClient[0][INDEX], iClient[0][DMG]);
 			g_bIsTankAlive = false;
 		}
-		else{
-
-			if (IsIncapacitated(iClient[0][INDEX])){//只有一位玩家造成Witch傷害, 反被witch incap/秒殺(Jerkstored crown)
-				//CPrintToChatAll("{default}[{olive}TS{default}] {green}Witch {default}crowned {blue}%N{default}.", iClient[0][INDEX]);
-			}
-			else
+		else
+		{
+			if( iCrownTech==1)
+				CPrintToChatAll("{default}[{olive}TS{default}] {blue}%s {default}crowned a {green}Witch{default}.", sName);	
+			else if (!iCrownTech && bInGame)
 			{
-				if( iCrownTech==1)
-					CPrintToChatAll("{default}[{olive}TS{default}] {blue}%N {default}crowned a {green}Witch{default}.", iClient[0][INDEX]);	
-				else if (!iCrownTech)
-				{
-					new gun = GetPlayerWeaponSlot(iClient[0][INDEX], 0); //get the players primary weapon
-					if (!IsValidEdict(gun)) return; //check for validity
-					
-					decl String:currentgunname[64];
-					GetEdictClassname(gun, currentgunname, sizeof(currentgunname)); //get the primary weapon name
-			
-					if (StrEqual(currentgunname, "weapon_pumpshotgun")&&!IsIncapacitated(iClient[0][INDEX]))
-						CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}draw-crowned {green}Witch{default}.", iClient[0][INDEX]);	
-				}
-				else if (iCrownTech == 5){//被witch incap/秒殺結束回合
-					//CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}反被 {green}Witch {olive}爆☆殺 {default}結束這回合.", iClient[0][INDEX]);
-				}
-				else
-				{/*CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}打昏-爆☆殺 {green}Witch{default}.", iClient[0][INDEX]);*/}
+				new gun = GetPlayerWeaponSlot(client, 0); //get the players primary weapon
+				if (!IsValidEdict(gun)) return; //check for validity
+				
+				decl String:currentgunname[64];
+				GetEdictClassname(gun, currentgunname, sizeof(currentgunname)); //get the primary weapon name
+		
+				if (StrEqual(currentgunname, "weapon_pumpshotgun")&&!IsIncapacitated(client))
+					CPrintToChatAll("{default}[{olive}TS{default}]{blue} %N {default}draw-crowned {green}Witch{default}.", client);	
 			}
 		}
 	}

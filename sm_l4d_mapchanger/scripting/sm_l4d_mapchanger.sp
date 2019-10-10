@@ -154,26 +154,6 @@ public OnClientPutInServer(client)
 		CreateTimer(20.0, TimerAnnounce, client);
 }
 
-public OnClientDisconnect(client)
-{
-	if (GetClientCount(true) <= 0)
-	{
-		decl String:EmptyServerMap[64];
-
-		if (StrEqual(next_mission_force, "none") == true) EmptyServerMap = next_mission_def;
-		else EmptyServerMap = next_mission_force;
-
-		if (GetConVarInt(DebugEvent) == 1)
-		{
-			decl String:mBuffer[128];
-			Format(mBuffer, sizeof(mBuffer), "MODE: \"%d\" MAP: \"%s\" EVENT: changemission to \"%s\" REASON: Server is empty", l4d_gamemode(), current_map, EmptyServerMap);
-			WriteFileLine(logfile, mBuffer);
-		}
-
-		ServerCommand("changelevel %s", EmptyServerMap);
-	}
-}
-
 public Action:Event_RoundEnd(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	if (RoundEndBlock == 0)
