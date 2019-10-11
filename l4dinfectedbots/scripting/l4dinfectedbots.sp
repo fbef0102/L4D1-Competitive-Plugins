@@ -23,9 +23,6 @@
 * Version 2.0.3
 * 	   - remove SI improvement cvars
 
-* Version 2.0.2
-* 	   - Add IsInReady() and remove AutoExecConfig
-
 * Version 2.0.1
 * 	   - Only For L4D1 by Harry
 
@@ -552,8 +549,6 @@ static Handle:usrHUDPref 		= INVALID_HANDLE;	// Stores the client HUD preference
 static Handle:h_InfHUD		= INVALID_HANDLE;
 static Handle:h_Announce 	= INVALID_HANDLE;
 
-//v2.0.2
-//native IsInReady();
 
 public Plugin:myinfo = 
 {
@@ -616,49 +611,49 @@ public OnPluginStart()
 	RegConsoleCmd("sm_infhud", Command_Say);
 	
 	// We register the version cvar
-	CreateConVar("l4d_infectedbots_version", PLUGIN_VERSION, "Version of L4D Infected Bots", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	CreateConVar("l4d_infectedbots_version", PLUGIN_VERSION, "Version of L4D Infected Bots", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	
 	h_GameMode = FindConVar("mp_gamemode");
 	h_Difficulty = FindConVar("z_difficulty");
 	
 	// console variables
-	h_BoomerLimit = CreateConVar("l4d_infectedbots_boomer_limit", "1", "Sets the limit for boomers spawned by the plugin", FCVAR_SPONLY);
-	h_SmokerLimit = CreateConVar("l4d_infectedbots_smoker_limit", "1", "Sets the limit for smokers spawned by the plugin", FCVAR_SPONLY);
-	h_TankLimit = CreateConVar("l4d_infectedbots_tank_limit", "0", "Sets the limit for tanks spawned by the plugin (does not affect director tanks)", FCVAR_SPONLY);
+	h_BoomerLimit = CreateConVar("l4d_infectedbots_boomer_limit", "1", "Sets the limit for boomers spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_SmokerLimit = CreateConVar("l4d_infectedbots_smoker_limit", "1", "Sets the limit for smokers spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_TankLimit = CreateConVar("l4d_infectedbots_tank_limit", "0", "Sets the limit for tanks spawned by the plugin (does not affect director tanks)", FCVAR_PLUGIN|FCVAR_SPONLY);
 	if (L4DVersion)
 	{
-		h_SpitterLimit = CreateConVar("l4d_infectedbots_spitter_limit", "2", "Sets the limit for spitters spawned by the plugin", FCVAR_SPONLY);
-		h_JockeyLimit = CreateConVar("l4d_infectedbots_jockey_limit", "6", "Sets the limit for jockeys spawned by the plugin", FCVAR_SPONLY);
-		h_ChargerLimit = CreateConVar("l4d_infectedbots_charger_limit", "6", "Sets the limit for chargers spawned by the plugin", FCVAR_SPONLY);
-		h_HunterLimit = CreateConVar("l4d_infectedbots_hunter_limit", "6", "Sets the limit for hunters spawned by the plugin", FCVAR_SPONLY);
+		h_SpitterLimit = CreateConVar("l4d_infectedbots_spitter_limit", "2", "Sets the limit for spitters spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
+		h_JockeyLimit = CreateConVar("l4d_infectedbots_jockey_limit", "6", "Sets the limit for jockeys spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
+		h_ChargerLimit = CreateConVar("l4d_infectedbots_charger_limit", "6", "Sets the limit for chargers spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
+		h_HunterLimit = CreateConVar("l4d_infectedbots_hunter_limit", "6", "Sets the limit for hunters spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
 	}
 	else
 	{
-		h_HunterLimit = CreateConVar("l4d_infectedbots_hunter_limit", "2", "Sets the limit for hunters spawned by the plugin", FCVAR_SPONLY);
+		h_HunterLimit = CreateConVar("l4d_infectedbots_hunter_limit", "2", "Sets the limit for hunters spawned by the plugin", FCVAR_PLUGIN|FCVAR_SPONLY);
 	}
-	h_MaxPlayerZombies = CreateConVar("l4d_infectedbots_max_specials", "4", "Defines how many special infected can be on the map on all gamemodes", FCVAR_SPONLY); 
-	h_InfectedSpawnTimeMax = CreateConVar("l4d_infectedbots_spawn_time_max", "22", "Sets the max spawn time for special infected spawned by the plugin in seconds", FCVAR_SPONLY);
-	h_InfectedSpawnTimeMin = CreateConVar("l4d_infectedbots_spawn_time_min", "22", "Sets the minimum spawn time for special infected spawned by the plugin in seconds", FCVAR_SPONLY);
-	h_DirectorSpawn = CreateConVar("l4d_infectedbots_director_spawn", "0", "If 1, the plugin will use the director's timing of the spawns, if the game is L4D2 and versus, it will activate Valve's bots", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_CoopPlayableTank = CreateConVar("l4d_infectedbots_coop_versus_tank_playable", "0", "If 1, tank will be playable in coop/survival", FCVAR_NOTIFY|FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_JoinableTeams = CreateConVar("l4d_infectedbots_coop_versus", "0", "If 1, players can join the infected team in coop/survival (!ji in chat to join infected, !js to join survivors)", FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_MaxPlayerZombies = CreateConVar("l4d_infectedbots_max_specials", "4", "Defines how many special infected can be on the map on all gamemodes", FCVAR_PLUGIN|FCVAR_SPONLY); 
+	h_InfectedSpawnTimeMax = CreateConVar("l4d_infectedbots_spawn_time_max", "22", "Sets the max spawn time for special infected spawned by the plugin in seconds", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_InfectedSpawnTimeMin = CreateConVar("l4d_infectedbots_spawn_time_min", "22", "Sets the minimum spawn time for special infected spawned by the plugin in seconds", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_DirectorSpawn = CreateConVar("l4d_infectedbots_director_spawn", "0", "If 1, the plugin will use the director's timing of the spawns, if the game is L4D2 and versus, it will activate Valve's bots", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_CoopPlayableTank = CreateConVar("l4d_infectedbots_coop_versus_tank_playable", "0", "If 1, tank will be playable in coop/survival", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_JoinableTeams = CreateConVar("l4d_infectedbots_coop_versus", "0", "If 1, players can join the infected team in coop/survival (!ji in chat to join infected, !js to join survivors)", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
 	if (!L4DVersion)
 	{
-		h_StatsBoard = CreateConVar("l4d_infectedbots_stats_board", "0", "If 1, the stats board will show up after an infected player dies (L4D1 ONLY)", FCVAR_SPONLY, true, 0.0, true, 1.0);
+		h_StatsBoard = CreateConVar("l4d_infectedbots_stats_board", "0", "If 1, the stats board will show up after an infected player dies (L4D1 ONLY)", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
 	}
-	h_FreeSpawn = CreateConVar("l4d_infectedbots_free_spawn", "0", "If 1, infected players in coop/survival will spawn as ghosts", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_JoinableTeamsAnnounce = CreateConVar("l4d_infectedbots_coop_versus_announce", "0", "If 1, clients will be announced to on how to join the infected team", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_Coordination = CreateConVar("l4d_infectedbots_coordination", "0", "If 1, bots will only spawn when all other bot spawn timers are at zero", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_InfHUD = CreateConVar("l4d_infectedbots_infhud_enable", "1", "Toggle whether Infected HUD is active or not.", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_Announce = CreateConVar("l4d_infectedbots_infhud_announce", "1", "Toggle whether Infected HUD announces itself to clients.", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_idletime_b4slay = CreateConVar("l4d_infectedbots_lifespan", "30", "Amount of seconds before a special infected bot is kicked", FCVAR_SPONLY);
-	h_InitialSpawn = CreateConVar("l4d_infectedbots_initial_spawn_timer", "10", "The spawn timer in seconds used when infected bots are spawned for the first time in a map", FCVAR_SPONLY);
-	h_HumanCoopLimit = CreateConVar("l4d_infectedbots_coop_versus_human_limit", "2", "Sets the limit for the amount of humans that can join the infected team in coop/survival", FCVAR_SPONLY);
-	h_AdminJoinInfected = CreateConVar("l4d_infectedbots_admin_coop_versus", "0", "If 1, only admins can join the infected team in coop/survival", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_BotGhostTime = CreateConVar("l4d_infectedbots_ghost_time", "0", "If higher than zero, the plugin will ghost bots before they fully spawn on versus/scavenge", FCVAR_SPONLY);
-	h_DisableSpawnsTank = CreateConVar("l4d_infectedbots_spawns_disabled_tank", "0", "If 1, Plugin will disable spawning when a tank is on the field", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_VersusCoop = CreateConVar("l4d_infectedbots_versus_coop", "0", "If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge", FCVAR_SPONLY, true, 0.0, true, 1.0);
-	h_AdjustSpawnTimes = CreateConVar("l4d_infectedbots_adjust_spawn_times", "0", "If 1, The plugin will adjust spawn timers depending on the gamemode, adjusts spawn timers based on number of survivor players in coop and based on amount of infected players in versus/scavenge", FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_FreeSpawn = CreateConVar("l4d_infectedbots_free_spawn", "0", "If 1, infected players in coop/survival will spawn as ghosts", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_JoinableTeamsAnnounce = CreateConVar("l4d_infectedbots_coop_versus_announce", "0", "If 1, clients will be announced to on how to join the infected team", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_Coordination = CreateConVar("l4d_infectedbots_coordination", "0", "If 1, bots will only spawn when all other bot spawn timers are at zero", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_InfHUD = CreateConVar("l4d_infectedbots_infhud_enable", "1", "Toggle whether Infected HUD is active or not.", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_Announce = CreateConVar("l4d_infectedbots_infhud_announce", "1", "Toggle whether Infected HUD announces itself to clients.", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_idletime_b4slay = CreateConVar("l4d_infectedbots_lifespan", "30", "Amount of seconds before a special infected bot is kicked", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_InitialSpawn = CreateConVar("l4d_infectedbots_initial_spawn_timer", "10", "The spawn timer in seconds used when infected bots are spawned for the first time in a map", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_HumanCoopLimit = CreateConVar("l4d_infectedbots_coop_versus_human_limit", "2", "Sets the limit for the amount of humans that can join the infected team in coop/survival", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_AdminJoinInfected = CreateConVar("l4d_infectedbots_admin_coop_versus", "0", "If 1, only admins can join the infected team in coop/survival", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_BotGhostTime = CreateConVar("l4d_infectedbots_ghost_time", "0", "If higher than zero, the plugin will ghost bots before they fully spawn on versus/scavenge", FCVAR_PLUGIN|FCVAR_SPONLY);
+	h_DisableSpawnsTank = CreateConVar("l4d_infectedbots_spawns_disabled_tank", "0", "If 1, Plugin will disable spawning when a tank is on the field", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_VersusCoop = CreateConVar("l4d_infectedbots_versus_coop", "0", "If 1, The plugin will force all players to the infected side against the survivor AI for every round and map in versus/scavenge", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
+	h_AdjustSpawnTimes = CreateConVar("l4d_infectedbots_adjust_spawn_times", "0", "If 1, The plugin will adjust spawn timers depending on the gamemode, adjusts spawn timers based on number of survivor players in coop and based on amount of infected players in versus/scavenge", FCVAR_PLUGIN|FCVAR_SPONLY, true, 0.0, true, 1.0);
 	
 	HookConVarChange(h_BoomerLimit, ConVarBoomerLimit);
 	BoomerLimit = GetConVarInt(h_BoomerLimit);
@@ -846,7 +841,7 @@ public Action:Console_Ht(client, args)
 		}
 		else if(GetClientTeam(client) == 3)
 		{
-			ReplyToCommand(client, "[TS] You are not survivor");
+			ReplyToCommand(client, "[TS] You are not survivor, dumbass!");
 			return Plugin_Handled;
 		}
 	}
@@ -856,9 +851,13 @@ public Action:Console_Ht(client, args)
 	if(IsInteger(arg1))
 	{
 		new newlimit = StringToInt(arg1);
-		if(newlimit>20)
+		if(newlimit>15)
 		{
 			ReplyToCommand(client, "[TS] why you need so many hunter bots?");
+		}
+		else if (newlimit<=0)
+		{
+			ReplyToCommand(client, "[TS] why no hunter bots?");
 		}
 		else if(newlimit!=HunterLimit)
 		{
@@ -908,7 +907,7 @@ public Action:Console_Timer(client, args)
 		}
 		else if(GetClientTeam(client) == 3)
 		{
-			ReplyToCommand(client, "[TS] You are not survivor");
+			ReplyToCommand(client, "[TS] You are not survivor, dumbass!");
 			return Plugin_Handled;
 		}
 	}
@@ -921,9 +920,13 @@ public Action:Console_Timer(client, args)
 		{
 			new DD = StringToInt(arg1);
 			
-			if(DD>600)
+			if(DD>120)
 			{
 				ReplyToCommand(client, "[TS] why so long?");
+			}
+			if(DD<=0)
+			{
+				ReplyToCommand(client, "[TS] Failed to set timer! minimum value is 1.");
 			}
 			else
 			{
@@ -957,7 +960,7 @@ public Action:Console_Timer(client, args)
 				Min = temp;
 			}
 			
-			if(Max>600)
+			if(Max>120)
 			{
 				ReplyToCommand(client, "[TS] why so long?");
 			}
@@ -966,7 +969,7 @@ public Action:Console_Timer(client, args)
 				SetConVarInt(FindConVar("l4d_infectedbots_adjust_spawn_times"), 0);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_max"), Max);
 				SetConVarInt(FindConVar("l4d_infectedbots_spawn_time_min"), Min);
-				CPrintToChatAll("[{olive}TS{default}] {blue}%N{default}: Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",client,Max,Min);		
+				CPrintToChatAll("[{olive}TS{default}] {blue}%N{default}: Bot Spawn Timer has been changed to {green}%d {default}- {green}%d",client,Max,Min);	
 			}
 			return Plugin_Handled;
 		}
@@ -3733,8 +3736,8 @@ BotTypeNeeded()
 	if  (L4DVersion)
 	{
 		new random = GetURandomIntRange(1, 7);
-		new tryi = 0;
-		while (tryi<200)
+		new try = 0;
+		while (try<200)
 		{
 			if (random == 2)
 			{
@@ -3808,15 +3811,15 @@ BotTypeNeeded()
 				}
 			}
 			random = GetURandomIntRange(1, 7);
-			tryi++;
+			try++;
 		}
 		return -1;
 	}
 	else
 	{
 		new random = GetURandomIntRange(1, 4);
-		new tryi = 0;
-		while (tryi<100)
+		new try = 0;
+		while (try<100)
 		{
 			if (random == 2)
 			{
@@ -3859,7 +3862,7 @@ BotTypeNeeded()
 				}
 			}
 			random = GetURandomIntRange(1, 7);
-			tryi++;
+			try++;
 		}
 		return -1;
 	}
@@ -4388,7 +4391,6 @@ FindBotToTakeOver()
 
 bool:LeftStartArea()
 {
-	//if(IsInReady()) return false;
 	
 	new ent = -1, maxents = GetMaxEntities();
 	for (new i = MaxClients+1; i <= maxents; i++)
