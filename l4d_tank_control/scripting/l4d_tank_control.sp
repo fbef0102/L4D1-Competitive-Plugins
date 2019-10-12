@@ -10,6 +10,7 @@
 
 #define CVAR_FLAGS			FCVAR_PLUGIN|FCVAR_NOTIFY
 
+
 //static		bool:g_bWasFlipped, bool:g_bSecondRound;
 static	queuedTank, String:tankSteamId[32], Handle:hTeamTanks, Handle:hTeamFinalTanks, Handle:g_hCvarInfLimit;
 static		bool:IsSecondTank,bool:IsFinal,bool:LinuxIsSecondTank,bool:LinuxIsfirstTank;	

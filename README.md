@@ -4,7 +4,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2019/10/12
+> last edited:2019/10/13
 # Require
   * Clean Servers:
       * A clean [L4D1 Dedicated Server](https://github.com/fbef0102/L4D1-Server4Dead/blob/master/README.md#how-to-download-l4d1-dedicated-server-files)
@@ -98,8 +98,8 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>gametype_description</b>: Change Game type in server list
 * <b>l4d_hats</b>: Attaches specified models to players above their head.
 # Scripting Compiler
-* [sourcemod 1.63](https://github.com/fbef0102/L4D1-Competitive-Plugins/tree/master/sourcemod%20compiler/sm1.63%20scripting): most of source codes
-* [sourcemod 1.9](https://github.com/fbef0102/L4D1-Competitive-Plugins/tree/master/sourcemod%20compiler/sm1.9%20scripting): few source codes need new compiler
+* [sourcemod 1.63](https://github.com/fbef0102/L4D1-Competitive-Plugins/releases/download/v1.0/sourcemod_1.63.zip): most of source codes
+* [sourcemod 1.9](https://github.com/fbef0102/L4D1-Competitive-Plugins/releases/download/v1.0/sourcemod_1.9.zip): few source codes need new compiler
 # Others
 * <b>[Rotoblin-AZMod](https://github.com/fbef0102/Rotoblin-AZMod)</b>: A Competitive L4D1 Versus Configuration
 * <b>[L4D2-Plugins](https://github.com/fbef0102/L4D2-Plugins)</b>
