@@ -182,7 +182,7 @@ public Action RecoverWeaponClip(Handle timer, Handle pack)
 	!IsClientInGame(client) || 
 	!IsPlayerAlive(client) ||
 	GetClientTeam(client)!=2 ||
-	HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") ||
+	!HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") ||
 	GetEntProp(CurrentWeapon, Prop_Send, "m_bInReload") == 0 || //reload interrupted
 	(nowweaponclip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] || //CurrentWeapon complete reload finished
 	nowweaponclip == previousclip //CurrentWeapon clip has been recovered
@@ -271,7 +271,7 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	!IsClientInGame(client) ||
 	!IsPlayerAlive(client) ||
 	GetClientTeam(client)!=2 ||
-	HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") ||
+	!HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") ||
 	GetEntProp(CurrentWeapon, Prop_Send, "m_bInReload") == 0 || //reload interrupted
 	(clip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] //CurrentWeapon complete reload finished
 	)

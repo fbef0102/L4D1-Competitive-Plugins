@@ -27,7 +27,6 @@ public Plugin:myinfo = {
 static bool:g_bCvartankcontroldisable,Handle:hCvarFlags;
 static bool:resuce_start = false;
 static String:previousmap[128];
-new g_iMaxzombieplayer;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
@@ -396,11 +395,7 @@ public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 			GetEntPropVector(tankclient, Prop_Send, "m_angRotation", g_fTankData_angel);
 			GetEntPropVector(tankclient, Prop_Send, "m_vecOrigin", g_fTankData_origin);
 			KickClient(tankclient);
-			
-			g_iMaxzombieplayer = GetConVarInt(g_hCvarInfLimit);
-			SetConVarBounds(g_hCvarInfLimit, ConVarBound_Upper, false);
-			new flags = GetConVarFlags(g_hCvarInfLimit);
-			SetConVarFlags(g_hCvarInfLimit, flags & ~FCVAR_NOTIFY);
+
 			CreateTimer(0.1,AutoSpawnTank,TIMER_FLAG_NO_MAPCHANGE);
 		}
 		else
@@ -417,9 +412,9 @@ public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 	//CreateTimer(PlayerControlDelay-0.1, ForcePlayerBecomeTank, tankclient, TIMER_FLAG_NO_MAPCHANGE);
 	
 }
-public Action:kickbot(Handle:timer, any:client)
+public Action:KickBot(Handle:timer, any:client)
 {
-	if (IsClientInGame(client) && IsFakeClient(client))
+	if ( client && IsClientInGame(client) && IsFakeClient(client))
 	{
 		KickClient(client);
 	}
@@ -695,24 +690,15 @@ stock L4DD_ReplaceTank(client, target)
     L4DDirect_ReplaceTank(client,target);
 }
 
-public Action:ColdDown(Handle:timer)
-{
-	SetConVarInt(g_hCvarInfLimit, g_iMaxzombieplayer);
-}
-
 public Action:AutoSpawnTank(Handle:timer)
 {
 	if(IsTankInGame()) 
 	{
-		//PrintToChatAll("there is a tank already");
-		new Float:PlayerControlDelay = GetConVarFloat(FindConVar("director_tank_lottery_selection_time"));
-		CreateTimer(PlayerControlDelay+1.0,ColdDown,TIMER_FLAG_NO_MAPCHANGE);
+		LogMessage("there is a tank already");
 		return;
 	}
 	
-	SetConVarInt(g_hCvarInfLimit, GetConVarInt(g_hCvarInfLimit)+1);
-
-	//PrintToChatAll("AutoSpawnTank timer event, 特感空位: %d",GetConVarInt(g_hCvarInfLimit));
+	LogMessage("AutoSpawnTank timer event");
 	
 	new bool:resetGhost[MAXPLAYERS+1];
 	new bool:resetLife[MAXPLAYERS+1];
@@ -762,8 +748,8 @@ public Action:AutoSpawnTank(Handle:timer)
 			SetLifeState(i, true);
 	}
 	// If client was temp, we setup a timer to kick the fake player
-	if (temp) CreateTimer(0.1,kickbot,anyclient);
-	CreateTimer(0.5, AutoSpawnTank, TIMER_FLAG_NO_MAPCHANGE);
+	if (temp) CreateTimer(0.1,KickBot,anyclient);
+	CreateTimer(0.1, AutoSpawnTank, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 stock GetAnyClient() 
@@ -821,4 +807,3 @@ bool:ThereAreNoInfectedPlayers()
 			return false;
 	return true;
 }
-
