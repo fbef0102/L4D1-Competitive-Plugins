@@ -5,5 +5,5 @@ Forces each player to play the tank at least once before Map change.
 
 -commands-
   *for adm
-  "sm_settank" "sm_settank <player> - force this player will become the tank"
+  "sm_settankplayer" "sm_settankplayer <player> - force this player will become the tank"
   "sm_clearteam" "clear who_has_been_tank_arraylist for both team, useful when map change."
