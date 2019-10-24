@@ -4,8 +4,11 @@
 #include <l4d_lib>
 
 #pragma semicolon 1
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.5"
 #define TANKHUD_DRAW_INTERVAL   0.5
+#define CLAMP(%0,%1,%2) (((%0) > (%2)) ? (%2) : (((%0) < (%1)) ? (%1) : (%0)))
+#define MAX(%0,%1) (((%0) > (%1)) ? (%0) : (%1))
+#define MIN(%0,%1) (((%0) < (%1)) ? (%0) : (%1))
 
 static bool:g_bIsTankAlive;
 static passCount = 1;
@@ -37,10 +40,15 @@ public OnPluginStart()
 
 public Action:ToggleTankHudCmd(client, args) 
 {
-	if(GetClientTeam(client)==2)
+	if(GetClientTeam(client)== 2)
 		return;
 	bTankHudActive[client] = !bTankHudActive[client];
 	CPrintToChat(client, "{default}[{green}HUD{default}]{lightgreen} Tank Hud {default}is now {olive}%s{default}.", (bTankHudActive[client] ? "{olive}On" : "{olive}Off"));
+	
+	if(IsClientInGame(client) && IsInfected(client) && GetEntProp(client, Prop_Send, "m_zombieClass") == 5 && bTankHudActive[client])
+	{
+		PrintToChat(client, "{default}[{green}HUD{default}]{default}As a {green}Tank{default}, you won't see {lightgreen} Tank Hud{default}.", (bTankHudActive[client] ? "{olive}On" : "{olive}Off"));
+	}
 }
 
 public OnMapStart()
@@ -53,13 +61,13 @@ public Action:event_RoundStart(Handle:event, const String:name[], bool:dontBroad
 	g_bIsTankAlive = false;
 	passCount = 1;
 }
-public OnClientPutInServer(client)
+
+public OnClientDisconnect(client)
 {
-	decl String:cmpSteamId[32];
-	GetClientAuthString(client, cmpSteamId, sizeof(cmpSteamId));
-	if (StrEqual("STEAM_1:1:26098074", cmpSteamId)) //for nin who doesn't like tankhud 
-		bTankHudActive[client] = false;
+	bTankHudActive[client] = true;
 }
+
+
 public Action:PD_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	if(!g_bIsTankAlive)
@@ -106,8 +114,8 @@ public Action:HudDrawTimer(Handle:hTimer)
 			if(IsSpectator(i))
 				continue;
 
-			//if( IsInfected(i) && GetEntProp(i, Prop_Send, "m_zombieClass") == 5)//Tank自己不顯示
-			//	continue;
+			if( IsInfected(i) && GetEntProp(i, Prop_Send, "m_zombieClass") == 5)//Tank自己不顯示
+				continue;
 
 			SendPanelToClient(TankHud, i, DummyTankHudHandler, 3);
 		}
@@ -200,13 +208,13 @@ bool:FillTankInfo(Handle:TankHud)
 	if (!IsFakeClient(tankclient))
 	{
 		Format(info, sizeof(info), "Frustr.  : %d%%", GetTankFrustration(tankclient));
+		DrawPanelText(TankHud, info);
+		Format(info, sizeof(info), "Ping/Lerp  : %dms [%.1f]", 
+									GetEntProp(GetPlayerResourceEntity(), Prop_Send, "m_iPing", _, tankclient) ,
+									GetLerpTime(tankclient) * 1000.0);
+		DrawPanelText(TankHud, info);
 	}
-	else
-	{
-		info = "Frustr.  : AI";
-	}
-	DrawPanelText(TankHud, info);
-
+	
 	// Draw fire status
 	if (GetEntityFlags(tankclient) & FL_ONFIRE)
 	{
@@ -254,4 +262,31 @@ GetClientFixedName(client, String:name[], length)
 		name[22] = name[23] = name[24] = '.';
 		name[25] = 0;
 	}
+}
+
+/* Stocks */
+Float:GetLerpTime(client)
+{
+	new Handle:cVarMinUpdateRate = FindConVar("sv_minupdaterate");
+	new Handle:cVarMaxUpdateRate = FindConVar("sv_maxupdaterate");
+	new Handle:cVarMinInterpRatio = FindConVar("sv_client_min_interp_ratio");
+	new Handle:cVarMaxInterpRatio = FindConVar("sv_client_max_interp_ratio");
+
+	decl String:buffer[64];
+	
+	if (!GetClientInfo(client, "cl_updaterate", buffer, sizeof(buffer))) buffer = "";
+	new updateRate = StringToInt(buffer);
+	updateRate = RoundFloat(CLAMP(float(updateRate), GetConVarFloat(cVarMinUpdateRate), GetConVarFloat(cVarMaxUpdateRate)));
+	
+	if (!GetClientInfo(client, "cl_interp_ratio", buffer, sizeof(buffer))) buffer = "";
+	new Float:flLerpRatio = StringToFloat(buffer);
+	
+	if (!GetClientInfo(client, "cl_interp", buffer, sizeof(buffer))) buffer = "";
+	new Float:flLerpAmount = StringToFloat(buffer);	
+	
+	if (cVarMinInterpRatio != INVALID_HANDLE && cVarMaxInterpRatio != INVALID_HANDLE && GetConVarFloat(cVarMinInterpRatio) != -1.0 ) {
+		flLerpRatio = CLAMP(flLerpRatio, GetConVarFloat(cVarMinInterpRatio), GetConVarFloat(cVarMaxInterpRatio) );
+	}
+	
+	return MAX(flLerpAmount, flLerpRatio / updateRate);
 }
