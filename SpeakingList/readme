@@ -1,0 +1,14 @@
+Voice Announce. Print To Center Message who Speaking. With cookies
+
+-Require-
+1. sourcemod 1.9
+2. VoiceHook.ext
+(v2.0 Windows): https://github.com/fbef0102/L4D1-Server4Dead/raw/master/Windows%20Server%20Files/left4dead/addons/sourcemod/extensions/VoiceHook.ext.dll
+(v3.0 Linux): https://forums.alliedmods.net/showpost.php?p=2672800&postcount=20
+
+-ConVar-
+"va_spectator_speaklist", "1", "Enable speaklist for spectators default? [1-Enable/0-Disable]"
+"va_default_speaklist", "1", "Enable speaklist when sv_alltalk on? [1-Enable/0-Disable]"
+
+-command-
+sm_speaklist (only used by spectator)
