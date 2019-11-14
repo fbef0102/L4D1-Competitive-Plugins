@@ -139,8 +139,7 @@ public Action UpdateSpeaking(Handle timer)
 			{
 				if ( (GetClientTeam(i) == 1 && svalltalk == 0)
 				|| (GetConVarInt(va_default_speaklist) == 1 && svalltalk == 1) )//旁觀玩家+alltalk 0 or alltalk 1
-				{		
-					SetGlobalTransTarget(i);
+				{
 					PrintCenterText(i, "%s%s%s",SpeakingPlayers[0],SpeakingPlayers[1],SpeakingPlayers[2]);
 				}
 			}
