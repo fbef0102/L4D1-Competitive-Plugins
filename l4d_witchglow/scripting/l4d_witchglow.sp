@@ -9,6 +9,7 @@ new i_EntSpec[5000]= -1;
 new Float:WitchvPos[5000][3];
 new Float:WitchvAvg[5000][3];
 new bool:WitchWokeup[5000];
+new bool:WitchKilled[5000];
 
 #define InfoPlugin "\x04L4D1 WitchGlow creado por\x03:\nIDgarena: thejuaneco | IDsteam: thejuaneco, assist: Harry Potter"
 
@@ -65,6 +66,7 @@ public Action:coldDown(Handle:timer, any:WitchID)
 	if (WitchID == NULL || !IsValidEntity(WitchID)) return;
 	
 	WitchWokeup[WitchID] = false;
+	WitchKilled[WitchID] = false;
 	CreateWitchPropSpawner(WitchID);
 	
 	for( new i = 1; i <= MaxClients; i++ )
@@ -144,7 +146,7 @@ CreateWitchPropSpawnerSpectator(WitchID)
 
 public WitchThink(entity)
 {
-	if (!IsValidEntity(entity)||g_EndMap || i_Ent[entity] == -1)
+	if (!IsValidEntity(entity)||g_EndMap || WitchKilled[entity])
 	{
 		if (IsValidEdict(i_Ent[entity]))
 		{
@@ -179,7 +181,7 @@ public WitchThink(entity)
 
 public SpecWitchThink(entity)
 {
-	if (!IsValidEntity(entity)||g_EndMap||i_EntSpec[entity] == -1)
+	if (!IsValidEntity(entity)||g_EndMap||WitchKilled[entity])
 	{
 		if (IsValidEdict(i_EntSpec[entity]))
 		{
@@ -203,26 +205,15 @@ public SpecWitchThink(entity)
 		}
 
 		SetEntProp(i_EntSpec[entity], Prop_Send, "m_nSequence", GetEntProp(entity, Prop_Send, "m_nSequence"));
-		
-		if(!WitchWokeup[entity])
-			TeleportEntity(entity, WitchvPos[entity], WitchvAvg[entity], NULL_VECTOR);
 	}
 }
 
 public Event_WitchKilled(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	new WitchID = GetEventInt(event, "witchid");
-	if(WitchID != NULL && IsValidEntity(WitchID))
+	if(WitchID != NULL)
 	{
-		if (IsValidEdict(i_Ent[WitchID]))
-		{
-			RemoveEdict(i_Ent[WitchID]);
-		}	
-		
-		if (IsValidEdict(i_EntSpec[WitchID]))
-		{
-			RemoveEdict(i_EntSpec[WitchID]);
-		}
+		WitchKilled[WitchID] = true;
 	}
 }
 
@@ -240,11 +231,10 @@ public OnMapStart()
 public Action:OnWitchWokeup(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	new WitchID = GetEventInt(event, "witchid");
-	if(WitchID != NULL && IsValidEntity(WitchID))
+	if(WitchID != NULL)
 	{
 		/*
-		i_Ent[WitchID] = -1;
-		i_EntSpec[WitchID] = -1;
+		WitchKilled[WitchID] = true;
 		*/
 		WitchWokeup[WitchID] = true;
 	}
