@@ -1,0 +1,9 @@
+Set glow on witch only infected + Prevent common infected from pushing witch away when witch not startled yet
+
+-ChangeLog-
+v0.4 Original plugin from rahzel ‧ JNC ‧ Vitality ‧ Juaneco: https://forums.alliedmods.net/showthread.php?p=2656161
+- Set glow on witch only infected
+
+v1.3 Modify by Harry Potter
+- Optimize code and smooth glow
+- Prevent common infected from pushing witch away when witch not startled yet
