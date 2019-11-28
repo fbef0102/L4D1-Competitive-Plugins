@@ -8,3 +8,6 @@ v1.3 Modify by Harry Potter
 - Optimize code and smooth glow
 - spectator can see the witch glow too
 - Prevent common infected from pushing witch away when witch not startled yet
+
+v1.4 fixed by Harry Potter
+- kill glow entity as soon as witch dead

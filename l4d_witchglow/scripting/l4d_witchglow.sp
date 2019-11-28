@@ -21,7 +21,7 @@ public Plugin:myinfo =
 	name = "L4D1 Witch Glow + fixed being pushing away!",
 	author = "JNC & Harry Potter",
 	description = "Set glow on witch only infected + Prevent common infected from pushing witch away when witch not startled yet",
-	version = "1.3",
+	version = "1.4",
 	url = "http://steamcommunity.com/profiles/76561198015203990/"
 };
 
@@ -110,7 +110,7 @@ CreateWitchPropSpawner(WitchID)
 	AcceptEntityInput(i_Ent[WitchID], "SetParent", WitchID);
 
 	SetEntPropFloat(i_Ent[WitchID], Prop_Send, "m_flPlaybackRate", 1.0); 
-	SDKHook(WitchID, SDKHook_Think, WitchThink);
+	SDKHook(WitchID, SDKHook_ThinkPost, WitchThink);
 }
 
 CreateWitchPropSpawnerSpectator(WitchID)
@@ -141,7 +141,7 @@ CreateWitchPropSpawnerSpectator(WitchID)
 	AcceptEntityInput(i_EntSpec[WitchID], "SetParent", WitchID);
 	
 	SetEntPropFloat(i_EntSpec[WitchID], Prop_Send, "m_flPlaybackRate", 1.0); 
-	SDKHook(WitchID, SDKHook_Think, SpecWitchThink);
+	SDKHook(WitchID, SDKHook_ThinkPost, SpecWitchThink);
 }
 
 public WitchThink(entity)
@@ -150,10 +150,10 @@ public WitchThink(entity)
 	{
 		if (IsValidEdict(i_Ent[entity]))
 		{
-			RemoveEdict(i_Ent[entity]);
+			AcceptEntityInput(i_Ent[entity],"Kill");
 		}
 		i_Ent[entity] = -1;
-		SDKUnhook(entity, SDKHook_Think, WitchThink);
+		SDKUnhook(entity, SDKHook_ThinkPost, WitchThink);
 		return;
 	}
 
@@ -163,9 +163,9 @@ public WitchThink(entity)
 		GetEntPropString(entity, Prop_Data, "m_ModelName", ModelName, sizeof(ModelName));
 		if(!StrEqual(ModelName, "models/infected/witch.mdl", false))
 		{
-			RemoveEdict(i_Ent[entity]);
+			AcceptEntityInput(i_Ent[entity],"Kill");
 			i_Ent[entity] = -1;
-			SDKUnhook(entity, SDKHook_Think, WitchThink);
+			SDKUnhook(entity, SDKHook_ThinkPost, WitchThink);
 			return;
 		}
 		new nSequence = GetEntProp(entity, Prop_Send, "m_nSequence");
@@ -185,10 +185,10 @@ public SpecWitchThink(entity)
 	{
 		if (IsValidEdict(i_EntSpec[entity]))
 		{
-			RemoveEdict(i_EntSpec[entity]);
+			AcceptEntityInput(i_EntSpec[entity],"Kill");
 		}
 		i_EntSpec[entity] = -1;
-		SDKUnhook(entity, SDKHook_Think, SpecWitchThink);
+		SDKUnhook(entity, SDKHook_ThinkPost, SpecWitchThink);
 		return;
 	}
 	
@@ -198,9 +198,9 @@ public SpecWitchThink(entity)
 		GetEntPropString(entity, Prop_Data, "m_ModelName", ModelName, sizeof(ModelName));
 		if(!StrEqual(ModelName, "models/infected/witch.mdl", false))
 		{
-			RemoveEdict(i_EntSpec[entity]);
+			AcceptEntityInput(i_EntSpec[entity],"Kill");
 			i_EntSpec[entity] = -1;
-			SDKUnhook(entity, SDKHook_Think, SpecWitchThink);
+			SDKUnhook(entity, SDKHook_ThinkPost, SpecWitchThink);
 			return;
 		}
 
