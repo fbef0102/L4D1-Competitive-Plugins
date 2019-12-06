@@ -1,4 +1,16 @@
 tank rock glow for spectator and infected
 
+-changelog-
+1.2 by Harry Potter
+- optimizate code
+- only infected and spectator team can see the glow
+- l4d1 support only
+
+1.1 by Joshe Gatito
+- Fixed "CreateEntityByName" 
+	
+1.0 by Joshe Gatito
+- Initial release.
+
 -convars-
 none
