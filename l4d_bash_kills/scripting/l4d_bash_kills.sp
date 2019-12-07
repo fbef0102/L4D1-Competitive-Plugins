@@ -2,6 +2,7 @@
 
 #include <sourcemod>
 #include <sdkhooks>
+#include <colors>
 
 #define BOOMER_ZOMBIE_CLASS     2
 
@@ -38,13 +39,16 @@ public OnClientPutInServer( client ) {
 }
 
 public Action:Hurt( victim, &attacker, &inflictor, &Float:damage, &damageType, &weapon, Float:damageForce[3], Float:damagePosition[3] ) {
-    //LogMessage("這是禁止被推死的0");
 	if ( !GetConVarBool(cvar_bashKills) || !IsSI(victim) ) {
 		return Plugin_Continue;
     }
     //LogMessage("damage is %d ,damageType is %d,weapon is %d",damage, damageType,weapon);
 	if ( damage == 250.0 && damageType && weapon == -1 && IsSurvivor(attacker) ){
-		//LogMessage("這是禁止被推死的1");
+		if(GetEntProp(victim, Prop_Send, "m_zombieClass") == BOOMER_ZOMBIE_CLASS)
+		{
+			CPrintToChatAll("[{olive}]TS{default}] {olive}%N{default} shoves-kill {red}%N{default}'s Boomer",attacker,victim);
+			return Plugin_Continue;
+		}
 		return Plugin_Handled;
     }
 	return Plugin_Continue;
@@ -52,13 +56,6 @@ public Action:Hurt( victim, &attacker, &inflictor, &Float:damage, &damageType, &
 
 bool:IsSI( client ) {
     if ( GetClientTeam(client) != 3 || !IsPlayerAlive(client) ) {
-        return false;
-    }
-    
-    // Allow boomer and spitter m2 kills
-    new playerClass = GetEntProp(client, Prop_Send, "m_zombieClass");
-    
-    if ( playerClass == BOOMER_ZOMBIE_CLASS) {//boomer可以被推死
         return false;
     }
     
