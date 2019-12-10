@@ -8,7 +8,7 @@ public Plugin:myinfo =
 	name = "Caster Assister",
 	author = "CanadaRox, Sir,l4d1 modify by Harry",
 	description = "Allows spectators to control their own specspeed and move vertically",
-	version = "1.0.1",
+	version = "1.2",
 	url = ""
 };
 
@@ -100,7 +100,7 @@ public Action:DecreaseSpecspeed_Cmd(client, args)
 		return Plugin_Handled;
 	}
 
-	DecreaseSpecspeed(client, -currentIncrement[client]);
+	DecreaseSpecspeed(client, currentIncrement[client]);
 	return Plugin_Handled;
 }
 
