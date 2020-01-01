@@ -100,6 +100,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>SpeakingList</b>: Voice Announce. Print To Center Message who Speaking.
 * <b>l4d_witchglow</b>: Set glow on witch for infected and spectator + fixed being pushing away by common infected!
 * <b>[L4D] Rock Glow</b>: tank rock glow for spectator and infected
+* <b>l4d_rock_lagcomp</b>: Provides lag compensation for tank rock entities
 # Scripting Compiler
 * [sourcemod 1.63](https://github.com/fbef0102/L4D1-Competitive-Plugins/releases/download/v1.0/sourcemod_1.63_Compiler.zip): most of source codes
 * [sourcemod 1.9](https://github.com/fbef0102/L4D1-Competitive-Plugins/releases/download/v1.0/sourcemod_1.9_Compiler.zip): few source codes need new compiler
