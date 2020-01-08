@@ -111,7 +111,7 @@ public OnMapStart()
 	{
 		fWitchFlow = GetRandomBossFlow(iCampaign);
 		
-		fWitchFlow = SpecialMapWitchFlow(fWitchFlow);
+		fWitchFlow = SpecialMapWitchFlow(fWitchFlow,iCampaign);
 		
 		L4DDirect_SetVSWitchToSpawnThisRound(0, true);
 		L4DDirect_SetVSWitchToSpawnThisRound(1, true);
@@ -164,11 +164,15 @@ static Float:SpecialMapTankFlow(const Float:fFlow,iCampaign)
 			}
 		}
 	}
+	else if(StrEqual(sMap, "l4d_vs_stadium4_city2")) //tank will not spawn after 80% in this map
+	{
+		newfFlow = GetRandomFloat(g_fCvarVsBossFlow[iCampaign][MIN],0.8);//tank will not spawn when after 55% in this map
+	}
 	
 	return newfFlow;
 }
 
-static Float:SpecialMapWitchFlow(const Float:fFlow)
+static Float:SpecialMapWitchFlow(const Float:fFlow,iCampaign)
 {
 	new Float:newfFlow = fFlow;
 	decl String:sMap[64];
@@ -176,6 +180,10 @@ static Float:SpecialMapWitchFlow(const Float:fFlow)
 	if(StrEqual(sMap, "l4d_vs_airport05_runway"))
 	{
 		newfFlow = GetRandomFloat(0.50,0.65);//tank will not spawn when after 55% in this map
+	}
+	else if(StrEqual(sMap, "l4d_vs_stadium4_city2")) //witch will not spawn after 80% in this map
+	{
+		newfFlow = GetRandomFloat(g_fCvarVsBossFlow[iCampaign][MIN],0.8);
 	}
 	
 	return newfFlow;
@@ -319,5 +327,5 @@ bool:Is_First_Stage()//非官方圖第一關
 
 bool:InSecondHalfOfRound()
 {
-	return GameRules_GetProp("m_bInSecondHalfOfRound");
+	return bool:GameRules_GetProp("m_bInSecondHalfOfRound");
 }
