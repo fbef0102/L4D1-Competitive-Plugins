@@ -1,0 +1,44 @@
+Allows for customisation of hittable damage values.
+
+-command-
+"hc_bridge_car_damage",			"25.0",
+	"Damage of cars in the parish bridge finale. Overrides standard incap damage on incapacitated players."
+											
+"hc_sflog_standing_damage",		"100.0",
+	"Damage of hittable swamp fever logs to non-incapped survivors."
+											
+"hc_bhlog_standing_damage",		"100.0",
+	"Damage of hittable blood harvest logs to non-incapped survivors."
+											
+"hc_car_standing_damage",		"100.0",
+	"Damage of hittable non-parish-bridge cars to non-incapped survivors."
+											
+"hc_bumpercar_standing_damage",	"100.0",
+	"Damage of hittable bumper cars to non-incapped survivors."
+											
+"hc_handtruck_standing_damage",	"8.0",
+	"Damage of hittable handtrucks (aka dollies) to non-incapped survivors."
+											
+"hc_generatortrailer_standing_damage",	"100.0",
+	"Damage of hittable generatortrailer (in NM4) to non-incapped survivors."
+	
+"hc_forklift_standing_damage",	"100.0",
+	"Damage of hittable forklifts to non-incapped survivors."
+											
+"hc_dumpster_standing_damage",	"100.0",
+	"Damage of hittable dumpsters to non-incapped survivors."
+											
+"hc_haybale_standing_damage",	"100.0",
+	"Damage of hittable haybales to non-incapped survivors."
+											
+"hc_baggage_standing_damage",	"100.0",
+	"Damage of hittable baggage carts to non-incapped survivors."
+											
+"hc_incap_standard_damage",		"-2",
+	"Damage of all hittables to incapped players. -1 will have incap damage default to valve's standard incoherent damages. -2 will have incap damage default to each hittable's corresponding standing damage."
+											
+"hc_disable_self_damage",		"1",
+	"If set 1, tank will not damage itself with hittables."
+											
+"hc_overhit_time",				"1.2",
+	"The amount of time to wait before allowing consecutive hits from the same hittable to register. Recommended values: 0.0-0.5: instant kill; 0.5-0.7: sizeable overhit; 0.7-1.0: standard overhit; 1.0-1.2: reduced overhit; 1.2+: no overhit unless the car rolls back on top. Set to tank's punch interval (default 1.5) to fully remove all possibility of overhit."
