@@ -6,6 +6,9 @@ Allows spectator listen others team voice for l4d
   3.Spectators can hear what survivor players say via mic
   4.Spectators can see what survivor players type via chat box
   
+-convar-
+"specListener_enable", "1", "Enable Hear Feature? [0-Disable, 1-Enable]"
+
 -command-
   *for spectator
   !hear
