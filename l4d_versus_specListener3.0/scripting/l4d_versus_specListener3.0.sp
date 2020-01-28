@@ -64,7 +64,7 @@ public Native_OpenSpectatorsListenMode(Handle:plugin, numParams) {
 		
 }
 
- public OnPluginStart()
+public OnPluginStart()
 {
 	HookEvent("player_team",Event_PlayerChangeTeam);
 	HookEvent("player_left_start_area", LeftStartAreaEvent, EventHookMode_PostNoCopy);
@@ -131,6 +131,14 @@ public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 				}
 			}
 	}
+}
+
+public OnClientPutInServer(client)
+{
+	if(specListener_enable)
+		bListionActive[client] = true;
+	else
+		bListionActive[client] = false;
 }
 
 public Action:Panel_hear(client,args)
