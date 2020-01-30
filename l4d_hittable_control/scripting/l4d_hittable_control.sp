@@ -89,7 +89,7 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 	{
 		if (bIgnoreOverkill[victim]) { return Plugin_Handled; }
 				
-		if (victim == attacker && GetConVarBool(hTankSelfDamage))	{ return Plugin_Handled; }
+		if (GetEntProp(victim, Prop_Send, "m_zombieClass") == 5 && GetConVarBool(hTankSelfDamage))	{ return Plugin_Handled; }
 		if (GetClientTeam(victim) != 2)	{ return Plugin_Continue; }	
 		
 		decl String:sModelName[128];
