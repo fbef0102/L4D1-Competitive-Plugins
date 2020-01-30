@@ -4,7 +4,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2020/1/28
+> last edited:2020/1/30
 # Require
   * Clean Servers:
       * A clean [L4D1 Dedicated Server](https://github.com/fbef0102/L4D1-Server4Dead/blob/master/README.md#how-to-download-l4d1-dedicated-server-files)
@@ -39,7 +39,6 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_bash_kills</b>: Stop special infected getting bashed to death, except boomer
 * <b>l4d_tank_shove_slowdown_fix</b>: Stops Shoves slowing the Tank Down
 * <b>l4d_si_slowdown</b>: Removes the slow down from special infected
-* <b>l4d_godframes_and_hittable_control</b>: Control survivors godframes + Allows for customisation of hittable damage values.
 * <b>l4d_tank_hittable_refill</b>: Refill Tank's frustration whenever a hittable hits a Survivor
 * <b>nodeathcamskip</b>: Blocks players skipping their death cam
 * <b>l4d_versus_despawn_health</b>: Gives Special Infected health back when they despawn.
