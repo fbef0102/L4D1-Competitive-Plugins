@@ -344,9 +344,6 @@ public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
 
 	if(IsSecondTank && queuedTank<=0)//第二隻克以後
 	{
-		//for (new i=1; i <= MaxClients; i++)
-		//	if(IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && (GetClientTeam(i) == 1||GetClientTeam(i) == 3 ))
-		//		CPrintToChat(i, "{green}[Tank] {green}Tank {default}隨機選人當.");
 		ChooseTank();
 		if(queuedTank == -1 && IsFinal) //最後一關所有人都當過另外重新輪盤 第二隻以後的克皆是不同的人當
 			ChooseFinalTank();
@@ -361,7 +358,9 @@ public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
 	}
 	if (queuedTank>0){
 		ForceTankPlayer(queuedTank);//強制該玩家當tank
-		PushArrayString(hTeamTanks, tankSteamId);
+
+		if(HasBeenTank(tankSteamId) == false)
+			PushArrayString(hTeamTanks, tankSteamId);
 		if(IsFinal)
 			PushArrayString(hTeamFinalTanks, tankSteamId);
 			
@@ -379,17 +378,8 @@ public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 		return;
 	
 	new tankclient = GetClientOfUserId(GetEventInt(event, "userid"));
-	//new Float:PlayerControlDelay = GetConVarFloat(FindConVar("director_tank_lottery_selection_time"));
 	if(IsFakeClient(tankclient))
 	{
-		//if (queuedTank == -2)//本來特感沒有人 現在克復活再選一次人
-		//{
-		//	ChooseTank();
-		//}
-		//else if (queuedTank == -1)//自由搶第一隻克
-		//{
-		//	CreateTimer(5.0, CheckForAITank, _, TIMER_FLAG_NO_MAPCHANGE);
-		//}
 		if(LinuxIsfirstTank)
 		{
 			LinuxIsfirstTank = false;
@@ -410,7 +400,6 @@ public Action:TC_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadc
 			}
 		}
 	}
-	//CreateTimer(PlayerControlDelay-0.1, ForcePlayerBecomeTank, tankclient, TIMER_FLAG_NO_MAPCHANGE);
 	
 }
 public Action:KickBot(Handle:timer, any:client)
@@ -420,35 +409,6 @@ public Action:KickBot(Handle:timer, any:client)
 		KickClient(client);
 	}
 }
-/*
-public Action:ForcePlayerBecomeTank(Handle:timer,any:tankclient)
-{
-	if(queuedTank<=0 || !IsClientInGame(queuedTank) || IsFakeClient(queuedTank) || GetClientTeam(queuedTank)!=3) return;
-	
-	//強制該玩家當tank
-	if (GetClientHealth(queuedTank) > 1 && !IsPlayerGhost(queuedTank))
-	{
-		L4DD_ReplaceWithBot(queuedTank, true);
-	}
-	L4DD_ReplaceTank(tankclient, queuedTank);
-	L4DDirect_SetTankPassedCount(L4DDirect_GetTankPassedCount() + 1);
-	
-	PushArrayString(hTeamTanks, tankSteamId);
-	if(IsFinal)
-		PushArrayString(hTeamFinalTanks, tankSteamId);
-	queuedTank = 0;
-	CreateTimer(0.5, SLAYAITANK, tankclient, TIMER_FLAG_NO_MAPCHANGE);
-	
-	PushArrayString(hPreviousMapTeamTanks, tankSteamId);
-}
-
-public Action:SLAYAITANK(Handle:timer,any:tankclient)
-{
-	if (!tankclient || !IsClientInGame(tankclient) || !IsFakeClient(tankclient) || GetClientTeam(tankclient) != 3) return;
-	
-	KickClient(tankclient, "Kicked AI Tank Bug");
-}
-*/
 
 public Action:CheckForAITank(Handle:timer)
 {
@@ -459,12 +419,14 @@ public Action:CheckForAITank(Handle:timer)
 		{
 			if (!IsFakeClient(i))//Tank is not AI
 			{
-				//PrintToChatAll("%N is first tank",i);
-				GetClientAuthString(i, tankSteamId, sizeof(tankSteamId));
-				if(HasBeenTank(tankSteamId) == false)
-					PushArrayString(hTeamTanks, tankSteamId);
+				decl String:SteamId[32];
+				GetClientAuthString(i, SteamId, sizeof(SteamId));
+
+				if(HasBeenTank(SteamId) == false)
+					PushArrayString(hTeamTanks, SteamId);
 				if(IsFinal)
-					PushArrayString(hTeamFinalTanks, tankSteamId);
+					PushArrayString(hTeamFinalTanks, SteamId);
+
 			}
 			return Plugin_Handled;
 		}

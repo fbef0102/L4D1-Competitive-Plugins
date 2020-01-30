@@ -1,7 +1,7 @@
 Forces each player to play the tank at least once before Map change.
 
 -convars-
-"tank_control_disable", "0", "if set, no Forces each player to play the tank at once,1=disabled"
+"tank_control_disable", "0", "if set 1, no Forces each player to play the tank at once,1=disabled"
 
 -commands-
   *for adm
