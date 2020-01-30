@@ -4,11 +4,9 @@
 #include <sdktools>
 #include <sdkhooks>
 
-new bool:	bIsBridge;			//for parish bridge cars
 new bool:	bIgnoreOverkill		[MAXPLAYERS + 1];	//for hittable hits
 
 //cvars
-new Handle: hBridgeCarDamage			= INVALID_HANDLE;
 new Handle: hLogStandingDamage			= INVALID_HANDLE;
 new Handle: hCarStandingDamage			= INVALID_HANDLE;
 new Handle: hBumperCarStandingDamage	= INVALID_HANDLE;
@@ -27,17 +25,14 @@ new Handle: hOverHitInterval			= INVALID_HANDLE;
 
 public Plugin:myinfo = 
 {
-    name = "L4D2 Hittable Control",
-    author = "Stabby, Visor",
-    version = "0.4",
+    name = "L4D1 Hittable Control",
+    author = "Stabby, Visor, Harry Potter",
+    version = "1.4",
     description = "Allows for customisation of hittable damage values."
 };
 
 public OnPluginStart()
 {
-	hBridgeCarDamage		= CreateConVar( "hc_bridge_car_damage",			"25.0",
-											"Damage of cars in the parish bridge finale. Overrides standard incap damage on incapacitated players.",
-											FCVAR_PLUGIN, true, 0.0, true, 300.0 );
 	hLogStandingDamage		= CreateConVar( "hc_sflog_standing_damage",		"100.0",
 											"Damage of hittable swamp fever logs to non-incapped survivors.",
 											FCVAR_PLUGIN, true, 0.0, true, 300.0 );
@@ -74,25 +69,10 @@ public OnPluginStart()
 	hTankSelfDamage			= CreateConVar( "hc_disable_self_damage",		"1",
 											"If set, tank will not damage itself with hittables.",
 											FCVAR_PLUGIN, true, 0.0, true, 1.0 );
-	hOverHitInterval		= CreateConVar( "hc_overhit_time",				"1.2",
+	hOverHitInterval		= CreateConVar( "hc_overhit_time",				"1.4",
 											"The amount of time to wait before allowing consecutive hits from the same hittable to register. Recommended values: 0.0-0.5: instant kill; 0.5-0.7: sizeable overhit; 0.7-1.0: standard overhit; 1.0-1.2: reduced overhit; 1.2+: no overhit unless the car rolls back on top. Set to tank's punch interval (default 1.5) to fully remove all possibility of overhit.",
 											FCVAR_PLUGIN, true, 0.0, false );
 }
-
-public OnMapStart()
-{
-	decl String:buffer[64];
-	GetCurrentMap(buffer, sizeof(buffer));
-	if (StrContains(buffer, "c5m5") != -1)	//so it works for darkparish. should probably find out what causes the changes to the cars though, this is ugly
-	{
-		bIsBridge = true;
-	}
-	else
-	{
-		bIsBridge = false;	//in case of map changes or something
-	}
-}
-
 public OnClientPutInServer(client)
 {
 	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage);
@@ -131,15 +111,7 @@ public Action:OnTakeDamage(victim, &attacker, &inflictor, &Float:damage, &damage
 		{
 			if (StrContains(sModelName, "cara_") != -1 || StrContains(sModelName, "taxi_") != -1 || StrContains(sModelName, "police_car") != -1)
 			{
-				if (bIsBridge)
-				{
-					damage = 4.0*GetConVarFloat(hBridgeCarDamage);
-					inflictor = 0;	//because valve is silly and damage on incapped players would be ignored otherwise
-				}
-				else
-				{
-					damage = GetConVarFloat(hCarStandingDamage);
-				}
+				damage = GetConVarFloat(hCarStandingDamage);
 			}
 			else if (StrContains(sModelName, "dumpster") != -1)
 			{

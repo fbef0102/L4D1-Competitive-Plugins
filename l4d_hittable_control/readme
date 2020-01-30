@@ -1,9 +1,6 @@
 Allows for customisation of hittable damage values.
 
--command-
-"hc_bridge_car_damage",			"25.0",
-	"Damage of cars in the parish bridge finale. Overrides standard incap damage on incapacitated players."
-											
+-convars-										
 "hc_sflog_standing_damage",		"100.0",
 	"Damage of hittable swamp fever logs to non-incapped survivors."
 											
@@ -40,5 +37,5 @@ Allows for customisation of hittable damage values.
 "hc_disable_self_damage",		"1",
 	"If set 1, tank will not damage itself with hittables."
 											
-"hc_overhit_time",				"1.2",
+"hc_overhit_time",				"1.4",
 	"The amount of time to wait before allowing consecutive hits from the same hittable to register. Recommended values: 0.0-0.5: instant kill; 0.5-0.7: sizeable overhit; 0.7-1.0: standard overhit; 1.0-1.2: reduced overhit; 1.2+: no overhit unless the car rolls back on top. Set to tank's punch interval (default 1.5) to fully remove all possibility of overhit."
