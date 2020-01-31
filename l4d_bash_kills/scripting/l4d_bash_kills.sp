@@ -26,7 +26,6 @@ public APLRes:AskPluginLoad2( Handle:plugin, bool:late, String:error[], errMax) 
 }
 
 public OnPluginStart() {
-    LoadTranslations("Roto2-AZ_mod.phrases");
     cvar_bashKills = CreateConVar("l4d_no_bash_kills", "1", "Prevent special infected from getting bashed to death", FCVAR_PLUGIN);
     cvar_bashKillBoomerTimes = CreateConVar("l4d_bash_kill_boomer_times", "3", "shove X times to kill boomer", FCVAR_PLUGIN);
 	
