@@ -3,4 +3,3 @@ Stop special infected getting bashed to death, except boomer, L4D1 port by Harry
 
 -convars-
 "l4d_no_bash_kills", "1", "Prevent special infected from getting bashed to death"
-"l4d_bash_kill_boomer_times", "3", "shove X times to kill boomer"
