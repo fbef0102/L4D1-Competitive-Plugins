@@ -1,11 +1,13 @@
 Announce boss flow percents!
 
--command-
-"l4d_global_percent", "1", "Display boss percentages to entire team when using commands"
+-convars-
+"l4d_global_percent", "0", "Display boss percentages to entire team when using commands"
 "l4d_tank_percent", "1", "Display Tank flow percentage in chat"
 "l4d_witch_percent", "1", "Display Witch flow percentage in chat"
 
-!tank
-!witch
-!boss
-!t
+-command-
+  *for everyone
+	!tank
+	!witch
+	!boss
+	!t

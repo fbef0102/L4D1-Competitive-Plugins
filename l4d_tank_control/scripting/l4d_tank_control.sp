@@ -147,14 +147,10 @@ public Action:Command_FindNexTank(client, args)
 	if(queuedTank== -2)
 		ChooseTank();
 	if(queuedTank== -1 && iTeam !=2){
-		for (new i = 1; i < MaxClients+1; i++)
-			if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && GetClientTeam(i) == iTeam)
-				CPrintToChat(i, "{green}[IamTank] {default}Everyone has been{green} tank{default} at once，{olive}random now{default}!"); 
+		CPrintToChat(client, "{green}[IamTank] {default}Everyone has been{green} tank{default} at once，{olive}random now{default}!"); 
 	}
 	else if (queuedTank>0)
-		for (new i = 1; i < MaxClients+1; i++)
-			if (IsClientConnected(i) && IsClientInGame(i)&& !IsFakeClient(i) && GetClientTeam(i) == iTeam)
-				CPrintToChat(i, "{green}[IamTank]{red} %N {default}will become the {green}tank{default}!", queuedTank); 
+		CPrintToChat(client, "{green}[IamTank]{red} %N {default}will become the {green}tank{default}!", queuedTank); 
 	
 	
 	PrintTankOwners(client);
