@@ -2,6 +2,7 @@
 
 #include <sourcemod>
 #include <sdktools>
+#include <colors>
 
 new lastHumanTank = -1;
 
@@ -42,7 +43,10 @@ public Action:CheckForAITank(Handle:timer)
 				NULL_VECTOR, 
 				NULL_VECTOR);
 				ForcePlayerSuicide(lastHumanTank);
-				PrintToChat(lastHumanTank,"\x04[TS] \x01Passing \x04Tank \x01to AI, \x03No Instant Spawn\x01!!");
+				CPrintToChat(lastHumanTank,"{default}[{olive}TS{default}] %T","No Instant Spawn",lastHumanTank);
+				for (new j = 1; j < MaxClients; j++)
+					if (IsClientInGame(j) && IsClientConnected(j) && !IsFakeClient(j) && (GetClientTeam(j) == 1 || GetClientTeam(j) == 3))
+						CPrintToChat(j,"{default}[{olive}TS{default}] %N is given to AI Tank!",lastHumanTank);
 			}
 			return Plugin_Handled;
 		}
