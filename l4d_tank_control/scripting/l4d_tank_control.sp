@@ -355,6 +355,8 @@ public Action:L4D_OnTryOfferingTankBot(tank_index, &bool:enterStatis)
 	if (queuedTank>0){
 		ForceTankPlayer(queuedTank);//強制該玩家當tank
 
+		GetClientAuthString(queuedTank, tankSteamId, sizeof(tankSteamId));
+		
 		if(HasBeenTank(tankSteamId) == false)
 			PushArrayString(hTeamTanks, tankSteamId);
 		if(IsFinal)

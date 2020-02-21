@@ -58,11 +58,7 @@ public Action:CurrentCmd(client, args)
 {
 	SurCurrent = RoundToNearest(GetBossProximity() * 100.0);
 	SurCurrent = SurCurrent>=100 ? 100 : SurCurrent;
-	new iTeam = GetClientTeam(client);
-	for (new i = 1; i < MaxClients+1; i++) {//打這指令的整隊都看得到
-		if (IsClientConnected(i) && IsClientInGame(i)&& GetClientTeam(i) == iTeam) 
-			CPrintToChat(i, "{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%{default}", SurCurrent);
-	}
+	CPrintToChat(client, "{default}[{olive}TS{default}] {blue}Current{default}: {green}%d%%{default}", SurCurrent);
 	
 }
 

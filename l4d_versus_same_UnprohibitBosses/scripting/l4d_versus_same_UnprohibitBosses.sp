@@ -73,9 +73,9 @@ public TS_ev_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	b_IsSecondWitch = false;
 	
-	CreateTimer(2.5,COLD_DOWN);
+	//CreateTimer(2.5,COLD_DOWN);
 }
-
+/*
 public Action:COLD_DOWN(Handle:timer)
 {
 	if (InSecondHalfOfRound())
@@ -86,7 +86,7 @@ public Action:COLD_DOWN(Handle:timer)
 		L4DDirect_SetVWitchFlowPercent(1, fWitchFlow);
 	}
 }
-
+*/
 public OnMapStart()
 {
 	//強制每一關生出tank與witch
