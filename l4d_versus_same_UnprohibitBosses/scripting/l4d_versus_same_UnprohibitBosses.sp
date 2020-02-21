@@ -29,6 +29,16 @@ static	bool:Tank_firstround_spawn,bool:Witch_firstround_spawn;
 static bool:b_IsSecondWitch;
 new Float:fWitchFlow;
 
+public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
+{ 
+	CreateNative("SaveWitchPercent",Native_SaveWitchPercent);
+	return APLRes_Success;
+}
+
+public Native_SaveWitchPercent(Handle:plugin, numParams) {
+	new Float:num1 = GetNativeCell(1);
+	fWitchFlow = num1;
+}
 
 public Plugin:myinfo = 
 {
@@ -73,20 +83,25 @@ public TS_ev_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
 	b_IsSecondWitch = false;
 	
-	//CreateTimer(2.5,COLD_DOWN);
+	CreateTimer(2.5,COLD_DOWN);
 }
-/*
+
 public Action:COLD_DOWN(Handle:timer)
 {
 	if (InSecondHalfOfRound())
 	{
-		L4DDirect_SetVSWitchToSpawnThisRound(1, false);
-		L4DDirect_SetVSWitchToSpawnThisRound(1, true);
-		L4DDirect_SetVWitchFlowPercent(1, 0.2);
-		L4DDirect_SetVWitchFlowPercent(1, fWitchFlow);
+		if(fWitchFlow == 0.0)
+			L4DDirect_SetVSWitchToSpawnThisRound(1, false);
+		else
+		{
+			L4DDirect_SetVSWitchToSpawnThisRound(1, false);
+			L4DDirect_SetVSWitchToSpawnThisRound(1, true);
+			L4DDirect_SetVWitchFlowPercent(1, 0.2);
+			L4DDirect_SetVWitchFlowPercent(1, fWitchFlow);
+		}
 	}
 }
-*/
+
 public OnMapStart()
 {
 	//強制每一關生出tank與witch
