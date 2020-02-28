@@ -33,16 +33,16 @@ public Plugin:myinfo =
 
 public OnPluginStart()
 {
-	ConVar_Huntrifle_EReloadLayer = CreateConVar( "l4dbeta_huntingrifle_empty_reloadlayer", "15", "[-1 = DISABLED] <The Empty Reload Layer Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_EReloadTime = CreateConVar( "l4dbeta_huntingrifle_empty_reloadtime", "1.2", "[1.0 = DISABLED] <Time to Block the Empty Reload Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_ReloadLayer = CreateConVar( "l4dbeta_huntingrifle_normal_reloadlayer", "-1", "[-1 = DISABLED | 7 = OTHER] <The Normal Reload Layer Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_ReloadTime = CreateConVar( "l4dbeta_huntingrifle_normal_reloadtime", "0.9", "[1.0 = DISABLED] <Time to Block the Normal Reload Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_PickupLayer = CreateConVar( "l4dbeta_huntingrifle_pickuplayer", "-1", "[-1 = DISABLED] <The Pickup Layer Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_SwtichLayer = CreateConVar( "l4dbeta_huntingrifle_swtichlayer", "7", "[-1 = DISABLED] <The Swtich Layer Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_SwtichTime = CreateConVar( "l4dbeta_huntingrifle_swtichtime", "1.8", "[-1 = DISABLED] <Time to Block the Swtich Layer Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
-	ConVar_Huntrifle_FireLayer = CreateConVar( "l4d_huntingrifle_firelayer", "7", "[-1 = DISABLED | 7 = OTHER] <The Fire Layer Sequence>", FCVAR_PLUGIN | FCVAR_REPLICATED | FCVAR_NOTIFY );
+	ConVar_Huntrifle_EReloadLayer = CreateConVar( "l4dbeta_huntingrifle_empty_reloadlayer", "15", "[-1 = DISABLED] <The Empty Reload Layer Sequence>",  FCVAR_NOTIFY );
+	ConVar_Huntrifle_EReloadTime = CreateConVar( "l4dbeta_huntingrifle_empty_reloadtime", "1.2", "[1.0 = DISABLED] <Time to Block the Empty Reload Sequence>",  FCVAR_NOTIFY );
+	ConVar_Huntrifle_ReloadLayer = CreateConVar( "l4dbeta_huntingrifle_normal_reloadlayer", "-1", "[-1 = DISABLED | 7 = OTHER] <The Normal Reload Layer Sequence>", FCVAR_NOTIFY );
+	ConVar_Huntrifle_ReloadTime = CreateConVar( "l4dbeta_huntingrifle_normal_reloadtime", "0.9", "[1.0 = DISABLED] <Time to Block the Normal Reload Sequence>", FCVAR_NOTIFY );
+	ConVar_Huntrifle_PickupLayer = CreateConVar( "l4dbeta_huntingrifle_pickuplayer", "-1", "[-1 = DISABLED] <The Pickup Layer Sequence>", FCVAR_NOTIFY );
+	ConVar_Huntrifle_SwtichLayer = CreateConVar( "l4dbeta_huntingrifle_swtichlayer", "7", "[-1 = DISABLED] <The Swtich Layer Sequence>", FCVAR_NOTIFY );
+	ConVar_Huntrifle_SwtichTime = CreateConVar( "l4dbeta_huntingrifle_swtichtime", "1.8", "[-1 = DISABLED] <Time to Block the Swtich Layer Sequence>",  FCVAR_NOTIFY );
+	ConVar_Huntrifle_FireLayer = CreateConVar( "l4d_huntingrifle_firelayer", "19", "[-1 = DISABLED | 7 = OTHER] <The Fire Layer Sequence>", FCVAR_NOTIFY );
 	
-	hRateOfFireCvar	= CreateConVar("l4d_huntingrifle_firespeedtime", "0.13", "In percentage, rate of fire (min 0.05; max 1.50).", FCVAR_PLUGIN | FCVAR_NOTIFY);
+	hRateOfFireCvar	= CreateConVar("l4d_huntingrifle_firespeedtime", "0.19", "In percentage, rate of fire (min 0.05; max 1.50).",  FCVAR_NOTIFY);
 	HookConVarChange(hRateOfFireCvar, ConVarChange_Slow);
 	HookEvent("weapon_fire", eWeaponFire);
 	HookEvent("weapon_reload", eReloadWeapon);

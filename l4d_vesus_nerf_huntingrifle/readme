@@ -1,2 +1,13 @@
-I make a nerf huntingrifle for versus
+A nerf huntingrifle for L4D1 versus
 this video can show you the nerf huntingrifle I made: https://www.youtube.com/watch?v=CpKpWppDcbk&t=86s
+
+-convars
+"l4dbeta_huntingrifle_empty_reloadlayer", "15", "[-1 = DISABLED] <The Empty Reload Layer Sequence>"
+"l4dbeta_huntingrifle_empty_reloadtime", "1.2", "[1.0 = DISABLED] <Time to Block the Empty Reload Sequence>"
+"l4dbeta_huntingrifle_normal_reloadlayer", "-1", "[-1 = DISABLED | 7 = OTHER] <The Normal Reload Layer Sequence>"
+"l4dbeta_huntingrifle_normal_reloadtime", "0.9", "[1.0 = DISABLED] <Time to Block the Normal Reload Sequence>"
+"l4dbeta_huntingrifle_pickuplayer", "-1", "[-1 = DISABLED] <The Pickup Layer Sequence>"
+"l4dbeta_huntingrifle_swtichlayer", "7", "[-1 = DISABLED] <The Swtich Layer Sequence>"
+"l4dbeta_huntingrifle_swtichtime", "1.8", "[-1 = DISABLED] <Time to Block the Swtich Layer Sequence>"
+"l4d_huntingrifle_firelayer", "19", "[-1 = DISABLED | 7 = OTHER] <The Fire Layer Sequence>"
+"l4d_huntingrifle_firespeedtime", "0.19", "In percentage, rate of fire (min 0.05; max 1.50)."

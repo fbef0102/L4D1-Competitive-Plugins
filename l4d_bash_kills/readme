@@ -2,4 +2,7 @@ Stop special infected getting bashed to death, except boomer, L4D1 port by Harry
 -notify that who shoves-kill boomer
 
 -convars-
-"l4d_no_bash_kills", "1", "Prevent special infected from getting bashed to death"
+"l4d_hunter_no_bash_kills", "1", "Prevent hunter from getting bashed to death"
+"l4d_smoker_no_bash_kills", "1", "Prevent smoker from getting bashed to death"
+"l4d_boomer_no_bash_kills", "0", "Prevent boomerfrom getting bashed to death"
+	
