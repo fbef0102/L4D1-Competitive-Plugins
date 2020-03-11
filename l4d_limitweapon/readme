@@ -1,0 +1,8 @@
+Maximum of each L4D1 weapons the survivors can pick up
+
+-convar-
+"limit_huntingrifle", 	"1", "Maximum of hunting rifles the survivors can pick up. [-1:No limit]"
+"limit_autoshotgun", 	"1", "Maximum of autoshotguns the survivors can pick up. [-1:No limit]"
+"limit_rifle", 			"1", "Maximum of rifles the survivors can pick up. [-1:No limit]"
+"limit_pumpshotgun", 	"4", "Maximum of pumpshotguns the survivors can pick up. [-1:No limit]"
+"limit_smg", 			"3", "Maximum of smgs the survivors can pick up. [-1:No limit]"
