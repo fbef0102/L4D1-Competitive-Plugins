@@ -11,10 +11,5 @@ Voice Announce. Print To Center Message who Speaking. With cookies
 "va_default_speaklist", "1", "Enable speaklist when sv_alltalk on? [1-Enable/0-Disable]"
 "va_print_speaklist", "0", "How to show who is speaking? [0-Center/1-Hint]"
 
-<<<<<<< HEAD
 -Command-
 sm_speaklist (only used by spectator)
-=======
--command-
-sm_speaklist (only used by spectator)
->>>>>>> e7b9c479759ba66a30ebff23ff6613d0e8ca7f81
