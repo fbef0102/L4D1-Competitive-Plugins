@@ -18,11 +18,15 @@ public Extension __ext_voice =
 int ClientSpeakingList[MAXPLAYERS+1] = {-1, ...};
 bool ClientSpeakingTime[MAXPLAYERS+1];
 
-ConVar va_default_speaklist;
-ConVar va_svalltalk;
+ConVar va_print_speaklist;
+ConVar va_alltalk_speaklist;
+ConVar va_sv_alltalk;
 ConVar va_spectator_speaklist;
 Handle g_hSpeakingList;
-
+int i_alltalk_speaklist;
+int	i_sv_alltalk;
+int	i_print_speaklist;
+	
 char SpeakingPlayers[3][512];
 int team;
 #define UPDATESPEAKING_TIME_INTERVAL 0.5
@@ -41,8 +45,9 @@ public void OnPluginStart()
 	g_hSpeakingList = RegClientCookie("speaking-list", "SpeakList", CookieAccess_Protected);
 	
 	va_spectator_speaklist = CreateConVar("va_spectator_speaklist", "1", "Enable speaklist for spectators default? [1-Enable/0-Disable]", 0, true, 0.0, true, 1.0);
-	va_default_speaklist = CreateConVar("va_default_speaklist", "1", "Enable speaklist when sv_alltalk on? [1-Enable/0-Disable]", 0, true, 0.0, true, 1.0);
-	va_svalltalk = FindConVar("sv_alltalk");
+	va_alltalk_speaklist = CreateConVar("va_alltalk_speaklist", "1", "Enable speaklist when sv_alltalk on? [1-Enable/0-Disable]", 0, true, 0.0, true, 1.0);
+	va_print_speaklist = CreateConVar("va_print_speaklist", "0", "How to show who is speaking? [0-Center/1-Hint]", 0, true, 0.0, true, 1.0);
+	va_sv_alltalk = FindConVar("sv_alltalk");
 	
 	RegConsoleCmd("sm_speaklist", Command_SpeakList, "Player Enable or Disable speaklist");
 	
@@ -124,23 +129,32 @@ public Action UpdateSpeaking(Handle timer)
 		ClientSpeakingTime[i] = false;
 	}
 	
-	int svalltalk = GetConVarInt(va_svalltalk);
+	i_alltalk_speaklist = GetConVarInt(va_alltalk_speaklist);
+	i_sv_alltalk = GetConVarInt(va_sv_alltalk);
+	i_print_speaklist = GetConVarInt(va_print_speaklist);
+
 	if(SpeakingPlayers[0][0] != '\0')
-		Format(SpeakingPlayers[0], sizeof(SpeakingPlayers[]), "Spectator MIC:\n%s",SpeakingPlayers[0]);
+		Format(SpeakingPlayers[0], sizeof(SpeakingPlayers[]), "%t:\n%s","Spectator MIC", SpeakingPlayers[0]);
 	if(SpeakingPlayers[1][0] != '\0')
-		Format(SpeakingPlayers[1], sizeof(SpeakingPlayers[]), "Survivor MIC:\n%s", SpeakingPlayers[1]);
+		Format(SpeakingPlayers[1], sizeof(SpeakingPlayers[]), "%t:\n%s","Survivor MIC", SpeakingPlayers[1]);
 	if(SpeakingPlayers[2][0] != '\0')
-		Format(SpeakingPlayers[2], sizeof(SpeakingPlayers[]), "Infected MIC:\n%s", SpeakingPlayers[2]);
+		Format(SpeakingPlayers[2], sizeof(SpeakingPlayers[]), "%t:\n%s","Infected MIC", SpeakingPlayers[2]);
+	
+	char ShowSpeakingPlayers[1560];
+	Format(ShowSpeakingPlayers, sizeof(ShowSpeakingPlayers), "%s%s%s",SpeakingPlayers[0],SpeakingPlayers[1],SpeakingPlayers[2]);
+	
 	if (iCount > 0)
 	{
 		for (int i = 1; i <= MaxClients; i++)
 		{
 			if(IsClientInGame(i)&&!IsFakeClient(i)&&ClientSpeakingList[i]>0)
 			{
-				if ( (GetClientTeam(i) == 1 && svalltalk == 0)
-				|| (GetConVarInt(va_default_speaklist) == 1 && svalltalk == 1) )//旁觀玩家+alltalk 0 or alltalk 1
-				{
-					PrintCenterText(i, "%s%s%s",SpeakingPlayers[0],SpeakingPlayers[1],SpeakingPlayers[2]);
+				if ( (GetClientTeam(i) == 1 && i_sv_alltalk == 0)//旁觀玩家 + alltalk 0
+				|| (i_alltalk_speaklist == 1 && i_sv_alltalk == 1) )//or Enable speaklist when sv_alltalk on
+				{		
+					SetGlobalTransTarget(i);
+					if(i_print_speaklist==0)	PrintCenterText(i, "%s",ShowSpeakingPlayers);
+					else	PrintHintText(i, "%s",ShowSpeakingPlayers);
 				}
 			}
 		}
