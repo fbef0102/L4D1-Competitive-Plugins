@@ -9,29 +9,34 @@ Lag compensation for tank rocks + custom damage & range values
 	-fixed a issue with hunting rifle being unable to hit tank rocks.
 	-fixed a issue with mounted machine gun being unable to hit tank rocks.
 	
--convar-
-"sm_rock_print", "0", "Toggle printing of rock damage and range values", FCVAR_NONE, true, 0.0, true, 1.0);
-"sm_rock_hitbox", "1", "Toggle for rock custom hitbox", FCVAR_NONE, true, 0.0, true, 1.0);
-"sm_rock_lagcomp", "1", "Toggle for lag compensation", FCVAR_NONE, true, 0.0, true, 1.0);
-"sm_rock_godframes", "1.7", "Godframe time for rock (in seconds)", FCVAR_NONE, true, 0.0, true, 10.0);
-"sm_rock_godframes_render", "1", "Toggle visual godframes feedback", FCVAR_NONE, true, 0.0, true, 1.0);
-"sm_rock_hitbox_radius", "30", "Rock hitbox radius", FCVAR_NONE, true, 0.0, true, 10000.0);
-"sm_rock_damage_pistol", "75", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_magnum", "1000", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_shotgun", "600", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_smg", "75", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_rifle", "200", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_melee", "1000", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_sniper", "10000", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-"sm_rock_damage_minigun", "300", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
+1.13 by Silvers
+	-saving many CPU cycles
+	-fixed invalid Entity causes the error
+-Convars-
+"sm_rock_print", "0", "Toggle printing of rock damage and range values"
+"sm_rock_hitbox", "1", "Toggle for rock custom hitbox"
+"sm_rock_lagcomp", "1", "Toggle for lag compensation"
+"sm_rock_godframes", "1.7", "Godframe time for rock (in seconds)"
+"sm_rock_godframes_render", "1", "Toggle visual godframes feedback"
+"sm_rock_hitbox_radius", "30", "Rock hitbox radius"
+"sm_rock_damage_pistol", "75", "Gun category damage"
+"sm_rock_damage_magnum", "1000", "Gun category damage"
+"sm_rock_damage_shotgun", "600", "Gun category damage"
+"sm_rock_damage_smg", "75", "Gun category damage"
+"sm_rock_damage_rifle", "200", "Gun category damage
+"sm_rock_damage_melee", "1000", "Gun category damage"
+"sm_rock_damage_sniper", "10000", "Gun category damage"
+"sm_rock_damage_minigun", "300", "Gun category damage"
+"sm_rock_damage_mounted_machinegun", "10000", "Gun category damage"
 
-"sm_rock_range_min_all", "1", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_max_all", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_pistol", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_magnum", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_shotgun", "1000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_smg", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_rifle", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_melee", "200", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_sniper", "10000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-"sm_rock_range_minigun", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
+"sm_rock_range_min_all", "1", "Gun category range"
+"sm_rock_range_max_all", "2000", "Gun category range"
+"sm_rock_range_pistol", "2000", "Gun category range"
+"sm_rock_range_magnum", "2000", "Gun category range"
+"sm_rock_range_shotgun", "1000", "Gun category range"
+"sm_rock_range_smg", "2000", "Gun category range"
+"sm_rock_range_rifle", "2000", "Gun category range"
+"sm_rock_range_melee", "200", "Gun category range"
+"sm_rock_range_sniper", "10000", "Gun category range"
+"sm_rock_range_minigun", "2000", "Gun category range"
+"sm_rock_range_mounted_machinegun", "10000", "Gun category range"
