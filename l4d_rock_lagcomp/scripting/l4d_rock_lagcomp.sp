@@ -79,6 +79,7 @@
 #define DAMAGE_MELEE GetConVarFloat(cvarDamageMelee)
 #define DAMAGE_SNIPER GetConVarFloat(cvarDamageSniper)
 #define DAMAGE_MINIGUN GetConVarFloat(cvarDamageMinigun)
+#define DAMAGE_MOUNTED_MACHINEGUN GetConVarFloat(cvarDamageMountedMachineGun)
 
 #define RANGE_MAX_ALL_ float(10000)
 #define RANGE_MAX_ALL GetConVarFloat(cvarRangeMaxAll)
@@ -91,6 +92,7 @@
 #define RANGE_MELEE GetConVarFloat(cvarRangeMelee)
 #define RANGE_SNIPER GetConVarFloat(cvarRangeSniper)
 #define RANGE_MINIGUN GetConVarFloat(cvarRangeMinigun)
+#define RANGE_MOUNTED_MACHINEGUN GetConVarFloat(cvarRangeMountedMachineGun)
 
 #define BLOCK_ENT_REF 0
 #define BLOCK_POS_HISTORY 1
@@ -112,6 +114,7 @@ new ConVar:cvarDamageRifle;
 new ConVar:cvarDamageMelee;
 new ConVar:cvarDamageSniper;
 new ConVar:cvarDamageMinigun;
+new Convar:cvarDamageMountedMachineGun;
 
 new ConVar:cvarRangeMinAll;
 new ConVar:cvarRangeMaxAll;
@@ -123,6 +126,7 @@ new ConVar:cvarRangeRifle;
 new ConVar:cvarRangeMelee;
 new ConVar:cvarRangeSniper;
 new ConVar:cvarRangeMinigun;
+new Convar:cvarRangeMountedMachineGun;
 
 /**
  * Block BLOCK_ENT_REF: Entity Index
@@ -138,7 +142,7 @@ public Plugin myinfo =
     name = "L4D(2) Tank Rock Lag Compensation",
     author = "Luckylockm,harry",
     description = "Provides lag compensation for tank rock entities",
-    version = "1.11",
+    version = "1.12",
     url = "https://github.com/LuckyServ/"
 };
 
@@ -159,7 +163,8 @@ public void OnPluginStart()
     cvarDamageMelee = CreateConVar("sm_rock_damage_melee", "1000", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
     cvarDamageSniper = CreateConVar("sm_rock_damage_sniper", "10000", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
     cvarDamageMinigun = CreateConVar("sm_rock_damage_minigun", "300", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
-    
+    cvarDamageMountedMachineGun = CreateConVar("sm_rock_damage_mounted_machinegun", "10000", "Gun category damage", FCVAR_NONE, true, 0.0, true, DAMAGE_MAX_ALL_);
+	
     cvarRangeMinAll = CreateConVar("sm_rock_range_min_all", "1", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
     cvarRangeMaxAll = CreateConVar("sm_rock_range_max_all", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
     cvarRangePistol = CreateConVar("sm_rock_range_pistol", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
@@ -170,7 +175,8 @@ public void OnPluginStart()
     cvarRangeMelee = CreateConVar("sm_rock_range_melee", "200", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
     cvarRangeSniper = CreateConVar("sm_rock_range_sniper", "10000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
     cvarRangeMinigun = CreateConVar("sm_rock_range_minigun", "2000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
-    
+    cvarRangeMountedMachineGun = CreateConVar("sm_rock_range_mounted_machinegun", "10000", "Gun category range", FCVAR_NONE, true, 0.0, true, RANGE_MAX_ALL_);
+	
     rockEntitiesArray = CreateArray(4);
     HookEvent("weapon_fire", ProcessRockHitboxes);
 }
@@ -433,8 +439,11 @@ public void ApplyDamageOnRock(rockIndex, client, float[3] eyePos, float[3] c, Ev
     } else if (IsMiniGun(weaponName)) {
         if (range > RANGE_MINIGUN) return;
         ApplyBulletToRock(rockIndex, rockEntity, DAMAGE_MINIGUN, range);
+        
+    } else if (IsMountedMachineGun(weaponName)){
+        if (range > RANGE_MOUNTED_MACHINEGUN) return;
+        ApplyBulletToRock(rockIndex, rockEntity, DAMAGE_MOUNTED_MACHINEGUN, range);
     }
-    
 }
 
 /*
@@ -508,7 +517,11 @@ public bool IsMiniGun(const char[] weaponName)
 {
     return StrEqual(weaponName, "prop_minigun_l4d1")
         || StrEqual(weaponName, "prop_minigun");
-    
+}
+
+public bool IsMountedMachineGun(const char[] weaponName)
+{
+    return StrEqual(weaponName, "prop_mounted_machine_gun");
 }
 
 /**

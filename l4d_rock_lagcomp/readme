@@ -5,8 +5,9 @@ Lag compensation for tank rocks + custom damage & range values
 1.10 
 	-original plugin: https://forums.alliedmods.net/showthread.php?p=2646073
 
-1.11 by Harry
+1.12 by Harry
 	-fixed a issue with hunting rifle being unable to hit tank rocks.
+	-fixed a issue with mounted machine gun being unable to hit tank rocks.
 	
 -convar-
 "sm_rock_print", "0", "Toggle printing of rock damage and range values", FCVAR_NONE, true, 0.0, true, 1.0);
