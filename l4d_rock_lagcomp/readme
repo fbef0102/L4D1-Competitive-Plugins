@@ -12,6 +12,7 @@ Lag compensation for tank rocks + custom damage & range values
 1.13 by Silvers
 	-saving many CPU cycles
 	-fixed invalid Entity causes the error
+	
 -Convars-
 "sm_rock_print", "0", "Toggle printing of rock damage and range values"
 "sm_rock_hitbox", "1", "Toggle for rock custom hitbox"
