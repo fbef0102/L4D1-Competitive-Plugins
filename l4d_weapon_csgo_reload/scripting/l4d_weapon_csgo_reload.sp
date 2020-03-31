@@ -13,12 +13,13 @@ enum WeaponID
 	ID_PUMPSHOTGUN,
 	ID_RIFLE,
 	ID_AUTOSHOTGUN,
-	ID_HUNTING_RIFLE
+	ID_HUNTING_RIFLE,
+	ID_WEAPON_MAX
 }
 #define PISTOL_RELOAD_INCAP_MULTIPLY 1.3
-char Weapon_Name[WeaponID][32];
-int WeaponAmmoOffest[WeaponID];
-int WeaponMaxClip[WeaponID];
+char Weapon_Name[ID_WEAPON_MAX][32];
+int WeaponAmmoOffest[ID_WEAPON_MAX];
+int WeaponMaxClip[ID_WEAPON_MAX];
 
 //cvars
 Handle hEnableReloadClipCvar;
@@ -47,8 +48,8 @@ public Plugin:myinfo =
 	name = "weapon csgo reload",
 	author = "Harry Potter",
 	description = "reload like csgo weapon",
-	version = "1.5",
-	url = "Harry Potter myself,you bitch shit"
+	version = "1.6",
+	url = "https://forums.alliedmods.net/showthread.php?t=318820"
 };
 
 public void OnPluginStart()
