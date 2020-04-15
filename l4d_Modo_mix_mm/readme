@@ -10,7 +10,10 @@ description = "Modo de juego Mix"
 	- Cleared old code, converted to new syntax and methodmaps.	
 1.2 (13-04-2019)
 	- fix error, optimize codes, and handle exception
-  
+	
+1.3 (15-04-2020)
+	- 給那些沒有換隊!survivor與!infected指令的傻B對抗插件強制換隊
+	
 ========================================================================================
 	Credits:
 
@@ -23,5 +26,5 @@ description = "Modo de juego Mix"
 
 -command-
 "mix_select_order", "1", "0 = ABABAB    |    1 = ABBAABBA"
-"sm_mix" "Initiate a player mix. Only works during readyup"
-"sm_forcemix", Command_ForceCaptainvote, ADMFLAG_BAN, "Initiate a player mix. Only works during readyup. Admins only."
+"sm_mix" "Initiate a player mix."
+"sm_forcemix", Command_ForceCaptainvote, ADMFLAG_BAN, "Initiate a player mix. Admins only."

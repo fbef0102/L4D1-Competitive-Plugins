@@ -7,6 +7,9 @@
 	- Cleared old code, converted to new syntax and methodmaps.	
 1.2 (13-04-2019)
 	- fix error, optimize codes, and handle exception
+	
+1.3 (15-04-2020)
+	- 給那些沒有換隊!survivor與!infected指令的傻B對抗插件強制換隊
   
 ========================================================================================
 	Credits:
@@ -26,7 +29,7 @@
 #define TEAM_SPECTATOR 1
 #define TEAM_SURVIVOR 2
 #define TEAM_INFECTED 3
-#define PLUGIN_VERSION		"1.2"
+#define PLUGIN_VERSION		"1.3"
 #define G_flTickInterval 0.25
 
 bool g_bTeamRequested[4];
@@ -714,21 +717,60 @@ void SwapPlayersToDesignatedTeams()
 	g_CvarMixStatus.SetInt(0, false, false);
 }
 
-public Action MoveToSurvivor(Handle timer, any target)
+public Action MoveToSurvivor(Handle timer, any targetplayer)
 {
 	char playerName[64];
-	GetClientName(target, playerName, 64);
-	FakeClientCommand(target, "sm_survivor");
+	GetClientName(targetplayer, playerName, 64);
+	FakeClientCommand(targetplayer, "sm_survivor");
+	
+	CreateTimer(0.1, CheckClientInSurvivorTeam, targetplayer, _);
 	return Plugin_Continue;
 }
 
-public Action MoveToInfected(Handle timer, any target)
+public Action MoveToInfected(Handle timer, any targetplayer)
 {
 	char playerName[64];
-	GetClientName(target, playerName, 64);
-	FakeClientCommand(target, "sm_infected");
+	GetClientName(targetplayer, playerName, 64);
+	FakeClientCommand(targetplayer, "sm_infected");
+	
+	CreateTimer(0.1, CheckClientInInfectedTeam, targetplayer, _);
 	return Plugin_Continue;
 }
+
+public Action:CheckClientInSurvivorTeam(Handle:timer, any:client)
+{
+	if(!IsClientInGame(client)) return;
+	
+	if (GetClientTeam(client) != 2)
+		CreateTimer(0.1, Survivor_Take_Control, client, TIMER_FLAG_NO_MAPCHANGE);
+}
+
+public Action:CheckClientInInfectedTeam(Handle:timer, any:client)
+{
+	if(!IsClientInGame(client)) return;
+	
+	if (GetClientTeam(client) != 3)
+		ChangeClientTeam(client, 3);
+}
+
+public Action:Survivor_Take_Control(Handle:timer, any:client)
+{
+		new localClientTeam = GetClientTeam(client);
+		new String:command[] = "sb_takecontrol";
+		new flags = GetCommandFlags(command);
+		SetCommandFlags(command, flags & ~FCVAR_CHEAT);
+		new String:botNames[][] = { "teengirl", "manager", "namvet", "biker" ,"coach","gambler","mechanic","producer"};
+		
+		new i = 0;
+		while((localClientTeam != 2) && i < 8)
+		{
+			FakeClientCommand(client, "sb_takecontrol %s", botNames[i]);
+			localClientTeam = GetClientTeam(client);
+			i++;
+		}
+		SetCommandFlags(command, flags);
+}
+
 /*
 bool IsSurvivorTeamFull()
 {
