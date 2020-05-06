@@ -2,7 +2,9 @@
 #include <sourcemod>
 #include <sdkhooks>
 #include <sdktools>
+#define CLASSNAME_LENGTH 	64
 #define DEBUG 0
+#pragma newdecls required //強制1.7以後的新語法
 
 enum WeaponID
 {
@@ -17,20 +19,20 @@ enum WeaponID
 	ID_WEAPON_MAX
 }
 #define PISTOL_RELOAD_INCAP_MULTIPLY 1.3
-char Weapon_Name[ID_WEAPON_MAX][32];
-int WeaponAmmoOffest[ID_WEAPON_MAX];
-int WeaponMaxClip[ID_WEAPON_MAX];
+char Weapon_Name[view_as<int>(ID_WEAPON_MAX)][CLASSNAME_LENGTH];
+int WeaponAmmoOffest[view_as<int>(ID_WEAPON_MAX)];
+int WeaponMaxClip[view_as<int>(ID_WEAPON_MAX)];
 
 //cvars
-Handle hEnableReloadClipCvar;
-Handle hEnableClipRecoverCvar;
-Handle hSmgTimeCvar;
-Handle hRifleTimeCvar;
-Handle hHuntingRifleTimeCvar;
-Handle hPistolTimeCvar;
-Handle hDualPistolTimeCvar;
-float g_EnableReloadClipCvar;
-float g_EnableClipRecoverCvar;
+ConVar hEnableReloadClipCvar;
+ConVar hEnableClipRecoverCvar;
+ConVar hSmgTimeCvar;
+ConVar hRifleTimeCvar;
+ConVar hHuntingRifleTimeCvar;
+ConVar hPistolTimeCvar;
+ConVar hDualPistolTimeCvar;
+bool g_EnableReloadClipCvar;
+bool g_EnableClipRecoverCvar;
 float g_SmgTimeCvar;
 float g_RifleTimeCvar;
 float g_HuntingRifleTimeCvar;
@@ -43,12 +45,12 @@ float g_hClientReload_Time[MAXPLAYERS+1]	= {0.0};
 //offest
 int ammoOffset;	
 											
-public Plugin:myinfo = 
+public Plugin myinfo = 
 {
 	name = "weapon csgo reload",
 	author = "Harry Potter",
 	description = "reload like csgo weapon",
-	version = "1.6",
+	version = "1.7",
 	url = "https://forums.alliedmods.net/showthread.php?t=318820"
 };
 
@@ -62,21 +64,21 @@ public void OnPluginStart()
 	hPistolTimeCvar 		= CreateConVar("l4d_pistol_reload_clip_time", 		"1.5",  "reload time for pistol clip"		     , FCVAR_NOTIFY);
 	hDualPistolTimeCvar 	= CreateConVar("l4d_dualpistol_reload_clip_time", 	"2.1",  "reload time for dual pistol clip"       , FCVAR_NOTIFY);
 	
-	g_EnableReloadClipCvar  = GetConVarFloat(hEnableReloadClipCvar);
-	g_EnableClipRecoverCvar = GetConVarFloat(hEnableClipRecoverCvar);
-	g_SmgTimeCvar = GetConVarFloat(hSmgTimeCvar);
-	g_RifleTimeCvar = GetConVarFloat(hRifleTimeCvar);
-	g_HuntingRifleTimeCvar = GetConVarFloat(hHuntingRifleTimeCvar);
-	g_PistolTimeCvar = GetConVarFloat(hPistolTimeCvar);
-	g_DualPistolTimeCvar = GetConVarFloat(hDualPistolTimeCvar);
+	g_EnableReloadClipCvar  = hEnableReloadClipCvar.BoolValue;
+	g_EnableClipRecoverCvar = hEnableClipRecoverCvar.BoolValue;
+	g_SmgTimeCvar = hSmgTimeCvar.FloatValue;
+	g_RifleTimeCvar = hRifleTimeCvar.FloatValue;
+	g_HuntingRifleTimeCvar = hHuntingRifleTimeCvar.FloatValue;
+	g_PistolTimeCvar = hPistolTimeCvar.FloatValue;
+	g_DualPistolTimeCvar = hDualPistolTimeCvar.FloatValue;
 	
-	HookConVarChange(hEnableReloadClipCvar, ConVarChange_hEnableReloadClipCvar);
-	HookConVarChange(hEnableClipRecoverCvar, ConVarChange_hEnableClipRecoverCvar);
-	HookConVarChange(hSmgTimeCvar, ConVarChange_hSmgTimeCvar);
-	HookConVarChange(hRifleTimeCvar, ConVarChange_hRifleTimeCvar);
-	HookConVarChange(hHuntingRifleTimeCvar, ConVarChange_hHuntingRifleTimeCvar);
-	HookConVarChange(hPistolTimeCvar, ConVarChange_hPistolTimeCvar);
-	HookConVarChange(hDualPistolTimeCvar, ConVarChange_hDualPistolTimeCvar);
+	hEnableReloadClipCvar.AddChangeHook(ConVarChange_hEnableReloadClipCvar);
+	hEnableClipRecoverCvar.AddChangeHook(ConVarChange_hEnableClipRecoverCvar);
+	hSmgTimeCvar.AddChangeHook(ConVarChange_hSmgTimeCvar);
+	hRifleTimeCvar.AddChangeHook(ConVarChange_hRifleTimeCvar);
+	hHuntingRifleTimeCvar.AddChangeHook(ConVarChange_hHuntingRifleTimeCvar);
+	hPistolTimeCvar.AddChangeHook(ConVarChange_hPistolTimeCvar);
+	hDualPistolTimeCvar.AddChangeHook(ConVarChange_hDualPistolTimeCvar);
 	
 	HookEvent("weapon_reload", OnWeaponReload_Event, EventHookMode_Post);
 	HookEvent("round_start", RoundStart_Event);
@@ -86,9 +88,9 @@ public void OnPluginStart()
 	SetWeapon();
 }
 
-public Action:RoundStart_Event(Handle:event, const String:name[], bool:dontBroadcast)
+public Action RoundStart_Event(Event event, const char[] name, bool dontBroadcast) 
 {
-	for(new i = 1; i <= MaxClients; i++)
+	for(int i = 1; i <= MaxClients; i++)
 	{
 		g_hClientReload_Time[i] = 0.0;
 	}
@@ -126,7 +128,7 @@ public void SetWeapon()
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-	if(g_EnableReloadClipCvar == 0 || g_EnableClipRecoverCvar == 0)	return Plugin_Continue;
+	if(g_EnableReloadClipCvar == false || g_EnableClipRecoverCvar == false)	return Plugin_Continue;
 	
 	if (IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client) && buttons & IN_RELOAD) //If survivor alive player is holding weapon and wants to reload
 	{
@@ -149,7 +151,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			
 			switch(weaponid)
 			{
-				case (WeaponID:ID_SMG),(WeaponID:ID_RIFLE),(WeaponID:ID_HUNTING_RIFLE):
+				case ID_SMG,ID_RIFLE,ID_HUNTING_RIFLE:
 				{
 					if (0 < previousclip && previousclip < MaxClip)	//If the his current mag equals the maximum allowed, remove reload from buttons
 					{
@@ -215,7 +217,7 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 		!IsClientInGame(client) ||
 		IsFakeClient(client) ||
 		GetClientTeam(client) != 2 ||
-		g_EnableReloadClipCvar == 0) //disable this plugin
+		g_EnableReloadClipCvar == false) //disable this plugin
 		return Plugin_Continue;
 	
 
@@ -241,17 +243,17 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 	Handle pack;
 	switch(weaponid)
 	{
-		case (WeaponID:ID_SMG): CreateDataTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_RIFLE): CreateDataTimer(g_RifleTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_HUNTING_RIFLE): CreateDataTimer(g_HuntingRifleTimeCvar, WeaponReloadClip, pack,TIMER_FLAG_NO_MAPCHANGE);
-		case (WeaponID:ID_PISTOL): 
+		case ID_SMG: CreateDataTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+		case ID_RIFLE: CreateDataTimer(g_RifleTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+		case ID_HUNTING_RIFLE: CreateDataTimer(g_HuntingRifleTimeCvar, WeaponReloadClip, pack,TIMER_FLAG_NO_MAPCHANGE);
+		case ID_PISTOL: 
 		{
 			if(IsIncapacitated(client))
 				CreateDataTimer(g_PistolTimeCvar * PISTOL_RELOAD_INCAP_MULTIPLY, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
 			else
 				CreateDataTimer(g_PistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
 		}
-		case (WeaponID:ID_DUAL_PISTOL):
+		case ID_DUAL_PISTOL:
 		{
 			if(IsIncapacitated(client))
 			    CreateDataTimer(g_DualPistolTimeCvar * PISTOL_RELOAD_INCAP_MULTIPLY, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
@@ -297,7 +299,7 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	{
 		switch(weaponid)
 		{
-			case (WeaponID:ID_SMG),(WeaponID:ID_RIFLE),(WeaponID:ID_HUNTING_RIFLE):
+			case ID_SMG,ID_RIFLE,ID_HUNTING_RIFLE:
 			{
 				#if DEBUG
 					PrintToChatAll("CurrentWeapon reload clip completed");
@@ -317,7 +319,7 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 				SetWeaponAmmo(client,WeaponAmmoOffest[weaponid],ammo);
 				SetWeaponClip(CurrentWeapon,clip);
 			}
-			case (WeaponID:ID_PISTOL),(WeaponID:ID_DUAL_PISTOL):
+			case ID_PISTOL,ID_DUAL_PISTOL:
 			{
 				#if DEBUG
 					PrintToChatAll("Pistol reload clip completed");
@@ -333,41 +335,41 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	return Plugin_Handled;
 }
 
-public void ConVarChange_hEnableReloadClipCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hEnableReloadClipCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_EnableReloadClipCvar  = GetConVarFloat(hEnableReloadClipCvar);
+	g_EnableReloadClipCvar  = hEnableReloadClipCvar.BoolValue;
 }
-public void ConVarChange_hEnableClipRecoverCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hEnableClipRecoverCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_EnableClipRecoverCvar = GetConVarFloat(hEnableClipRecoverCvar);
+	g_EnableClipRecoverCvar = hEnableClipRecoverCvar.BoolValue;
 }
-public void ConVarChange_hSmgTimeCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hSmgTimeCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_SmgTimeCvar = GetConVarFloat(hSmgTimeCvar);
+	g_SmgTimeCvar = hSmgTimeCvar.FloatValue;
 }
-public void ConVarChange_hRifleTimeCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hRifleTimeCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_RifleTimeCvar = GetConVarFloat(hRifleTimeCvar);
+	g_RifleTimeCvar = hRifleTimeCvar.FloatValue;
 }
-public void ConVarChange_hHuntingRifleTimeCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hHuntingRifleTimeCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_HuntingRifleTimeCvar = GetConVarFloat(hHuntingRifleTimeCvar);
+	g_HuntingRifleTimeCvar = hHuntingRifleTimeCvar.FloatValue;
 }
-public void ConVarChange_hPistolTimeCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hPistolTimeCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_PistolTimeCvar = GetConVarFloat(hPistolTimeCvar);
+	g_PistolTimeCvar = hPistolTimeCvar.FloatValue;
 }
-public void ConVarChange_hDualPistolTimeCvar(Handle convar, const char[] oldValue, const char[] newValue)
+public void ConVarChange_hDualPistolTimeCvar(ConVar convar, const char[] oldValue, const char[] newValue)
 {
-	g_DualPistolTimeCvar = GetConVarFloat(hDualPistolTimeCvar);
+	g_DualPistolTimeCvar = hDualPistolTimeCvar.FloatValue;
 }
 
-stock GetWeaponAmmo(int client, int offest)
+stock int GetWeaponAmmo(int client, int offest)
 {
     return GetEntData(client, ammoOffset+(offest*4));
 } 
 
-stock GetWeaponClip(int weapon)
+stock int GetWeaponClip(int weapon)
 {
     return GetEntProp(weapon, Prop_Send, "m_iClip1");
 } 
@@ -381,40 +383,17 @@ stock void SetWeaponClip(int weapon, int clip)
 	SetEntProp(weapon, Prop_Send, "m_iClip1", clip);
 } 
 
-stock IsIncapacitated(client)
+stock bool IsIncapacitated(int client)
 {
-	return GetEntProp(client, Prop_Send, "m_isIncapacitated");
+	return view_as<bool>(GetEntProp(client, Prop_Send, "m_isIncapacitated"));
 }
 
 stock WeaponID GetWeaponID(int weapon,const char[] weapon_name)
 {
-	if(StrEqual(weapon_name,Weapon_Name[ID_DUAL_PISTOL],false) && GetEntProp(weapon, Prop_Send, "m_hasDualWeapons"))
+	for(WeaponID i = ID_NONE; i < ID_WEAPON_MAX ; ++i)
 	{
-		return WeaponID:ID_DUAL_PISTOL;
+		if(StrEqual(weapon_name,Weapon_Name[i],false))
+			return i;
 	}
-	else if(StrEqual(weapon_name,Weapon_Name[ID_PISTOL],false))
-	{
-		return WeaponID:ID_PISTOL;
-	}
-	else if(StrEqual(weapon_name,Weapon_Name[ID_SMG],false))
-	{
-		return WeaponID:ID_SMG;
-	}
-	else if(StrEqual(weapon_name,Weapon_Name[ID_PUMPSHOTGUN],false))
-	{
-		return WeaponID:ID_PUMPSHOTGUN;
-	}
-	else if(StrEqual(weapon_name,Weapon_Name[ID_RIFLE],false))
-	{
-		return WeaponID:ID_RIFLE;
-	}
-	else if(StrEqual(weapon_name,Weapon_Name[ID_AUTOSHOTGUN],false))
-	{
-		return WeaponID:ID_AUTOSHOTGUN;
-	}
-	else if(StrEqual(weapon_name,Weapon_Name[ID_HUNTING_RIFLE],false))
-	{
-		return WeaponID:ID_HUNTING_RIFLE;
-	}
-	return WeaponID:ID_NONE;
+	return ID_NONE;
 }
