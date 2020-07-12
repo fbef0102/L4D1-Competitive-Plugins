@@ -1,6 +1,6 @@
 Overrides special infected targeting players.
   * ignore player who is pinned by smoker & hunter.
-  * change target to nearest survivor no matter anyone gets vomited.
+  * change target to nearest survivor no matter vomited survivors, vomited specials, incapped, pinned etc.
 
 Original plugin: https://forums.alliedmods.net/showthread.php?p=2680135
 
