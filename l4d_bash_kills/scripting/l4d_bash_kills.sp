@@ -28,6 +28,7 @@ public APLRes:AskPluginLoad2( Handle:plugin, bool:late, String:error[], errMax) 
 }
 
 public OnPluginStart() {
+    LoadTranslations("Roto2-AZ_mod.phrases");
     cvar_bashKillHunter = CreateConVar("l4d_hunter_no_bash_kills", "1", "Prevent hunter from getting bashed to death", FCVAR_PLUGIN);
     cvar_bashKillSmoker = CreateConVar("l4d_smoker_no_bash_kills", "1", "Prevent smoker from getting bashed to death", FCVAR_PLUGIN);
     cvar_bashKillBoomer = CreateConVar("l4d_boomer_no_bash_kills", "0", "Prevent boomerfrom getting bashed to death", FCVAR_PLUGIN);
@@ -59,7 +60,7 @@ public Action:Hurt( victim, &attacker, &inflictor, &Float:damage, &damageType, &
 			GetClientName(victim,victimname,128);
 			decl String:attackername[128];
 			GetClientName(attacker,attackername,128);
-			CPrintToChatAll("[{olive}TS{default}] {olive}%N{default} shoves-kill {red}%N{default}'s Boomer",attacker,victim);
+			CPrintToChatAll("[{olive}TS{default}] %t","shove boomer and boomer dead",attackername,victimname);
 			return Plugin_Continue;
 		}
 		else if(zombieclass == SMOKER_ZOMBIE_CLASS && !GetConVarBool(cvar_bashKillSmoker))
@@ -86,7 +87,8 @@ bool:IsSI( client ) {
 }
 
 bool:IsSurvivor( client ) {
-    if ( client < 1
+    if ( client <= 0
+    || client > MaxClients
     || !IsClientConnected(client)
     || !IsClientInGame(client)
     || GetClientTeam(client) != 2
