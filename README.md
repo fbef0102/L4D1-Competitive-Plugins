@@ -4,7 +4,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2020/7/1
+> last edited:2020/7/12
 # Require
   * Clean Servers:
       * A clean [L4D1 Dedicated Server](https://github.com/fbef0102/L4D1-Server4Dead/blob/master/README.md#how-to-download-l4d1-dedicated-server-files)
@@ -69,7 +69,6 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>tankdoorfix</b>: This should at some point fix the case in which the tank misses the door he's supposed to destroy by using his punch
 * <b>l4d_ledge_HealthExpolitFixes</b>: Plugin fixes 3 health expolit caused when survivor hanging on a ledge and after it
 * <b>l4d_NoEscapeTank</b>: No Tank Spawn as the rescue vehicle is coming
-* <b>TickrateFixes</b>: Fixes a handful of silly Tickrate bugs
 * <b>fix_engine</b>: Blocking ladder speed glitch, no fall damage bug, health boost glitch.
 * <b>botpopstop</b>: Removes pills from bots if they try to use them and restores them when a human takes over.
 * <b>l4d_PillsHere</b>: Gives pills to survivors who doesn't have pill
