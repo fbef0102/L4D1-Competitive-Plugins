@@ -1,0 +1,9 @@
+Control Smoker tongue drag damage and interval.
+
+-L4D2 original code-
+https://github.com/Attano/L4D2-Competitive-Framework/blob/master/addons/sourcemod/scripting/l4d2_smoker_drag_damage_interval.sp
+
+-ConVar-
+"tongue_drag_damage_interval", "1.0", "How often the drag does damage."
+"tongue_drag_first_damage_interval", "1.0", "First drag damage interval."
+"tongue_drag_first_damage", "3.0", "First drag damage."
