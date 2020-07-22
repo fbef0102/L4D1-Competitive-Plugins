@@ -2,7 +2,6 @@
 #include <sourcemod>
 #include <sdktools>
 #include <l4d_direct>
-#include <l4d_lib>
 
 #define PLUGIN_VERSION "1.1.0"
 
@@ -14,7 +13,6 @@ static const String:SURRENDER_BUTTON_STRING[]      = "RELOAD"; // what is shown 
 static const SURRENDER_BUTTON                       = IN_RELOAD; // Sourcemod Button definition. Alternatives: IN_DUCK, IN_USE
 
 static const String:GAMEDATA_FILENAME[]             = "l4daddresses";
-static const String:GHOST_ENTPROP[]                 = "m_isGhost";
 static const String:CLASS_ENTPROP[]                 = "m_zombieClass";
 static const Float:CONTROL_DELAY_SAFETY             = 0.3;
 static const Float:CONTROL_RETRY_DELAY              = 2.0;
@@ -49,9 +47,9 @@ public OnPluginStart()
     
     PrepSDKCalls();
 
-    CreateConVar("l4d_tankswap_version", PLUGIN_VERSION, " Version of L4D1 Tank Swap on this server ", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_SPONLY|FCVAR_DONTRECORD);
-    cvar_SurrenderTimeLimit = CreateConVar("l4d_tankswap_timelimit", "10", " How many seconds can a primary Tank Player surrender control ", FCVAR_PLUGIN|FCVAR_NOTIFY);
-    cvar_SurrenderChoiceType = CreateConVar("l4d_tankswap_choicetype", "2", " 0 - Disabled; 1 - press Button to call Menu; 2 - Menu appears for every Tank ", FCVAR_PLUGIN|FCVAR_NOTIFY);
+    CreateConVar("l4d_tankswap_version", PLUGIN_VERSION, " Version of L4D1 Tank Swap on this server ", FCVAR_NOTIFY|FCVAR_SPONLY|FCVAR_DONTRECORD);
+    cvar_SurrenderTimeLimit = CreateConVar("l4d_tankswap_timelimit", "10", " How many seconds can a primary Tank Player surrender control ", FCVAR_NOTIFY);
+    cvar_SurrenderChoiceType = CreateConVar("l4d_tankswap_choicetype", "2", " 0 - Disabled; 1 - press Button to call Menu; 2 - Menu appears for every Tank ", FCVAR_NOTIFY);
     
     LoadTranslations("common.phrases");
     
@@ -359,9 +357,9 @@ public TS_Auto_MenuCallBack(Handle:menu, MenuAction:action, param1, param2)
     }
 }
 
-static bool:IsPlayerGhost(client)
+IsPlayerGhost(client)
 {
-    return (GetEntProp(client, Prop_Send, GHOST_ENTPROP, 1) == 1);
+	return GetEntProp(client, Prop_Send, "m_isGhost");
 }
 
 static GetRandomEligibleTank()
@@ -508,4 +506,14 @@ IsTankInGame(exclude = 0)
 			return i;
 
 	return 0;
+}
+
+stock IsIncapacitated(client)
+{
+	return GetEntProp(client, Prop_Send, "m_isIncapacitated");
+}
+
+stock bool:IsInfectedAlive(client)
+{
+	return GetEntProp(client, Prop_Send, "m_iHealth") > 1;
 }
