@@ -4,7 +4,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2020/7/22
+> last edited:2020/8/10
 # If you appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 # Require
   * Clean Servers:
@@ -104,6 +104,8 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>l4d_godframes_and_hittable_control</b>: Control survivors godframes + Allows for customisation of hittable damage values.
 * <b>l4d_limitweapon</b>: Maximum of each L4D1 weapons the survivors can pick up.
 * <b>l4d_smoker_drag_damage_interval</b>: Control Smoker tongue drag damage and interval.
+* <b>l4d_block_player_swim</b>: Disable the 'water hopping' spam in l4d1.
+* <b>l4d_ban_twotank_glitch_player</b>: ban player who uses L4D / Split tank glitch
 # Scripting Compiler
 * [sourcemod 1.63](https://github.com/fbef0102/L4D1-Competitive-Plugins/releases/download/v1.0/sourcemod_1.63_Compiler.zip): most of source codes
 * [sourcemod 1.9](https://github.com/fbef0102/L4D1-Competitive-Plugins/releases/download/v1.0/sourcemod_1.9_Compiler.zip): few source codes need new compiler

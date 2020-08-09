@@ -1,0 +1,10 @@
+ban player who uses L4D / Split tank glitch
+
+AlliedModders Post: https://forums.alliedmods.net/showthread.php?t=326023
+
+-ConVar-
+// 0=Plugin off, 1=Plugin on.
+sm_ban_tankplayer_allow 1
+
+// Ban how many mins.
+sm_ban_tankplayer_ban_time 5
