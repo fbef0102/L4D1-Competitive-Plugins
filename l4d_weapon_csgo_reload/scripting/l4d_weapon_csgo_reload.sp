@@ -50,6 +50,18 @@ public Plugin myinfo =
 	url = "https://forums.alliedmods.net/showthread.php?t=318820"
 };
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	EngineVersion test = GetEngineVersion();
+	
+	if( test != Engine_Left4Dead )
+	{
+		strcopy(error, err_max, "Plugin only supports Left 4 Dead 1.");
+		return APLRes_SilentFailure;
+	}
+	return APLRes_Success;
+}
+
 public void OnPluginStart()
 {
 	ammoOffset = FindSendPropInfo("CCSPlayer", "m_iAmmo");
