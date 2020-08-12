@@ -437,10 +437,21 @@ stock bool IsIncapacitated(int client)
 
 stock WeaponID GetWeaponID(int weapon,const char[] weapon_name)
 {
+	if(StrEqual(weapon_name,"weapon_pistol",false))
+	{
+		if( GetEntProp(weapon, Prop_Send, "m_isDualWielding") > 0) //dual pistol
+		{
+			return ID_DUAL_PISTOL;
+		}
+		return ID_PISTOL;
+	}
+
 	for(WeaponID i = ID_NONE; i < ID_WEAPON_MAX ; ++i)
 	{
 		if(StrEqual(weapon_name,Weapon_Name[i],false))
+		{
 			return i;
+		}
 	}
 	return ID_NONE;
 }
