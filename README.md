@@ -5,7 +5,8 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
 > last edited:2020/8/12
-# If you appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
+# Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
+If you want any modify or request, free to use or pay me money to do it.
 # Require
   * Clean Servers:
       * A clean [L4D1 Dedicated Server](https://github.com/fbef0102/L4D1-Server4Dead/blob/master/README.md#how-to-download-l4d1-dedicated-server-files)
