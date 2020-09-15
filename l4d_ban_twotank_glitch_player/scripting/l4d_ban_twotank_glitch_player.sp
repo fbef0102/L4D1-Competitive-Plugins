@@ -4,15 +4,12 @@
 #include <sourcemod>
 #include <sdktools>
 
-ConVar g_hCvarAllow, g_hCvarBanTime;
-static int ZOMBIECLASS_TANK = 5;
-
 public Plugin myinfo =
 {
-    name = "ban tank player glitch",
+    name = "Ban tank player glitch",
     author = "Harry Potter",
     description = "ban player who uses L4D / Split tank glitch",
-    version = "1.0",
+    version = "1.1",
     url = "https://forums.alliedmods.net/showthread.php?t=326023"
 };
 
@@ -28,16 +25,21 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	return APLRes_Success; 
 }
 
+ConVar g_hCvarAllow, g_hCvarBanTime, g_hCvarKillTank;
+static int ZOMBIECLASS_TANK = 5;
+
 public void OnPluginStart()
 {
 	g_hCvarAllow =	CreateConVar("sm_ban_tankplayer_allow",	"1", "0=Plugin off, 1=Plugin on.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	g_hCvarBanTime =	CreateConVar("sm_ban_tankplayer_ban_time",	"5", "Ban how many mins.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	g_hCvarBanTime =	CreateConVar("sm_ban_tankplayer_ban_time",	"5", "Ban how many mins.", FCVAR_NOTIFY, true, 1.0);
+	g_hCvarKillTank =	CreateConVar("sm_ban_tankplayer_kill_tank",	"1", "Kill Tank who's Frustration is 100% a player leaves.", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 
 	AutoExecConfig(true, "l4d_ban_twotank_glitch_player");
 }
 
 public void OnClientDisconnect(int client)
 {
+	LogMessage("OnClientDisconnect %N",client);
 	if(g_hCvarAllow.BoolValue)
 	{
 		if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client) && IsPlayerTank(client))
@@ -45,7 +47,8 @@ public void OnClientDisconnect(int client)
 			int frus = GetFrustration(client);
 			if(frus == 100)
 			{
-				PrintToChatAll("%N tries to use two tank glitch and leaves the game as alive tank player.",client);
+				if(g_hCvarKillTank.BoolValue) ForcePlayerSuicide(client);
+				PrintToChatAll("[\x05TS\x01] \x04%N \x01tries to use \x03two tank glitch\x01 and leaves the game as alive tank player.",client);
 				BanClient(client, g_hCvarBanTime.IntValue, BANFLAG_AUTHID, "use two tank glitch", "Nice Try! Dumbass!");
 			}
 		}

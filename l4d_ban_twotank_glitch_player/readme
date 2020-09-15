@@ -4,7 +4,10 @@ AlliedModders Post: https://forums.alliedmods.net/showthread.php?t=326023
 
 -ConVar-
 // 0=Plugin off, 1=Plugin on.
-sm_ban_tankplayer_allow 1
+sm_ban_tankplayer_allow "1"
 
 // Ban how many mins.
-sm_ban_tankplayer_ban_time 5
+sm_ban_tankplayer_ban_time "5"
+
+// Kill Tank who's Frustration is 100% a player leaves.
+sm_ban_tankplayer_kill_tank "1"
