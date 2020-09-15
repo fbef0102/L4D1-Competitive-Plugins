@@ -39,7 +39,6 @@ public void OnPluginStart()
 
 public void OnClientDisconnect(int client)
 {
-	LogMessage("OnClientDisconnect %N",client);
 	if(g_hCvarAllow.BoolValue)
 	{
 		if(client && IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 3 && IsPlayerAlive(client) && IsPlayerTank(client))
