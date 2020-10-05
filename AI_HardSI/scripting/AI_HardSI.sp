@@ -2,7 +2,6 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <smlib>
 
 #include "includes/hardcoop_util.sp"
 #include "modules/AI_Smoker.sp"

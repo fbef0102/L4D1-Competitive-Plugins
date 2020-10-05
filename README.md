@@ -32,7 +32,6 @@ If you want any modify or request, free to use or pay me money to do it.
 * <b>l4d_pig_infected_notify</b>: Show who the god teammate boom the Tank, Tank use which weapon(car,pounch,rock) to kill teammates S.I. and Witch , player open door to stun tank (l4d 豬隊友提示)
 * <b>l4d_storm</b>: Control L4d1 skybox/sun color/snow/rain/wind/maplight...and etc
 * <b>sm_l4d_mapchanger</b>: When final stage round ends, auto change next Map based on date/...txt
-* <b>l4dinfectedbots</b>: control and spawn Infected bots, works in l4d1 versus
 * <b>match_vote</b>: type !match/!load/!mode to vote a new mode
 * <b>l4d_drop_secondary</b>: Survivor players will drop their secondary weapon when they die
 * <b>l4d_bw_rock_hit</b>: Stops rocks from passing through soon-to-be-dead Survivors
