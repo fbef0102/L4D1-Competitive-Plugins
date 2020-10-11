@@ -4,7 +4,7 @@ L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun p
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2020/9/15
+> last edited:2020/10/11
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, free to use or pay me money to do it.
 # Require
@@ -87,7 +87,6 @@ If you want any modify or request, free to use or pay me money to do it.
 * <b>hunter_callout_blocker</b>: Stops Survivors from saying 'Hunter!' (sometimets survivors didn't see the silence hunter but their mouth keep saying 'Hunter!')
 * <b>l4d_ladderblock</b>: Prevents people from blocking players who climb on the ladder.
 * <b>l4d_teamshuffle</b>: Allows teamshuffles by voting or admin-forced.
-* <b>l4d_Modo_mix_mm</b>: Left 4 Dead Mix
 * <b>l4d_tankswap</b>: Allows a primary Tank Player to surrender control to one of his teammates
 * <b>l4d_vomit_pounce_fix</b>: Fixed that player whom hunter pounces on will not be biled by a boomer
 * <b>AntiBreach</b>: Disallows special infected from breaching into safe room by preventing them from spawning nearby the safe room door.
