@@ -1,6 +1,6 @@
 Force Enable bosses spawning on all maps, and same spawn positions for both team
 
-surpport value command
+-surpport value convar-
 "versus_tank_chance_intro"
 "versus_tank_chance"
 "versus_tank_chance_finale"

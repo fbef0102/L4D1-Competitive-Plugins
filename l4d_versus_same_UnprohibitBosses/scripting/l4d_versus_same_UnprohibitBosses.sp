@@ -26,8 +26,9 @@ static Handle:g_hCvarVsBossChance[3][2], Handle:g_hCvarVsBossFlow[3][2], Float:g
 static	bool:g_bFixed,Float:g_fTankData_origin[3],Float:g_fTankData_angel[3];
 static 	Float:fWitchData_agnel[3],Float:fWitchData_origin[3];
 static	bool:Tank_firstround_spawn,bool:Witch_firstround_spawn;
-static bool:b_IsSecondWitch;
+static bool:b_IsSecondWitch, bool:b_KillSecondWitch;
 new Float:fWitchFlow;
+new Handle:WITCHPARTY;
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 { 
@@ -81,7 +82,9 @@ public OnPluginStart()
 }
 public TS_ev_RoundStart(Handle:event, const String:name[], bool:dontBroadcast)
 {
+	WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
 	b_IsSecondWitch = false;
+	b_KillSecondWitch = true;
 	
 	CreateTimer(2.5,COLD_DOWN);
 }
@@ -117,7 +120,6 @@ public OnMapStart()
 		L4DDirect_SetVSTankFlowPercent(1, fTankFlow);
 	}
 	
-	new Handle:WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
 	if(WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1)
 	{
 		LogMessage("WITCH PARTY Enable, l4d_versus_same_UnprohibitBosses.smx doesn't spawn Witch");
@@ -220,22 +222,51 @@ public _UB_Common_CvarChange(Handle:convar, const String:oldValue[], const Strin
 	}
 }
 
-public Action:L4D_OnSpawnWitch(const Float:vector[3], const Float:qangle[3])
+public TS_ev_WitchSpawn(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	new Handle:WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
-	if(WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1) return Plugin_Continue;	
+	if( (WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1) || GetConVarInt(FindConVar("sv_cheats")) == 1 ) return;	
 	
+	new iEnt = GetEventInt(event, "witchid");
 	decl String:sMap[64];
 	GetCurrentMap(sMap, 64);
-	if(StrEqual(sMap, "l4d_vs_city17_01")){//issue with city17 map1, two witches spawn in this stage, block second witch spawn
-		if(b_IsSecondWitch){
-			//PrintToChatAll("Blocking witch spawn (l4d_versus_same_UnprohibitBosses)...");
-			return Plugin_Handled;	
+	if(StrEqual(sMap, "l4d_vs_city17_01")){//issue with city17 map1, two witches spawn in this stage, kill second witch spawn
+		if(b_IsSecondWitch && b_KillSecondWitch){
+			//PrintToChatAll("kill city17_01 second witch...");
+			CreateTimer(0.1,ColdDown, iEnt);//延遲一秒檢查
+			b_KillSecondWitch = false;
 		}
 		else
 			b_IsSecondWitch = true;
+	}	
+	
+	if(InSecondHalfOfRound() == false)
+	{
+		if(Witch_firstround_spawn == false)
+		{
+			GetEntPropVector(iEnt, Prop_Send, "m_angRotation", fWitchData_agnel);
+			GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", fWitchData_origin);
+			Witch_firstround_spawn = true;
+			
+			/*for (new index; index < 3; index++){
+				PrintToChatAll("Witch first position: %f, %f",fWitchData_agnel[index], fWitchData_origin[index]);
+			}*/
+		}
 	}
-	return Plugin_Continue;	
+	else
+	{
+		if(Witch_firstround_spawn)
+		{
+			TeleportEntity(iEnt, fWitchData_origin, fWitchData_agnel, NULL_VECTOR);
+			Witch_firstround_spawn = false;
+			//PrintToChatAll("轉換妹子到第一回合的位置");
+		}
+	}
+}
+
+public Action:ColdDown(Handle:timer,any:witchid)
+{
+	if(IsValidEntity(witchid))
+		RemoveEdict(witchid);
 }
 
 public Action:TS_ev_TankSpawn(Handle:event, const String:name[], bool:dontBroadcast)
@@ -285,32 +316,6 @@ static ClearVec()
 	}
 }
 
-public TS_ev_WitchSpawn(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	new Handle:WITCHPARTY = FindConVar("l4d_multiwitch_enabled");
-	if(WITCHPARTY != INVALID_HANDLE && GetConVarInt(WITCHPARTY) == 1) return;	
-	
-	if(GetConVarInt(FindConVar("sv_cheats")) == 1) return;
-	new iEnt = GetEventInt(event, "witchid");
-	if(!InSecondHalfOfRound()&&!Witch_firstround_spawn)
-	{
-		GetEntPropVector(iEnt, Prop_Send, "m_angRotation", fWitchData_agnel);
-		GetEntPropVector(iEnt, Prop_Send, "m_vecOrigin", fWitchData_origin);
-		Witch_firstround_spawn = true;
-		
-		/*for (new index; index < 3; index++){
-			PrintToChatAll("Witch first position: %f, %f",fWitchData_agnel[index], fWitchData_origin[index]);
-		}*/
-	}
-	else
-	{
-		if(Witch_firstround_spawn)
-		{
-			TeleportEntity(iEnt, fWitchData_origin, fWitchData_agnel, NULL_VECTOR);
-			//PrintToChatAll("轉換妹子到第一回合的位置");
-		}
-	}
-}
 bool:Is_Final_Stage()//非官方圖最後一關
 {
 	decl String:mapbuf[32];
