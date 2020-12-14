@@ -16,6 +16,7 @@ new Handle:hCvarHunterCommittedAttackRange;
 new Handle:hCvarHunterPounceReadyRange;
 new Handle:hCvarHunterLeapAwayGiveUpRange; 
 new Handle:hCvarHunterPounceMaxLoftAngle; 
+new Handle:hCvarHunterPounceDamageInterrupt;
 new Handle:hCvarLungeInterval; 
 // Gaussian random number generator for pounce angles
 new Handle:hCvarPounceAngleMean;
@@ -41,10 +42,13 @@ public Hunter_OnModuleStart() {
 	hCvarHunterLeapAwayGiveUpRange = FindConVar("hunter_leap_away_give_up_range"); // range at which shooting a non-committed hunter will cause it to leap away	
 	hCvarLungeInterval = FindConVar("z_lunge_interval"); // cooldown on lunges
 	hCvarHunterPounceMaxLoftAngle = FindConVar("hunter_pounce_max_loft_angle"); // maximum vertical angle hunters can pounce
+	hCvarHunterPounceDamageInterrupt = FindConVar("z_pounce_damage_interrupt");
+	
 	SetConVarInt(hCvarHunterCommittedAttackRange, 10000);
 	SetConVarInt(hCvarHunterPounceReadyRange, 500);
 	SetConVarInt(hCvarHunterLeapAwayGiveUpRange, 0); 
 	SetConVarInt(hCvarHunterPounceMaxLoftAngle, 0);
+	SetConVarInt(hCvarHunterPounceDamageInterrupt, 150);
 	
 	// proximity to nearest survivor when plugin starts to force hunters to lunge ASAP
 	hCvarFastPounceProximity = CreateConVar("ai_fast_pounce_proximity", "1000", "At what distance to start pouncing fast");
@@ -65,8 +69,6 @@ public Hunter_OnModuleStart() {
 									true, 0.0, true, 179.0 );
 	// How far in front of hunter to check for a wall
 	hCvarWallDetectionDistance = CreateConVar("ai_wall_detection_distance", "-1", "How far in front of himself infected bot will check for a wall. Use '-1' to disable feature");
-	
-	SetConVarInt(FindConVar("z_pounce_damage_interrupt"), 150);
 }
 
 public Hunter_OnModuleEnd() {
@@ -75,8 +77,7 @@ public Hunter_OnModuleEnd() {
 	ResetConVar(hCvarHunterPounceReadyRange);
 	ResetConVar(hCvarHunterLeapAwayGiveUpRange);
 	ResetConVar(hCvarHunterPounceMaxLoftAngle);
-	
-	ResetConVar(FindConVar("z_pounce_damage_interrupt"));
+	ResetConVar(hCvarHunterPounceDamageInterrupt);
 }
 
 public Action:Hunter_OnSpawn(botHunter) {

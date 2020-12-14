@@ -1,10 +1,10 @@
-# L4D1-Competitive-Plugins by Harry Potter
+﻿# L4D1-Competitive-Plugins by Harry Potter
 L4D1 Competitive enhancement, bug/glitch fixes, general purpose and freaky-fun plugins.
 * <b>framework</b>: following [L4D2-Competitive-Framework](https://github.com/Attano/L4D2-Competitive-Framework/tree/master/addons/sourcemod/scripting) and [Sir-L4D2-Competitive-Rework](https://github.com/SirPlease/L4D2-Competitive-Rework/tree/master/addons/sourcemod/scripting) I provide L4D1 version.
 * <b>modify</b>: [raziEiL/l4d competitive plugins](https://bitbucket.org/disawar1/l4d-competitive-plugins/src/master/) and [raziEiL/rotoblin2](https://github.com/raziEiL/rotoblin2/tree/master/src) I improve better.
 * <b>fun</b>: some new plugins are just for fun.
 * <b>More</b>: click [here](https://github.com/fbef0102/L4D1_2-Plugins) for more plugins, apply to both L4D1/2
-> last edited:2020/10/19
+> last edited:2020/12/14
 # Appreciate my work, you can [PayPal Donate](https://paypal.me/Harry0215?locale.x=zh_TW) me.
 If you want any modify or request, free to use or pay me money to do it.
 # Require

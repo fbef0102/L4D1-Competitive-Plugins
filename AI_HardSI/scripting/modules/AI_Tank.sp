@@ -19,7 +19,6 @@ new Handle:hCvarTankRock;
 public Tank_OnModuleStart() {
 	hCvarTankBhop = CreateConVar("ai_tank_bhop", "1", "Flag to enable bhop facsimile on AI tanks");
 	hCvarTankRock = CreateConVar("ai_tank_rock", "1", "Flag to enable rocks on AI tanks");
-	
 }
 
 public Tank_OnModuleEnd() {

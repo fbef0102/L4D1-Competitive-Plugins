@@ -23,6 +23,9 @@ public Smoker_OnModuleStart() {
 public Smoker_OnModuleEnd() {
 	ResetConVar(hCvarChokeDamageInterrupt);
 	ResetConVar(hCvarTongueDelay);
+	UnhookConVarChange(hCvarSmokerHealth, ConVarChanged:OnSmokerHealthChanged); 
+	UnhookConVarChange(hCvarTongueDelay, ConVarChanged:OnSmokerHealthChanged); 
+	UnhookConVarChange(hCvarChokeDamageInterrupt, ConVarChanged:OnSmokerHealthChanged); 
 }
 
 // Game tries to reset these cvars

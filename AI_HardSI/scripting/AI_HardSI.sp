@@ -7,36 +7,45 @@
 #include "modules/AI_Smoker.sp"
 #include "modules/AI_Boomer.sp"
 #include "modules/AI_Hunter.sp"
-#include "modules/AI_Witch.sp"
 #include "modules/AI_Tank.sp"
 
 new Handle:hCvarAssaultReminderInterval;
+new Handle:hCvarEnable;
 
 new bool:bHasBeenShoved[MAXPLAYERS]; // shoving resets SI movement 
+new bool:bCvarEnable;
 
 public Plugin:myinfo = 
 {
 	name = "AI: Hard SI",
-	author = "Breezy,l4d1 modify by Harry",
+	author = "Breezy & Harrypotter",
 	description = "Improves the AI behaviour of special infected",
-	version = "1.2",
+	version = "1.3",
 	url = "github.com/breezyplease"
 };
 
 public OnPluginStart() { 
 	// Cvars
+	hCvarEnable = CreateConVar( "AI_HardSI_enable", "1", "1=Plugin on, 0=Plugin off" );
 	hCvarAssaultReminderInterval = CreateConVar( "ai_assault_reminder_interval", "2", "Frequency(sec) at which the 'nb_assault' command is fired to make SI attack" );
+	
+	bCvarEnable = GetConVarBool(hCvarEnable);
+	HookConVarChange(hCvarEnable, ConVarChanged:OnCvarEnableChanged);
+	
 	// Event hooks
 	HookEvent("player_spawn", InitialiseSpecialInfected, EventHookMode_Pre);
 	HookEvent("ability_use", OnAbilityUse, EventHookMode_Pre); 
 	HookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
 	HookEvent("player_left_start_area", LeftStartAreaEvent, EventHookMode_PostNoCopy);
 	// Load modules
-	Smoker_OnModuleStart();
-	Hunter_OnModuleStart();
-	Boomer_OnModuleStart();
-	Witch_OnModuleStart();
-	Tank_OnModuleStart();
+	
+	if(bCvarEnable == true)
+	{
+		Smoker_OnModuleStart();
+		Hunter_OnModuleStart();
+		Boomer_OnModuleStart();
+		Tank_OnModuleStart();
+	}
 }
 
 public OnPluginEnd() {
@@ -44,10 +53,27 @@ public OnPluginEnd() {
 	Smoker_OnModuleEnd();
 	Hunter_OnModuleEnd();
 	Boomer_OnModuleEnd();
-	Witch_OnModuleEnd();
 	Tank_OnModuleEnd();
 }
 
+public OnCvarEnableChanged() {
+	bCvarEnable = GetConVarBool(hCvarEnable);
+	
+	if(bCvarEnable == true)
+	{
+		Hunter_OnModuleStart();
+		Smoker_OnModuleStart();
+		Boomer_OnModuleStart();
+		Tank_OnModuleStart();
+	}
+	else
+	{
+		Hunter_OnModuleEnd();
+		Smoker_OnModuleEnd();
+		Boomer_OnModuleEnd();
+		Tank_OnModuleEnd();
+	}
+}
 /***********************************************************************************************************************************************************************************
 
 																	KEEP SI AGGRESSIVE
@@ -60,7 +86,7 @@ public LeftStartAreaEvent(Handle:event, String:name[], bool:dontBroadcast)
 }
 
 public Action:Timer_ForceInfectedAssault( Handle:timer ) {
-	CheatCommand("nb_assault");
+	if(bCvarEnable) CheatCommand("nb_assault");
 }
 
 /***********************************************************************************************************************************************************************************
@@ -71,6 +97,8 @@ public Action:Timer_ForceInfectedAssault( Handle:timer ) {
 
 // Modify SI movement
 public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:angles[3], &weapon) {
+	if(bCvarEnable == false) return Plugin_Continue;	
+	
 	if( IsBotInfected(client) && IsPlayerAlive(client) ) { // bots continue to trigger this callback for a few seconds after death
 		new botInfected = client;
 		switch( L4D_Infected:GetInfectedClass(botInfected) ) {
@@ -88,6 +116,7 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 			}		
 		}
 	}
+	
 	return Plugin_Continue;
 }
 
@@ -99,6 +128,8 @@ public Action:OnPlayerRunCmd(client, &buttons, &impulse, Float:vel[3], Float:ang
 
 // Initialise relevant module flags for SI when they spawn
 public Action:InitialiseSpecialInfected(Handle:event, String:name[], bool:dontBroadcast) {
+	if(bCvarEnable == false) return Plugin_Continue;	
+	
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if( IsBotInfected(client) ) {
 		new botInfected = client;
@@ -120,6 +151,8 @@ public Action:InitialiseSpecialInfected(Handle:event, String:name[], bool:dontBr
 
 // Modify hunter lunges and block smokers/spitters from fleeing after using their ability
 public Action:OnAbilityUse(Handle:event, String:name[], bool:dontBroadcast) {
+	if(bCvarEnable == false) return Plugin_Continue;
+	
 	new client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if( IsBotInfected(client) ) {
 		new bot = client;
@@ -134,13 +167,6 @@ public Action:OnAbilityUse(Handle:event, String:name[], bool:dontBroadcast) {
 	return Plugin_Handled;
 }
 
-public Action:OnTongueRelease(Handle:event, String:name[], bool:dontBroadcast) {
-	new client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if( IsBotInfected(client) ) {
-		CreateTimer(0.5, Timer_Suicide, any:client, TIMER_FLAG_NO_MAPCHANGE);
-	}
-}
-
 public Action:Timer_Suicide(Handle:timer, any:client) {
 	ForcePlayerSuicide(client);
 	return Plugin_Handled;
@@ -148,6 +174,8 @@ public Action:Timer_Suicide(Handle:timer, any:client) {
 
 // Re-enable forced hopping when a shoved jockey leaps again naturally
 public Action:OnPlayerJump(Handle:event, String:name[], bool:dontBroadcast) {
+	if(bCvarEnable == false) return;
+	
 	new jumpingPlayer = GetClientOfUserId(GetEventInt(event, "userid"));
 	if( IsBotInfected(jumpingPlayer) )  {
 		bHasBeenShoved[jumpingPlayer] = false;
