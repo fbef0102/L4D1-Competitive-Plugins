@@ -94,10 +94,10 @@ public void OnPluginStart()
 	g_hCvarModesOff =		CreateConVar(	"l4d_target_patch_modes_off",		"",					"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
 	g_hCvarModesTog =		CreateConVar(	"l4d_target_patch_modes_tog",		"0",				"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
 	g_hCvarTargets =		CreateConVar(	"l4d_target_patch_targets",			"12",				"0=Off. these Special Infected affected by this plugin: 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank, 15=All. Add numbers together.", CVAR_FLAGS, true, 0.0, true, 15.0 );
-	g_hCvarTarget_Incap =	CreateConVar(	"l4d_target_patch_incap",			"1",				"If 1, Special Infected will not attack the player who is incapacitated.", CVAR_FLAGS, true, 0.0, true, 1.0 );
-	g_hCvarTarget_Pinned =	CreateConVar(	"l4d_target_patch_pinned",			"1",				"If 1, Special Infected will not attack the player who is pinned by another infected.", CVAR_FLAGS, true, 0.0, true, 1.0 );
-	g_hCvarTarget_Hanging =	CreateConVar(	"l4d_target_patch_hanging",			"1",				"If 1, Special Infected will not attack the player who is hanging from ledge.", CVAR_FLAGS, true, 0.0, true, 1.0 );
-	g_hCvarTarget_Vomit =	CreateConVar(	"l4d_target_patch_vomit",			"0",				"If 1, Special Infected will not attack the player who is on vomit.", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarTarget_Incap =	CreateConVar(	"l4d_target_patch_incap",			"1",				"If 1, Special Infected ignores player who is incapacitated.", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarTarget_Pinned =	CreateConVar(	"l4d_target_patch_pinned",			"1",				"If 1, Special Infected ignores player who is pinned by another infected.", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarTarget_Hanging =	CreateConVar(	"l4d_target_patch_hanging",			"1",				"If 1, Special Infected ignores player who is hanging from ledge.", CVAR_FLAGS, true, 0.0, true, 1.0 );
+	g_hCvarTarget_Vomit =	CreateConVar(	"l4d_target_patch_vomit",			"0",				"If 1, Special Infected ignores player who is on vomit.", CVAR_FLAGS, true, 0.0, true, 1.0 );
 	CreateConVar(							"l4d_target_patch_version",			PLUGIN_VERSION,		"Target Patch plugin version.", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 
 	g_hCvarMPGameMode = FindConVar("mp_gamemode");

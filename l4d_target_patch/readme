@@ -1,6 +1,6 @@
 Overrides special infected targeting players.
   * ignore player who is pinned by smoker & hunter.
-  * change target to nearest survivor no matter vomited survivors, vomited specials, incapped, pinned etc.
+  * change target to nearest survivor no matter vomited survivors, vomited specials, incapped, pinned, hanging from ledge etc.
 
 Original plugin: https://forums.alliedmods.net/showthread.php?p=2680135
 
@@ -19,10 +19,12 @@ Original plugin: https://forums.alliedmods.net/showthread.php?p=2680135
 	- Initial release.
   
 -ConVar-
-"l4d_target_patch_allow",			"1",		"0=Plugin off, 1=Plugin on.", CVAR_FLAGS );
-"l4d_target_patch_modes",			"",			"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all).", CVAR_FLAGS );
-"l4d_target_patch_modes_off",		"",			"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none).", CVAR_FLAGS );
-"l4d_target_patch_modes_tog",		"0",		"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together.", CVAR_FLAGS );
-"l4d_target_patch_targets",			"12",		"0=Off. Block these Special Infected from targeting incapped players: 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank, 15=All. Add numbers together.", CVAR_FLAGS );
-"l4d_target_patch_version",			"1.2", 		"Target Patch plugin version."
-
+"l4d_target_patch_allow",			"1",				"0=Plugin off, 1=Plugin on."
+"l4d_target_patch_modes",			"",					"Turn on the plugin in these game modes, separate by commas (no spaces). (Empty = all)."
+"l4d_target_patch_modes_off",		"",					"Turn off the plugin in these game modes, separate by commas (no spaces). (Empty = none)."
+"l4d_target_patch_modes_tog",		"0",				"Turn on the plugin in these game modes. 0=All, 1=Coop, 2=Survival, 4=Versus, 8=Scavenge. Add numbers together."
+"l4d_target_patch_targets",			"12",				"0=Off. these Special Infected affected by this plugin: 1=Smoker, 2=Boomer, 4=Hunter, 8=Tank, 15=All. Add numbers together."
+"l4d_target_patch_incap",			"1",				"If 1, Special Infected ignores player who is incapacitated."
+"l4d_target_patch_pinned",			"1",				"If 1, Special Infected ignores player who is pinned by another infected."
+"l4d_target_patch_hanging",			"1",				"If 1, Special Infected ignores player who is hanging from ledge."
+"l4d_target_patch_vomit",			"0",				"If 1, Special Infected ignores player who is on vomit."
