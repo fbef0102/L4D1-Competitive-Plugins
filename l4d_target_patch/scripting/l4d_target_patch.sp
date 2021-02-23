@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION 		"1.3"
+#define PLUGIN_VERSION 		"1.4"
 
 /*=======================================================================================
 	Plugin Info:
@@ -11,6 +11,9 @@
 
 ========================================================================================
 	Change Log:
+1.4 (23-Feb-2021)
+	- fixed m_isIT not found
+
 1.3 (20-Feb-2021)
 	- Add more convars
 
@@ -43,7 +46,7 @@ int g_iCvarTargets;
 bool g_bCvarAllow, g_bCvarTarget_Incap, g_bCvarTarget_Pinned,
 	g_bCvarTarget_Hanging, g_bCvarTarget_Vomit;
 Handle g_hDetour;
-
+bool g_bPinBoomer[MAXPLAYERS+1];
 
 
 // ====================================================================================================
@@ -157,12 +160,20 @@ void IsAllowed()
 
 	if( g_bCvarAllow == false && bCvarAllow == true && bAllowMode == true )
 	{
+		HookEvent("player_spawn",					Event_PlayerSpawn);
+		HookEvent("round_start",					Event_RoundStart);
+		HookEvent("player_now_it",					Event_BoomerStart);		// Boomer
+		HookEvent("player_no_longer_it",			Event_BoomerEnd);
 		DetourAddress(true);
 		g_bCvarAllow = true;
 	}
 
 	else if( g_bCvarAllow == true && (bCvarAllow == false || bAllowMode == false) )
 	{
+		UnhookEvent("player_spawn",					Event_PlayerSpawn);
+		UnhookEvent("round_start",					Event_RoundStart);
+		UnhookEvent("player_now_it",				Event_BoomerStart);		// Boomer
+		UnhookEvent("player_no_longer_it",			Event_BoomerEnd);
 		DetourAddress(false);
 		g_bCvarAllow = false;
 	}
@@ -231,6 +242,35 @@ public void OnGamemode(const char[] output, int caller, int activator, float del
 		g_iCurrentMode = 8;
 }
 
+
+// ====================================================================================================
+//					EVENT
+// ====================================================================================================
+public void Event_RoundStart(Event event, const char[] name, bool dontBroadcast)
+{
+	for( int i = 0; i <= MaxClients; i++ )
+	{
+		ResetVars(i);
+	}
+}
+
+public void Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	ResetVars(client);
+}
+
+public void Event_BoomerStart(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	g_bPinBoomer[client] = true;
+}
+
+public void Event_BoomerEnd(Event event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(event.GetInt("userid"));
+	g_bPinBoomer[client] = false;
+}
 
 
 // ====================================================================================================
@@ -340,7 +380,7 @@ public bool IsPlayerPinned(int client)
 
 public bool IsPlayerOnVomit(int client)
 {
-	return view_as<bool>(GetEntPropEnt(client, Prop_Send, "m_isIT"));
+	return g_bPinBoomer[client];
 }
 
 public bool IsHandingFromLedge(int client)
@@ -351,4 +391,9 @@ public bool IsHandingFromLedge(int client)
 public bool IsIncapacitated(int client)
 {
 	return view_as<bool>(GetEntProp(client, Prop_Send, "m_isIncapacitated"));
+}
+
+void ResetVars(int client)
+{
+	g_bPinBoomer[client] = false;
 }

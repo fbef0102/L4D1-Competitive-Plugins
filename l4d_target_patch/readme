@@ -5,6 +5,9 @@ Overrides special infected targeting players.
 Original plugin: https://forums.alliedmods.net/showthread.php?p=2680135
 
 -Change Log-
+1.4 (23-Feb-2021)
+	- fixed m_isIT not found
+	
 1.3 (20-Feb-2021)
 	- Add more convars
 
