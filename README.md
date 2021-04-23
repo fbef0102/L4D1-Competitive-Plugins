@@ -80,7 +80,6 @@ If you want any modify or request, free to use or pay me money to do it.
 * <b>l4d_current_survivor_progress</b>: Print survivor progress in flow percents
 * <b>l4d_thirdpersonshoulderblock</b>: Spectates clients who enable the thirdpersonshoulder mode on L4D1/2 to prevent them from looking around corners, through walls etc.
 * <b>l4d_versus_specListener3.0</b>: Allows spectator listen others team voice for l4d
-* <b>l4d_texture_manager_block</b>: Kicks out clients who are potentially attempting to enable mathack
 * <b>AI_HardSI</b>: Improves the AI behaviour of special infected
 * <b>finalefix</b>: Kills survivors before the score is calculated so they don't get full distance and health bonus if they are incapped as the rescue vehicle leaves.
 * <b>l4d_slot_vote</b>: Allow players to change server slots by using vote.
