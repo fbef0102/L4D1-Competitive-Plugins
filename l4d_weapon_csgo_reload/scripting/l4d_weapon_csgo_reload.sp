@@ -46,7 +46,7 @@ public Plugin myinfo =
 	name = "weapon csgo reload",
 	author = "Harry Potter",
 	description = "reload like csgo weapon",
-	version = "1.8",
+	version = "2.1",
 	url = "https://forums.alliedmods.net/showthread.php?t=318820"
 };
 
@@ -181,13 +181,6 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 						data.WriteCell(weaponid);
 						data.Reset();
 						RequestFrame(RecoverWeaponClip, data);
-
-						/*Handle pack;
-						CreateDataTimer(0.1, RecoverWeaponClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-						WritePackCell(pack, client);
-						WritePackCell(pack, iCurrentWeapon);
-						WritePackCell(pack, previousclip);
-						WritePackCell(pack, weaponid);*/
 					}
 				}
 				default:
@@ -203,6 +196,7 @@ public void RecoverWeaponClip(DataPack data) {
 	int CurrentWeapon = data.ReadCell();
 	int previousclip = data.ReadCell();
 	WeaponID weaponid = data.ReadCell();
+	delete data;
 	int nowweaponclip;
 	
 	if ((nowweaponclip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] || //CurrentWeapon complete reload finished
@@ -222,47 +216,8 @@ public void RecoverWeaponClip(DataPack data) {
 		SetWeaponAmmo(client,WeaponAmmoOffest[weaponid],ammo);
 		SetWeaponClip(CurrentWeapon,previousclip);
 	}
-
-	data.Close();
 } 
-/*
-public Action RecoverWeaponClip(Handle timer, Handle pack)
-{
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	int CurrentWeapon = ReadPackCell(pack);
-	int previousclip = ReadPackCell(pack);
-	WeaponID weaponid = ReadPackCell(pack);
-	int nowweaponclip;
-	
-	if (CurrentWeapon == -1 || //CurrentWeapon drop
-	!IsValidEntity(CurrentWeapon) ||
-	client == 0 || //client disconnected
-	!IsClientInGame(client) || 
-	!IsPlayerAlive(client) ||
-	GetClientTeam(client)!=2 ||
-	!HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") ||
-	GetEntProp(CurrentWeapon, Prop_Send, "m_bInReload") == 0 || //reload interrupted
-	(nowweaponclip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] || //CurrentWeapon complete reload finished
-	nowweaponclip == previousclip //CurrentWeapon clip has been recovered
-	)
-	{
-		return Plugin_Handled;
-	}
-	
-	if (nowweaponclip < WeaponMaxClip[weaponid] && nowweaponclip == 0)
-	{
-		int ammo = GetWeaponAmmo(client, WeaponAmmoOffest[weaponid]);
-		ammo -= previousclip;
-		#if DEBUG
-			PrintToChatAll("CurrentWeapon clip recovered");
-		#endif
-		SetWeaponAmmo(client,WeaponAmmoOffest[weaponid],ammo);
-		SetWeaponClip(CurrentWeapon,previousclip);
-	}
-	return Plugin_Handled;
-}
-*/
+
 public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -298,22 +253,22 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 	Handle pack;
 	switch(weaponid)
 	{
-		case ID_SMG: CreateDataTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case ID_RIFLE: CreateDataTimer(g_RifleTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
-		case ID_HUNTING_RIFLE: CreateDataTimer(g_HuntingRifleTimeCvar, WeaponReloadClip, pack,TIMER_FLAG_NO_MAPCHANGE);
+		case ID_SMG: CreateTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+		case ID_RIFLE: CreateTimer(g_RifleTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
+		case ID_HUNTING_RIFLE: CreateTimer(g_HuntingRifleTimeCvar, WeaponReloadClip, pack,TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 		case ID_PISTOL: 
 		{
 			if(IsIncapacitated(client))
-				CreateDataTimer(g_PistolTimeCvar * PISTOL_RELOAD_INCAP_MULTIPLY, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(g_PistolTimeCvar * PISTOL_RELOAD_INCAP_MULTIPLY, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 			else
-				CreateDataTimer(g_PistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(g_PistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 		}
 		case ID_DUAL_PISTOL:
 		{
 			if(IsIncapacitated(client))
-			    CreateDataTimer(g_DualPistolTimeCvar * PISTOL_RELOAD_INCAP_MULTIPLY, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+			    CreateTimer(g_DualPistolTimeCvar * PISTOL_RELOAD_INCAP_MULTIPLY, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 			else
-				CreateDataTimer(g_DualPistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE);
+				CreateTimer(g_DualPistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 		}
 		default: return Plugin_Continue;
 	}
@@ -347,7 +302,7 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 	(clip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] //CurrentWeapon complete reload finished
 	)
 	{
-		return Plugin_Handled;
+		return Plugin_Continue;
 	}
 		
 	if (clip < WeaponMaxClip[weaponid])
@@ -381,13 +336,9 @@ public Action WeaponReloadClip(Handle timer, Handle pack)
 				#endif
 				SetWeaponClip(CurrentWeapon,WeaponMaxClip[weaponid]);
 			}
-			default:
-			{
-				return Plugin_Handled;
-			}
 		}
 	}
-	return Plugin_Handled;
+	return Plugin_Continue;
 }
 
 public void ConVarChange_CvarChanged(ConVar convar, const char[] oldValue, const char[] newValue)
