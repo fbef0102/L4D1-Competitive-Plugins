@@ -24,10 +24,10 @@ int WeaponAmmoOffest[view_as<int>(ID_WEAPON_MAX)];
 int WeaponMaxClip[view_as<int>(ID_WEAPON_MAX)];
 
 //cvars
-ConVar hEnableReloadClipCvar, hEnableClipRecoverCvar, hSmgTimeCvar, hRifleTimeCvar, hHuntingRifleTimeCvar, hPistolTimeCvar, hDualPistolTimeCvar;
+ConVar hEnable, hEnableClipRecoverCvar, hSmgTimeCvar, hRifleTimeCvar, hHuntingRifleTimeCvar, hPistolTimeCvar, hDualPistolTimeCvar;
 ConVar hDualPistolClipCvar, hSmgClipCvar, hPistolClipCvar, hRifleClipCvar, hHuntingRifleClipCvar;
 
-bool g_EnableReloadClipCvar;
+bool g_bEnable;
 bool g_EnableClipRecoverCvar;
 float g_SmgTimeCvar;
 float g_RifleTimeCvar;
@@ -66,8 +66,8 @@ public void OnPluginStart()
 {
 	ammoOffset = FindSendPropInfo("CCSPlayer", "m_iAmmo");
 
-	hEnableReloadClipCvar	= CreateConVar("l4d_weapon_csgo_reload_allow", 		"1", 	"0=off plugin, 1=on plugin"				 , FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hEnableClipRecoverCvar	= CreateConVar("l4d_enable_clip_recover", 			"1", 	"enable previous clip recover?"			 , FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hEnable					= CreateConVar("l4d_weapon_csgo_reload_allow", 		"1", 	"0=off plugin, 1=on plugin"				 , FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hEnableClipRecoverCvar	= CreateConVar("l4d_weapon_csgo_reload_clip_recover", "1", 	"enable previous clip recover?"			 , FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	hSmgTimeCvar			= CreateConVar("l4d_smg_reload_clip_time", 			"1.65", "reload time for smg clip"				 , FCVAR_NOTIFY, true, 0.0);
 	hRifleTimeCvar			= CreateConVar("l4d_rifle_reload_clip_time", 		"1.2",  "reload time for rifle clip"			 , FCVAR_NOTIFY, true, 0.0);
 	hHuntingRifleTimeCvar   = CreateConVar("l4d_huntingrifle_reload_clip_time", "2.6",  "reload time for hunting rifle clip"	 , FCVAR_NOTIFY, true, 0.0);
@@ -81,8 +81,7 @@ public void OnPluginStart()
 	
 
 	GetCvars();
-	
-	hEnableReloadClipCvar.AddChangeHook(ConVarChange_CvarChanged);
+	hEnable.AddChangeHook(ConVarChange_CvarChanged);
 	hEnableClipRecoverCvar.AddChangeHook(ConVarChange_CvarChanged);
 	hSmgTimeCvar.AddChangeHook(ConVarChange_CvarChanged);
 	hRifleTimeCvar.AddChangeHook(ConVarChange_CvarChanged);
@@ -147,7 +146,7 @@ public void SetWeaponMaxClip()
 
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon)
 {
-	if(g_EnableReloadClipCvar == false || g_EnableClipRecoverCvar == false)	return Plugin_Continue;
+	if(g_bEnable == false || g_EnableClipRecoverCvar == false)	return Plugin_Continue;
 	
 	if (IsClientInGame(client) && !IsFakeClient(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client) && buttons & IN_RELOAD) //If survivor alive player is holding weapon and wants to reload
 	{
@@ -175,8 +174,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					if (0 < previousclip && previousclip < MaxClip)	//If the his current mag equals the maximum allowed, remove reload from buttons
 					{
 						DataPack data = new DataPack();
-						data.WriteCell(client);
-						data.WriteCell(iCurrentWeapon);
+						data.WriteCell(GetClientUserId(client));
+						data.WriteCell(EntIndexToEntRef(iCurrentWeapon));
 						data.WriteCell(previousclip);
 						data.WriteCell(weaponid);
 						data.Reset();
@@ -192,19 +191,22 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 }
 
 public void RecoverWeaponClip(DataPack data) { 
-	int client = data.ReadCell();
-	int CurrentWeapon = data.ReadCell();
+	int client = GetClientOfUserId(data.ReadCell());
+	int CurrentWeapon = EntRefToEntIndex(data.ReadCell());
 	int previousclip = data.ReadCell();
 	WeaponID weaponid = data.ReadCell();
 	delete data;
 	int nowweaponclip;
 	
-	if ((nowweaponclip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] || //CurrentWeapon complete reload finished
-	nowweaponclip == previousclip //CurrentWeapon clip has been recovered
+	if (!IsValidAliveSurvivor(client) || //client wrong
+		CurrentWeapon == INVALID_ENT_REFERENCE || //weapon entity wrong
+		(nowweaponclip = GetWeaponClip(CurrentWeapon)) >= WeaponMaxClip[weaponid] || //CurrentWeapon complete reload finished
+		nowweaponclip == previousclip //CurrentWeapon clip has been recovered
 	)
 	{
 		return;
 	}
+	
 	
 	if (nowweaponclip < WeaponMaxClip[weaponid] && nowweaponclip == 0)
 	{
@@ -218,23 +220,17 @@ public void RecoverWeaponClip(DataPack data) {
 	}
 } 
 
-public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBroadcast)
+public void OnWeaponReload_Event(Event event, const char[] name, bool dontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	int client = GetClientOfUserId(event.GetInt("userid"));
 		
-	if (client < 1 || 
-		client > MaxClients ||
-		!IsClientInGame(client) ||
-		IsFakeClient(client) ||
-		GetClientTeam(client) != 2 ||
-		g_EnableReloadClipCvar == false) //disable this plugin
-		return Plugin_Continue;
-	
+	if (!IsValidAliveSurvivor(client) || g_bEnable == false)
+		return;
 
 	int iCurrentWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon"); //抓人類目前裝彈的武器
 	if (iCurrentWeapon == -1 || !IsValidEntity(iCurrentWeapon))
 	{
-		return Plugin_Continue;
+		return;
 	}
 	
 	g_hClientReload_Time[client] = GetEngineTime();
@@ -250,7 +246,7 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 		} 
 	#endif
 	
-	Handle pack;
+	DataPack pack = new DataPack();
 	switch(weaponid)
 	{
 		case ID_SMG: CreateTimer(g_SmgTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
@@ -270,36 +266,33 @@ public Action OnWeaponReload_Event(Handle event, const char[] name, bool dontBro
 			else
 				CreateTimer(g_DualPistolTimeCvar, WeaponReloadClip, pack, TIMER_FLAG_NO_MAPCHANGE|TIMER_DATA_HNDL_CLOSE);
 		}
-		default: return Plugin_Continue;
+		default: 
+		{
+			delete pack;
+			return;
+		}
 	}
-	WritePackCell(pack, client);
-	WritePackCell(pack, iCurrentWeapon);
-	WritePackCell(pack, weaponid);
-	WritePackCell(pack, g_hClientReload_Time[client]);
 	
-	
-	return Plugin_Continue;
+	pack.WriteCell(GetClientUserId(client));
+	pack.WriteCell(EntIndexToEntRef(iCurrentWeapon));
+	pack.WriteCell(weaponid);
+	pack.WriteCell(g_hClientReload_Time[client]);
 }
 
-public Action WeaponReloadClip(Handle timer, Handle pack)
+public Action WeaponReloadClip(Handle timer, DataPack pack)
 {
-	ResetPack(pack);
-	int client = ReadPackCell(pack);
-	int CurrentWeapon = ReadPackCell(pack);
-	WeaponID weaponid = ReadPackCell(pack);
-	float reloadtime = ReadPackCell(pack);
+	pack.Reset();
+	int client = GetClientOfUserId(pack.ReadCell());
+	int CurrentWeapon = EntRefToEntIndex(pack.ReadCell());
+	WeaponID weaponid = pack.ReadCell();
+	float reloadtime = pack.ReadCell();
 	int clip;
 	
 	if ( reloadtime != g_hClientReload_Time[client] || //裝彈時間被刷新
-	CurrentWeapon == -1 || //CurrentWeapon drop
-	!IsValidEntity(CurrentWeapon) || 
-	client == 0 || //client disconnected
-	!IsClientInGame(client) ||
-	!IsPlayerAlive(client) ||
-	GetClientTeam(client)!=2 ||
-	!HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") ||
-	GetEntProp(CurrentWeapon, Prop_Send, "m_bInReload") == 0 || //reload interrupted
-	(clip = GetWeaponClip(CurrentWeapon)) == WeaponMaxClip[weaponid] //CurrentWeapon complete reload finished
+		!IsValidAliveSurvivor(client) || //client wrong
+		CurrentWeapon == INVALID_ENT_REFERENCE || //weapon entity wrong
+		HasEntProp(CurrentWeapon, Prop_Send, "m_bInReload") == false || GetEntProp(CurrentWeapon, Prop_Send, "m_bInReload") == 0 || //reload interrupted
+		(clip = GetWeaponClip(CurrentWeapon)) >= WeaponMaxClip[weaponid] //CurrentWeapon complete reload finished
 	)
 	{
 		return Plugin_Continue;
@@ -353,7 +346,7 @@ public void ConVarChange_MaxClipChanged(ConVar convar, const char[] oldValue, co
 
 void GetCvars()
 {
-	g_EnableReloadClipCvar  = hEnableReloadClipCvar.BoolValue;
+	g_bEnable  = hEnable.BoolValue;
 	g_EnableClipRecoverCvar = hEnableClipRecoverCvar.BoolValue;
 	g_SmgTimeCvar = hSmgTimeCvar.FloatValue;
 	g_RifleTimeCvar = hRifleTimeCvar.FloatValue;
@@ -405,4 +398,11 @@ stock WeaponID GetWeaponID(int weapon,const char[] weapon_name)
 		}
 	}
 	return ID_NONE;
+}
+
+bool IsValidAliveSurvivor(int client) 
+{
+    if ( 1 <= client <= MaxClients && IsClientInGame(client) && GetClientTeam(client) == 2 && IsPlayerAlive(client)) 
+		return true;      
+    return false; 
 }
